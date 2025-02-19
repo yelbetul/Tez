@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('diagnosis_code');
             $table->string('group_code',3);
             $table->string('group_name',255);
-            $table->string('sub_group_code',3);
+            $table->string('sub_group_code',6);
             $table->string('sub_group_name',255);
             $table->timestamps();
         });
