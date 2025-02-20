@@ -156,8 +156,25 @@ class WorkAccidentsByProvinceController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(WorkAccidentsByProvince $workAccidentsByProvince)
+    public function destroy($id)
     {
-        //
+
+        $workAccident = WorkAccidentsByProvince::find($id);
+
+        // Kayıt bulunmazsa hata döndür
+        if (!$workAccident) {
+            return response()->json(['success' => false, 'message' => 'Kayıt bulunamadı.'], 404);
+        }
+
+        // Kayıt sil
+        $result = $workAccident->delete();
+
+        // Silme işlemi başarılıysa başarılı mesajı döndür
+        if ($result) {
+            return response()->json(['success' => true, 'message' => 'Kayıt başarıyla silindi.']);
+        } else {
+            // Silme işlemi başarısızsa hata döndür
+            return response()->json(['success' => false, 'message' => 'Kayıt silinirken hata oluştu.']);
+        }
     }
 }
