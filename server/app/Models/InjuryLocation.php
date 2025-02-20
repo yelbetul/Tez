@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class InjuryLocation extends Model
 {
@@ -13,4 +14,12 @@ class InjuryLocation extends Model
         'sub_group_code',
         'sub_group_name',
     ];
+
+    /**
+     * Get all accidents and fatalities for the injury location.
+     */
+    public function accidentsAndFatalitiesByInjuryLocation(): HasMany
+    {
+        return $this->hasMany(AccidentsAndFatalitiesByInjuryLocation::class, 'group_id', 'id');
+    }
 }

@@ -13,4 +13,11 @@ class Material extends Model
         'sub_group_code',
         'sub_group_name',
     ];
+    /**
+     * Bu materyale ait kazalar ve ölümler.
+     */
+    public function accidentsAndFatalitiesByMaterial()
+    {
+        return $this->hasMany(AccidentsAndFatalitiesByMaterial::class, 'group_id', 'id');
+    }
 }

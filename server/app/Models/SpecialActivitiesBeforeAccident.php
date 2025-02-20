@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SpecialActivitiesBeforeAccident extends Model
 {
@@ -13,4 +14,11 @@ class SpecialActivitiesBeforeAccident extends Model
         'sub_group_code',
         'sub_group_name',
     ];
+    /**
+     * Get all accidents and fatalities related to the special activity before accident.
+     */
+    public function accidentsAndFatalitiesBySpecialActivityBeforeAccident(): HasMany
+    {
+        return $this->hasMany(AccidentsAndFatalitiesBySpecialActivityBeforeAccident::class, 'group_id', 'id');
+    }
 }

@@ -17,20 +17,29 @@ class SectorCode extends Model
         'pure_name',
     ];
     /**
-     * Get all of the temporary_disability_days_by_sector for the SectorCode
+     * Get all of the workAccidentsBySector for the SectorCode
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function temporary_disability_days_by_sector(): HasMany
+    public function workAccidentsBySector(): HasMany
+    {
+        return $this->hasMany(WorkAccidentsBySector::class, 'group_id', 'id');
+    }
+    /**
+     * Get all of the temporaryDisabilityDaysBySector for the SectorCode
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function temporaryDisabilityDaysBySector(): HasMany
     {
         return $this->hasMany(TemporaryDisabilityDaysBySector::class, 'group_id', 'id');
     }
     /**
-     * Get all of the fatal_work_accidents_by_sector for the SectorCode
+     * Get all of the fatalWorkAccidentsBySector for the SectorCode
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function fatal_work_accidents_by_sector(): HasMany
+    public function fatalWorkAccidentsBySector(): HasMany
     {
         return $this->hasMany(FatalWorkAccidentsBySector::class, 'group_id', 'id ');
     }
