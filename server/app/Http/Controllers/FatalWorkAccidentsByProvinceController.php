@@ -36,7 +36,7 @@ class FatalWorkAccidentsByProvinceController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()]);
         }
 
         return null;
@@ -104,6 +104,7 @@ class FatalWorkAccidentsByProvinceController extends Controller
             return response()->json(['success' => false, 'message' => 'Veri kaydedilirken hata oluştu.'], 500);
         }
     }
+
 
     /**
      * Kayıt güncelleme (UPDATE).

@@ -11,10 +11,7 @@ class WorkAccidentsBySectorController extends Controller
 {
     public function validateRequest($request, $type = 'store')
     {
-        // Dil ayarını Türkçe yap
         App::setLocale('tr');
-
-        // Store ve update için kurallar
         $rules = [];
 
         if ($type === 'store') {
@@ -45,10 +42,8 @@ class WorkAccidentsBySectorController extends Controller
             ];
         }
 
-        // Validator oluştur
         $validator = Validator::make($request->all(), $rules);
 
-        // Hata varsa döndür
         if ($validator->fails()) {
             return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
         }
@@ -72,7 +67,14 @@ class WorkAccidentsBySectorController extends Controller
         $data = WorkAccidentsBySector::where('year', $year)->get();
         return response()->json($data);
     }
-
+    /**
+     * Cinsiyete göre verileri listele.
+     */
+    public function indexByGender($gender)
+    {
+        $data = WorkAccidentsBySector::where('gender', $gender)->get();
+        return response()->json($data);
+    }
     /**
      * Grup ID'ye göre verileri listele.
      */

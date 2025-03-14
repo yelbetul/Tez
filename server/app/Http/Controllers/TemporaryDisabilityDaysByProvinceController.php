@@ -16,7 +16,6 @@ class TemporaryDisabilityDaysByProvinceController extends Controller
     {
         App::setLocale('tr');
 
-        // Store ve update için kurallar
         $rules = [];
 
         if ($type === 'store') {
@@ -47,10 +46,8 @@ class TemporaryDisabilityDaysByProvinceController extends Controller
             ];
         }
 
-        // Validator oluştur
         $validator = Validator::make($request->all(), $rules);
 
-        // Hata varsa döndür
         if ($validator->fails()) {
             return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
         }
@@ -137,7 +134,11 @@ class TemporaryDisabilityDaysByProvinceController extends Controller
             return $validation;
         }
 
-        $temporaryDisability = TemporaryDisabilityDaysByProvince::findOrFail($id);
+        $temporaryDisability = TemporaryDisabilityDaysByProvince::find($id);
+
+        if (!$temporaryDisability) {
+            return response()->json(['success' => false, 'message' => 'Kayıt bulunamadı.']);
+        }
 
         $temporaryDisability->year                      = $request->year ?? $temporaryDisability->year;
         $temporaryDisability->province_id               = $request->province_id ?? $temporaryDisability->province_id;

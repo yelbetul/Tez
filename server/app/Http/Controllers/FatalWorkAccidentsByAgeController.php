@@ -4,62 +4,167 @@ namespace App\Http\Controllers;
 
 use App\Models\FatalWorkAccidentsByAge;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Validator;
 
 class FatalWorkAccidentsByAgeController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Validasyon Fonksiyonu
+     */
+    public function validateRequest($request, $type = 'store')
+    {
+        App::setLocale('tr');
+
+        if ($type === 'store') {
+            $rules = [
+                'year'                            => 'required|string|max:4',
+                'age_id'                          => 'required|integer|exists:age_codes,id',
+                'gender'                          => 'required|boolean',
+                'work_accident_fatalities'        => 'required|integer',
+                'occupational_disease_fatalities' => 'required|integer',
+            ];
+        } elseif ($type === 'update') {
+            $rules = [
+                'year'                            => 'sometimes|string|max:4',
+                'age_id'                          => 'sometimes|integer|exists:age_codes,id',
+                'gender'                          => 'sometimes|boolean',
+                'work_accident_fatalities'        => 'sometimes|integer',
+                'occupational_disease_fatalities' => 'sometimes|integer',
+            ];
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first()
+            ]);
+        }
+
+        return null;
+    }
+
+    /**
+     * Tüm İş kazası kayıtlarını listele.
      */
     public function index()
     {
-        //
+        $records = FatalWorkAccidentsByAge::all();
+        return response()->json([
+            'success' => true,
+            'data'    => $records
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function indexByYear($year)
     {
-        //
+        $data = FatalWorkAccidentsByAge::where('year', $year)->get();
+        return response()->json($data);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Route üzerinden gelen age_id parametresine göre kayıtları filtrele.
+     */
+    public function indexByAge($ageId)
+    {
+        $records = FatalWorkAccidentsByAge::where('age_id', $ageId)->with('age')->get();
+        return response()->json([
+            'success' => true,
+            'data'    => $records
+        ]);
+    }
+
+    /**
+     * Yeni İş kazası kaydı oluştur.
      */
     public function store(Request $request)
     {
-        //
+        $validation = $this->validateRequest($request, 'store');
+        if ($validation) {
+            return $validation;
+        }
+
+        $record = new FatalWorkAccidentsByAge();
+        $record->year = $request->year;
+        $record->age_id = $request->age_id;
+        $record->gender = $request->gender;
+        $record->work_accident_fatalities = $request->work_accident_fatalities;
+        $record->occupational_disease_fatalities = $request->occupational_disease_fatalities;
+
+        $result = $record->save();
+
+        if ($result) {
+            return response()->json([
+                'success' => true,
+                'message' => 'İş kazası kaydı başarıyla oluşturuldu.',
+                'data'    => $record
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'İş kazası kaydı oluşturulurken hata oluştu.'
+            ]);
+        }
     }
 
     /**
-     * Display the specified resource.
+     * Varolan İş kazası kaydını güncelle.
      */
-    public function show(FatalWorkAccidentsByAge $fatalWorkAccidentsByAge)
+    public function update(Request $request, $id)
     {
-        //
+        $record = FatalWorkAccidentsByAge::find($id);
+        if (!$record) {
+            return response()->json([
+                'success' => false,
+                'message' => 'İş kazası kaydı bulunamadı!'
+            ]);
+        }
+
+        $validation = $this->validateRequest($request, 'update');
+        if ($validation) {
+            return $validation;
+        }
+
+        $record->year = $request->year ?? $record->year;
+        $record->age_id = $request->age_id ?? $record->age_id;
+        $record->gender = $request->gender ?? $record->gender;
+        $record->work_accident_fatalities = $request->work_accident_fatalities ?? $record->work_accident_fatalities;
+        $record->occupational_disease_fatalities = $request->occupational_disease_fatalities ?? $record->occupational_disease_fatalities;
+
+        $result = $record->save();
+
+        if ($result) {
+            return response()->json([
+                'success' => true,
+                'message' => 'İş kazası kaydı başarıyla güncellendi.',
+                'data'    => $record
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'İş kazası kaydı güncellenirken hata oluştu.'
+            ]);
+        }
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * İlgili İş kazası kaydını sil.
      */
-    public function edit(FatalWorkAccidentsByAge $fatalWorkAccidentsByAge)
+    public function destroy($id)
     {
-        //
-    }
+        $record = FatalWorkAccidentsByAge::find($id);
+        if (!$record) {
+            return response()->json([
+                'success' => false,
+                'message' => 'İş kazası kaydı bulunamadı!'
+            ]);
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, FatalWorkAccidentsByAge $fatalWorkAccidentsByAge)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(FatalWorkAccidentsByAge $fatalWorkAccidentsByAge)
-    {
-        //
+        $record->delete();
+        return response()->json([
+            'success' => true,
+            'message' => 'İş kazası kaydı başarıyla silindi.'
+        ]);
     }
 }

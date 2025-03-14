@@ -11,10 +11,8 @@ class WorkAccidentsByProvinceController extends Controller
 {
     public function validateRequest($request, $type = 'store')
     {
-        // Dil ayarını Türkçe yap
         App::setLocale('tr');
 
-        // Store ve update için kurallar
         $rules = [];
 
         if ($type === 'store') {
@@ -44,11 +42,8 @@ class WorkAccidentsByProvinceController extends Controller
                 'occupational_disease_cases' => 'sometimes|integer|min:0|max:127',
             ];
         }
-
-        // Validator oluştur
         $validator = Validator::make($request->all(), $rules);
 
-        // Hata varsa döndür
         if ($validator->fails()) {
             return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
         }
@@ -95,13 +90,11 @@ class WorkAccidentsByProvinceController extends Controller
 
     public function store(Request $request)
     {
-        // Validation kısmını geçtikten sonra
         $validation = $this->validateRequest($request, 'store');
         if ($validation) {
             return $validation;
         }
 
-        // Veriyi oluştur
         $workAccident = new WorkAccidentsByProvince();
         $workAccident->year                      = $request->year;
         $workAccident->province_id               = $request->province_id; // Province ID
@@ -125,13 +118,11 @@ class WorkAccidentsByProvinceController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Validation kısmını geçtikten sonra
         $validation = $this->validateRequest($request, 'update');
         if ($validation) {
             return $validation;
         }
 
-        // Veriyi bul ve güncelle
         $workAccident = WorkAccidentsByProvince::findOrFail($id);
 
         $workAccident->year                      = $request->year ?? $workAccident->year;
@@ -158,23 +149,23 @@ class WorkAccidentsByProvinceController extends Controller
      */
     public function destroy($id)
     {
-
         $workAccident = WorkAccidentsByProvince::find($id);
-
-        // Kayıt bulunmazsa hata döndür
         if (!$workAccident) {
-            return response()->json(['success' => false, 'message' => 'Kayıt bulunamadı.'], 404);
+            return response()->json(['success' => false, 'message' => 'Kayıt bulunamadı.']);
         }
 
-        // Kayıt sil
         $result = $workAccident->delete();
 
-        // Silme işlemi başarılıysa başarılı mesajı döndür
         if ($result) {
-            return response()->json(['success' => true, 'message' => 'Kayıt başarıyla silindi.']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Kayıt başarıyla silindi.'
+            ]);
         } else {
-            // Silme işlemi başarısızsa hata döndür
-            return response()->json(['success' => false, 'message' => 'Kayıt silinirken hata oluştu.']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Kayıt silinirken hata oluştu.'
+            ]);
         }
     }
 }

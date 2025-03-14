@@ -8,6 +8,39 @@ use Illuminate\Support\Facades\Validator;
 
 class FatalWorkAccidentsBySectorController extends Controller
 {
+    /**
+     * Validasyonların yapıldığı fonksiyon.
+     */
+    public function validateRequest($request, $type = 'store')
+    {
+        $rules = [];
+
+        if ($type === 'store') {
+            $rules = [
+                'year' => 'required|string|max:4',
+                'group_id' => 'required|exists:sector_codes,id',
+                'gender' => 'required|boolean',
+                'work_accident_fatalities' => 'required|integer|min:0',
+                'occupational_disease_fatalities' => 'required|integer|min:0',
+            ];
+        } elseif ($type === 'update') {
+            $rules = [
+                'year' => 'sometimes|string|max:4',
+                'group_id' => 'sometimes|exists:sector_codes,id',
+                'gender' => 'sometimes|boolean',
+                'work_accident_fatalities' => 'sometimes|integer|min:0',
+                'occupational_disease_fatalities' => 'sometimes|integer|min:0',
+            ];
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
+        }
+
+        return null;
+    }
 
     /**
      * Tüm verileri listele.
@@ -152,39 +185,5 @@ class FatalWorkAccidentsBySectorController extends Controller
         } else {
             return response()->json(['success' => false, 'message' => 'Kayıt silinirken hata oluştu.'], 500);
         }
-    }
-
-    /**
-     * Validasyonların yapıldığı fonksiyon.
-     */
-    public function validateRequest($request, $type = 'store')
-    {
-        $rules = [];
-
-        if ($type === 'store') {
-            $rules = [
-                'year' => 'required|string|max:4',
-                'group_id' => 'required|exists:sector_codes,id',
-                'gender' => 'required|boolean',
-                'work_accident_fatalities' => 'required|integer|min:0',
-                'occupational_disease_fatalities' => 'required|integer|min:0',
-            ];
-        } elseif ($type === 'update') {
-            $rules = [
-                'year' => 'sometimes|string|max:4',
-                'group_id' => 'sometimes|exists:sector_codes,id',
-                'gender' => 'sometimes|boolean',
-                'work_accident_fatalities' => 'sometimes|integer|min:0',
-                'occupational_disease_fatalities' => 'sometimes|integer|min:0',
-            ];
-        }
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
-        }
-
-        return null;
     }
 }

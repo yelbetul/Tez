@@ -10,13 +10,12 @@ use Illuminate\Support\Facades\Validator;
 class DisabilityDaysOccupationalDiseasesByProvinceController extends Controller
 {
     /**
-     * Validasyonların yapıldığı fonksiyon.
+     * Validasyon Fonksiyonu
      */
     public function validateRequest($request, $type = 'store')
     {
         App::setLocale('tr');
 
-        // Store ve update için kurallar
         $rules = [];
 
         if ($type === 'store') {
@@ -47,10 +46,8 @@ class DisabilityDaysOccupationalDiseasesByProvinceController extends Controller
             ];
         }
 
-        // Validator oluştur
         $validator = Validator::make($request->all(), $rules);
 
-        // Hata varsa döndür
         if ($validator->fails()) {
             return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
         }
@@ -137,7 +134,11 @@ class DisabilityDaysOccupationalDiseasesByProvinceController extends Controller
             return $validation;
         }
 
-        $disabilityRecord = DisabilityDaysOccupationalDiseasesByProvince::findOrFail($id);
+        $disabilityRecord = DisabilityDaysOccupationalDiseasesByProvince::find($id);
+
+        if (!$disabilityRecord) {
+            return response()->json(['success' => false, 'message' => 'Kayıt bulunamadı.']);
+        }
 
         $disabilityRecord->year                      = $request->year ?? $disabilityRecord->year;
         $disabilityRecord->province_id               = $request->province_id ?? $disabilityRecord->province_id;
@@ -165,12 +166,10 @@ class DisabilityDaysOccupationalDiseasesByProvinceController extends Controller
     {
         $disabilityRecord = DisabilityDaysOccupationalDiseasesByProvince::find($id);
 
-        // Kayıt bulunamadıysa hata döndür
         if (!$disabilityRecord) {
-            return response()->json(['success' => false, 'message' => 'Kayıt bulunamadı.'], 404);
+            return response()->json(['success' => false, 'message' => 'Kayıt bulunamadı.']);
         }
 
-        // Kayıt silme işlemi
         $result = $disabilityRecord->delete();
 
         if ($result) {
