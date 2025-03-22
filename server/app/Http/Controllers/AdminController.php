@@ -27,6 +27,12 @@ class AdminController extends Controller
                 'password' => 'sometimes|string|min:6',
             ];
         }
+        elseif ($type === 'login') {
+            $rules = [
+                'username' => 'required|string|max:50',
+                'password' => 'required|string|min:6',
+            ];
+        }
 
         $validator = Validator::make($request->all(), $rules);
 
@@ -56,6 +62,23 @@ class AdminController extends Controller
         }
 
         return $admin;
+    }
+    public function login(Request $request)
+    {
+        $validation = $this->validateRequest($request, 'login');
+        if ($validation) return $validation;
+
+        $admin = Admin::where('username', $request->username)->first();
+
+        if (!$admin || !password_verify($request->password, $admin->password)) {
+            return response()->json(['success' => false, 'message' => 'Kullanıcı adı veya şifre hatalı!']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Giriş başarılı!',
+            'admin' => $admin
+        ]);
     }
 
     public function index(Request $request)
