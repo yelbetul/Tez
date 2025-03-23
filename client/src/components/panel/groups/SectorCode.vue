@@ -34,11 +34,11 @@
                 </div>
                 <div class="form-element">
                     <label for="code">Asil Kod</label>
-                    <input type="text" id="code" v-model="formData.code" placeholder="Kod giriniz...">
+                    <input type="text" id="code" v-model="formData.pure_code" placeholder="Kod giriniz...">
                 </div>
                 <div class="form-element">
                     <label for="name">Asil Ad</label>
-                    <input type="text" id="name" v-model="formData.name" placeholder="Ad giriniz...">
+                    <input type="text" id="name" v-model="formData.pure_name" placeholder="Ad giriniz...">
                 </div>
                 <div class="form-button">
                     <button type="submit">{{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</button>
@@ -49,6 +49,9 @@
 </template>
 
 <script>
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
 export default {
     props: {
         visible: {
@@ -73,12 +76,55 @@ export default {
             errorMessage: null
         };
     },
+    watch: {
+        data: {
+            handler(newVal) {
+                if (newVal) {
+                    this.formData = { ...newVal };
+                }
+            },
+            deep: true,
+            immediate: true
+        }
+    },
     methods: {
         closeModal() {
             this.$emit('close');
         },
         submitForm() {
-            this.closeModal();
+            if (this.state == 'new') {
+                axios.post('https://iskazalarianaliz.com/api/sector-codes/store', this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true;
+                            this.errorMessage = res.data.message;
+                        } else {
+                            Swal.fire({
+                                title: 'Başarılı!',
+                                text: 'Sektör kodu başarıyla eklendi.',
+                                icon: 'success',
+                            }).then(() => {
+                                this.$emit('close');
+                            });
+                        }
+                    });
+            } else {
+                axios.put('https://iskazalarianaliz.com/api/sector-codes/update/' + this.formData.id, this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true;
+                            this.errorMessage = res.data.message;
+                        } else {
+                            Swal.fire({
+                                title: 'Başarılı!',
+                                text: 'Sektör kodu başarıyla güncellendi.',
+                                icon: 'success',
+                            }).then(() => {
+                                this.$emit('close');
+                            });
+                        }
+                    });
+            }
         }
     }
 }

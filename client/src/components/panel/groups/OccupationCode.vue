@@ -11,7 +11,7 @@
                 </div>
                 <div class="form-element">
                     <label for="occupation_group_code">Meslek Grubu Kodu</label>
-                    <input type="text" id="occupation_group_code" v-model="formData.occupation_group_code"
+                    <input type="text" id="occupation_group_code" v-model="formData.code"
                         placeholder="Meslek grubu kodu giriniz...">
                 </div>
                 <div class="form-element">
@@ -44,11 +44,11 @@
                 </div>
                 <div class="form-element">
                     <label for="code">Kod</label>
-                    <input type="text" id="code" v-model="formData.code" placeholder="Kod giriniz...">
+                    <input type="text" id="code" v-model="formData.pure_code" placeholder="Kod giriniz...">
                 </div>
                 <div class="form-element">
                     <label for="name">Ad</label>
-                    <input type="text" id="name" v-model="formData.name" placeholder="Ad giriniz...">
+                    <input type="text" id="name" v-model="formData.pure_name" placeholder="Ad giriniz...">
                 </div>
                 <div class="form-button">
                     <button type="submit">{{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</button>
@@ -59,6 +59,9 @@
 </template>
 
 <script>
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
 export default {
     props: {
         visible: {
@@ -83,12 +86,55 @@ export default {
             errorMessage: null
         };
     },
+    watch: {
+        data: {
+            handler(newVal) {
+                if (newVal) {
+                    this.formData = { ...newVal };
+                }
+            },
+            deep: true,
+            immediate: true
+        }
+    },
     methods: {
         closeModal() {
             this.$emit('close');
         },
         submitForm() {
-            this.closeModal();
+            if (this.state == 'new') {
+                axios.post('https://iskazalarianaliz.com/api/occupation-groups/store', this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true;
+                            this.errorMessage = res.data.message;
+                        } else {
+                            Swal.fire({
+                                title: 'Başarılı!',
+                                text: 'Meslek grubu başarıyla eklendi.',
+                                icon: 'success',
+                            }).then(() => {
+                                this.$emit('close');
+                            });
+                        }
+                    });
+            } else {
+                axios.put('https://iskazalarianaliz.com/api/occupation-groups/update/' + this.formData.id, this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true;
+                            this.errorMessage = res.data.message;
+                        } else {
+                            Swal.fire({
+                                title: 'Başarılı!',
+                                text: 'Meslek grubu başarıyla güncellendi.',
+                                icon: 'success',
+                            }).then(() => {
+                                this.$emit('close');
+                            });
+                        }
+                    });
+            }
         }
     }
 }
