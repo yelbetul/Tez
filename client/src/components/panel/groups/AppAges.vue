@@ -7,7 +7,7 @@
             </div>
             <div class="form-element">
                 <label for="month">Yaş</label>
-                <input type="text" id="month" v-model="formData.month" placeholder="Yaş giriniz...">
+                <input type="text" id="month" v-model="formData.age" placeholder="Yaş giriniz...">
             </div>
             <div class="form-button">
                 <button v-if="state !== 'new'" type="submit" @click.prevent="updateState">Yaş Ekle</button>
@@ -18,6 +18,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     props: {
         visible: {
@@ -36,19 +38,51 @@ export default {
     data() {
         return {
             formData: {
-
+                age: null
             },
             formState : this.state,
             error: false,
             errorMessage: null
         };
     },
+    watch: {
+        data: {
+            handler(newVal) {
+                if (newVal) {
+                    this.formData = { ...newVal };
+                }
+            },
+            deep: true,
+            immediate: true
+        }
+    },
     methods: {
         updateState(){
             this.$emit('update');
         },
-         submitForm() {
-            this.closeModal();
+
+        submitForm() {
+            if (this.state == 'new') {
+                axios.post('https://iskazalarianaliz.com/api/age-codes/store', this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true
+                            this.errorMessage = res.data.message
+                        } else {
+                            this.$emit('close');
+                        }
+                    })
+            } else {
+                axios.put('https://iskazalarianaliz.com/api/age-codes/update/' + this.formData.id, this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true
+                            this.errorMessage = res.data.message
+                        } else {
+                            this.$emit('close');
+                        }
+                    })
+            }
         }
     }
 }

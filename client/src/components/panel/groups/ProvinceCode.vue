@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     props: {
         visible: {
@@ -39,20 +41,52 @@ export default {
     },
     data() {
         return {
-            formData: {
-
+            formData: this.data ? this.data : {
+                province_code: null,
+                province_name: null
             },
             formState : this.state,
             error: false,
             errorMessage: null
         };
     },
+    watch: {
+        data: {
+            handler(newVal) {
+                if (newVal) {
+                    this.formData = { ...newVal };
+                }
+            },
+            deep: true,
+            immediate: true 
+        }
+    },
     methods: {
         updateState(){
             this.$emit('update');
         },
-         submitForm() {
-            this.closeModal();
+        submitForm() {
+            if(this.state == 'new'){
+                axios.post('https://iskazalarianaliz.com/api/province-codes/store', this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true
+                            this.errorMessage = res.data.message
+                        } else {
+                            this.$emit('close');
+                        }
+                    })
+            }else{
+                axios.put('https://iskazalarianaliz.com/api/province-codes/update/' + this.formData.id, this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true
+                            this.errorMessage = res.data.message
+                        } else {
+                            this.$emit('close');
+                        }
+                    })
+            }
         }
     }
 }

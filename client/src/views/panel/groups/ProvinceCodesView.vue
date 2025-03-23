@@ -9,17 +9,17 @@
                     <td style="width: 20%;"></td>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>01</td>
-                        <td>Adana</td>
+                    <tr v-for="item in province_codes" :key="item.id">
+                        <td>{{ item.province_code }}</td>
+                        <td>{{ item.province_name }}</td>
                         <td>
-                            <i @click="updateModal" class="fa-solid fa-pen-to-square"></i>
-                            <i @click="deleteProvinceCode" class="fa-solid fa-trash-can"></i>
+                            <i @click="updateModal(item)" class="fa-solid fa-pen-to-square"></i>
+                            <i @click="deleteProvinceCode(item)" class="fa-solid fa-trash-can"></i>
                         </td>
                     </tr>
                 </tbody>
             </table>
-            <ProvinceCode v-if="modal_visible" :visible="modal_visible" :state="state" @update="updateState"/>
+            <ProvinceCode v-if="modal_visible" :visible="modal_visible" :state="state" :data="update_province" @update="updateState" @close="closeModal"/>
         </div>
     </div>
 </template>
@@ -27,11 +27,17 @@
 <script>
 import ProvinceCode from '@/components/panel/groups/ProvinceCode.vue';
 import PageNavbar from '@/components/panel/PageNavbar.vue';
+import { useAuthStore } from '@/stores/AuthStore';
+import axios from 'axios';
 import Swal from 'sweetalert2';
 export default {
     components: {
         PageNavbar,
         ProvinceCode
+    },
+    setup() {
+        const authStore = useAuthStore()
+        return { authStore }
     },
     data() {
         return {
@@ -40,17 +46,25 @@ export default {
                 backRoute: '/admin/groups',
             },
             state: 'new',
-            modal_visible: true
+            modal_visible: true,
+            province_codes : [],
+            update_province: null
         }
     },
     methods: {
-        updateModal(){
+        updateModal(item){
+            this.update_province = item
             this.state = 'update'
         },
         updateState(){
             this.state = 'new'
+            this.update_province = null
         },
-        deleteProvinceCode() {
+        closeModal(){
+            this.state = 'new'
+            this.initializeAuth()
+        },
+        deleteProvinceCode(item) {
             Swal.fire({
                 title: 'Emin misiniz?',
                 text: "Bu işlemi geri alamazsınız!",
@@ -62,10 +76,33 @@ export default {
                 cancelButtonText: 'Hayır, iptal et',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.reload();
+                   axios.delete('https://iskazalarianaliz.com/api/province-codes/delete/' + item.id)
+                   .then(res => {
+                    if(res.data.success){
+                        this.initializeAuth()
+                    }
+                   })
                 }
             });
+        },
+        async initializeAuth() {
+            await this.authStore.fetchAuthData();
+
+            axios.get('https://iskazalarianaliz.com/api/province-codes')
+            .then(res => {
+                this.province_codes = res.data.data
+            })
+        },
+    },
+    created() {
+        const is_logged_in = localStorage.getItem('is_logged_in') === 'true'
+
+        if (!is_logged_in) {
+            this.$router.push('/admin/login')
+            return
         }
+
+        this.initializeAuth()
     }
 }
 </script>
