@@ -38,7 +38,8 @@
             </table>
         </div>
     </div>
-    <OccupationCode v-if="modal_visible" :visible="modal_visible" :data="selected_group" :state="state" @close="closeModal" />
+    <OccupationCode v-if="modal_visible" :visible="modal_visible" :data="selected_group" :state="state"
+        @close="closeModal" />
 </template>
 
 <script>
@@ -202,16 +203,20 @@ tr:hover {
 
 tbody tr td:last-child {
     text-align: center;
+    vertical-align: middle;
 }
 
 tbody tr td:last-child i {
     font-size: 1.2rem;
-    margin: 0 10px;
     cursor: pointer;
     color: var(--main-color);
 }
 
 tbody tr td:last-child i:hover {
     color: var(--penn-red);
+}
+
+.fa-pen-to-square {
+    margin-right: 10px;
 }
 </style>

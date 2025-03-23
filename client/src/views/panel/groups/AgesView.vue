@@ -2,22 +2,25 @@
     <div class="page-container">
         <PageNavbar :navData="navbarData" />
         <div class="table-container">
-            <table>
-                <thead>
-                    <td>Yaş</td>
-                    <td style="width: 20%;"></td>
-                </thead>
-                <tbody>
-                    <tr v-for="item in ages" :key="item.id">
-                        <td>{{ item.age }}</td>
-                        <td>
-                            <i @click="updateModal(item)" class="fa-solid fa-pen-to-square"></i>
-                            <i @click="deleteAges(item)" class="fa-solid fa-trash-can"></i>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <Ages v-if="modal_visible" :visible="modal_visible" :data="update_age" :state="state" @update="updateState" @close="closeModal"/>
+            <div class="table">
+                <table>
+                    <thead>
+                        <td>Yaş</td>
+                        <td style="width: 20%;"></td>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in ages" :key="item.id">
+                            <td>{{ item.age }}</td>
+                            <td>
+                                <i @click="updateModal(item)" class="fa-solid fa-pen-to-square"></i>
+                                <i @click="deleteAges(item)" class="fa-solid fa-trash-can"></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <Ages v-if="modal_visible" :visible="modal_visible" :data="update_age" :state="state" @update="updateState"
+                @close="closeModal" />
         </div>
     </div>
 </template>
@@ -116,11 +119,42 @@ export default {
     justify-content: space-between;
     align-items: start;
     padding: 0 5%;
+    
+}
+.table{
+    overflow-y: auto;
+    max-height: 80vh;
+    width: 50%;
+}
+
+/* Scrollbar Genel Ayarları */
+.table::-webkit-scrollbar {
+    width: 8px;
+    /* Scrollbar genişliği */
+}
+
+/* Scrollbar Kanalı (Boş Kısım) */
+.table::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    /* Hafif transparan */
+    border-radius: 10px;
+}
+
+/* Scrollbar Çubuğu (Kaydırılabilir Alan) */
+.table::-webkit-scrollbar-thumb {
+    background: var(--main-color);
+    /* Ana renk */
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+/* Hover Efekti */
+.table::-webkit-scrollbar-thumb:hover {
+    background: var(--penn-red);    /* Hover'da farklı renk */
 }
 
 table {
-    margin-top: 2%;
-    width: 50%;
+    width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
     background: var(--panel-bg);

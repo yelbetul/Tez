@@ -34,7 +34,8 @@
             </table>
         </div>
     </div>
-    <SectorCode v-if="modal_visible" :visible="modal_visible" :data="selected_code" :state="state" @close="closeModal" />
+    <SectorCode v-if="modal_visible" :visible="modal_visible" :data="selected_code" :state="state"
+        @close="closeModal" />
 </template>
 
 <script>
@@ -102,8 +103,8 @@ export default {
                                     icon: 'success',
                                 });
                             }
-                        })                
-                    }
+                        })
+                }
             });
         },
         async initializeAuth() {
@@ -197,9 +198,8 @@ tr:hover {
 }
 
 tbody tr td:last-child {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
+    text-align: center;
+    vertical-align: middle;
 }
 
 tbody tr td:last-child i {
@@ -210,5 +210,9 @@ tbody tr td:last-child i {
 
 tbody tr td:last-child i:hover {
     color: var(--penn-red);
+}
+
+.fa-pen-to-square {
+    margin-right: 10px;
 }
 </style>
