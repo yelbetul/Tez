@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SpecialActivitiesBeforeAccident;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
@@ -42,24 +43,46 @@ class SpecialActivitiesBeforeAccidentController extends Controller
         return null;
     }
 
-    /**
-     * Tüm özel aktivite kayıtlarını listele.
-     */
+    private function authenticate(Request $request)
+    {
+        $admin_id   = $request->header('X-ADMIN-ID');
+        $api_key    = $request->header('X-API-KEY');
+        $secret_key = $request->header('X-SECRET-KEY');
+
+        if (!$admin_id || !$api_key || !$secret_key) {
+            return response()->json(['success' => false, 'message' => 'Kimlik doğrulama bilgileri eksik!']);
+        }
+
+        $admin = Admin::where('id', $admin_id)
+                      ->where('api_key', $api_key)
+                      ->where('secret_key', $secret_key)
+                      ->first();
+
+        if (!$admin) {
+            return response()->json(['success' => false, 'message' => 'Yetkiniz bulunmamaktadır!']);
+        }
+
+        return $admin;
+    }
+
     public function index()
     {
         $specialActivities = SpecialActivitiesBeforeAccident::all();
+
+        if ($specialActivities->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Kayıt bulunamadı.']);
+        }
+
         return response()->json(['success' => true, 'data' => $specialActivities]);
     }
 
-    /**
-     * Yeni özel aktivite kaydı oluştur.
-     */
     public function store(Request $request)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $validation = $this->validateRequest($request, 'store');
-        if ($validation) {
-            return $validation;
-        }
+        if ($validation) return $validation;
 
         $specialActivity = new SpecialActivitiesBeforeAccident();
         $specialActivity->special_activity_code = $request->special_activity_code;
@@ -68,36 +91,32 @@ class SpecialActivitiesBeforeAccidentController extends Controller
         $specialActivity->sub_group_code        = $request->sub_group_code;
         $specialActivity->sub_group_name        = $request->sub_group_name;
 
-        $result = $specialActivity->save();
-
-        if ($result) {
+        if ($specialActivity->save()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Özel aktivite kaydı başarıyla oluşturuldu.',
                 'data'    => $specialActivity
             ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Özel aktivite kaydı kaydedilirken hata oluştu.'
-            ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Özel aktivite kaydı kaydedilirken hata oluştu.'
+        ]);
     }
 
-    /**
-     * Özel aktivite kaydını güncelle.
-     */
     public function update(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $specialActivity = SpecialActivitiesBeforeAccident::find($id);
         if (!$specialActivity) {
             return response()->json(['success' => false, 'message' => 'Özel aktivite kaydı bulunamadı!']);
         }
 
         $validation = $this->validateRequest($request, 'update');
-        if ($validation) {
-            return $validation;
-        }
+        if ($validation) return $validation;
 
         $specialActivity->special_activity_code = $request->special_activity_code ?? $specialActivity->special_activity_code;
         $specialActivity->group_code            = $request->group_code ?? $specialActivity->group_code;
@@ -105,33 +124,34 @@ class SpecialActivitiesBeforeAccidentController extends Controller
         $specialActivity->sub_group_code        = $request->sub_group_code ?? $specialActivity->sub_group_code;
         $specialActivity->sub_group_name        = $request->sub_group_name ?? $specialActivity->sub_group_name;
 
-        $result = $specialActivity->save();
-
-        if ($result) {
+        if ($specialActivity->save()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Özel aktivite kaydı başarıyla güncellendi.',
                 'data'    => $specialActivity
             ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Özel aktivite kaydı güncellenirken hata oluştu.'
-            ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Özel aktivite kaydı güncellenirken hata oluştu.'
+        ]);
     }
 
-    /**
-     * Özel aktivite kaydını sil.
-     */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $specialActivity = SpecialActivitiesBeforeAccident::find($id);
         if (!$specialActivity) {
             return response()->json(['success' => false, 'message' => 'Özel aktivite kaydı bulunamadı!']);
         }
 
-        $specialActivity->delete();
-        return response()->json(['success' => true, 'message' => 'Özel aktivite kaydı başarıyla silindi.']);
+        if ($specialActivity->delete()) {
+            return response()->json(['success' => true, 'message' => 'Özel aktivite kaydı başarıyla silindi.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Özel aktivite kaydı silinirken hata oluştu.']);
     }
 }

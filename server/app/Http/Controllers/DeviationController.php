@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Deviation;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
@@ -45,15 +46,51 @@ class DeviationController extends Controller
         return null;
     }
 
+    private function authenticate(Request $request)
+    {
+        $admin_id   = $request->header('X-ADMIN-ID');
+        $api_key    = $request->header('X-API-KEY');
+        $secret_key = $request->header('X-SECRET-KEY');
+
+        if (!$admin_id || !$api_key || !$secret_key) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kimlik doğrulama bilgileri eksik!'
+            ]);
+        }
+
+        $admin = Admin::where('id', $admin_id)
+                      ->where('api_key', $api_key)
+                      ->where('secret_key', $secret_key)
+                      ->first();
+
+        if (!$admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yetkiniz bulunmamaktadır!'
+            ]);
+        }
+
+        return $admin;
+    }
+
     /**
      * Tüm sapma (deviation) kayıtlarını listele.
      */
     public function index()
     {
         $deviations = Deviation::all();
+
+        if ($deviations->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sapma kaydı bulunamadı.'
+            ]);
+        }
+
         return response()->json([
             'success' => true,
-            'data'    => $deviations
+            'data' => $deviations
         ]);
     }
 
@@ -62,10 +99,11 @@ class DeviationController extends Controller
      */
     public function store(Request $request)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $validation = $this->validateRequest($request, 'store');
-        if ($validation) {
-            return $validation;
-        }
+        if ($validation) return $validation;
 
         $deviation = new Deviation();
         $deviation->deviation_code = $request->deviation_code;
@@ -74,20 +112,18 @@ class DeviationController extends Controller
         $deviation->sub_group_code = $request->sub_group_code;
         $deviation->sub_group_name = $request->sub_group_name;
 
-        $result = $deviation->save();
-
-        if ($result) {
+        if ($deviation->save()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Sapma kaydı başarıyla oluşturuldu.',
-                'data'    => $deviation
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Sapma kaydı kaydedilirken hata oluştu.'
+                'data' => $deviation
             ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Sapma kaydı kaydedilirken hata oluştu.'
+        ]);
     }
 
     /**
@@ -95,6 +131,9 @@ class DeviationController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $deviation = Deviation::find($id);
         if (!$deviation) {
             return response()->json([
@@ -104,9 +143,7 @@ class DeviationController extends Controller
         }
 
         $validation = $this->validateRequest($request, 'update');
-        if ($validation) {
-            return $validation;
-        }
+        if ($validation) return $validation;
 
         $deviation->deviation_code = $request->deviation_code ?? $deviation->deviation_code;
         $deviation->group_code     = $request->group_code ?? $deviation->group_code;
@@ -114,27 +151,28 @@ class DeviationController extends Controller
         $deviation->sub_group_code = $request->sub_group_code ?? $deviation->sub_group_code;
         $deviation->sub_group_name = $request->sub_group_name ?? $deviation->sub_group_name;
 
-        $result = $deviation->save();
-
-        if ($result) {
+        if ($deviation->save()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Sapma kaydı başarıyla güncellendi.',
-                'data'    => $deviation
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Sapma kaydı güncellenirken hata oluştu.'
+                'data' => $deviation
             ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Sapma kaydı güncellenirken hata oluştu.'
+        ]);
     }
 
     /**
      * Sapma kaydını sil.
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $deviation = Deviation::find($id);
         if (!$deviation) {
             return response()->json([
@@ -143,10 +181,16 @@ class DeviationController extends Controller
             ]);
         }
 
-        $deviation->delete();
+        if ($deviation->delete()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Sapma kaydı başarıyla silindi.'
+            ]);
+        }
+
         return response()->json([
-            'success' => true,
-            'message' => 'Sapma kaydı başarıyla silindi.'
+            'success' => false,
+            'message' => 'Sapma kaydı silinirken hata oluştu.'
         ]);
     }
 }

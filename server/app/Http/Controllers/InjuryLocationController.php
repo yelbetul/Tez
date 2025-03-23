@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InjuryLocation;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
@@ -18,18 +19,18 @@ class InjuryLocationController extends Controller
         if ($type === 'store') {
             $rules = [
                 'injury_location_code' => 'required|string|max:16|unique:injury_locations,injury_location_code',
-                'group_code'          => 'required|string|max:3',
-                'group_name'          => 'required|string|max:255',
-                'sub_group_code'      => 'required|string|max:3',
-                'sub_group_name'      => 'required|string|max:255',
+                'group_code'           => 'required|string|max:3',
+                'group_name'           => 'required|string|max:255',
+                'sub_group_code'       => 'required|string|max:3',
+                'sub_group_name'       => 'required|string|max:255',
             ];
         } elseif ($type === 'update') {
             $rules = [
                 'injury_location_code' => 'sometimes|string|max:16|unique:injury_locations,injury_location_code,' . $request->id,
-                'group_code'          => 'sometimes|string|max:3',
-                'group_name'          => 'sometimes|string|max:255',
-                'sub_group_code'      => 'sometimes|string|max:3',
-                'sub_group_name'      => 'sometimes|string|max:255',
+                'group_code'           => 'sometimes|string|max:3',
+                'group_name'           => 'sometimes|string|max:255',
+                'sub_group_code'       => 'sometimes|string|max:3',
+                'sub_group_name'       => 'sometimes|string|max:255',
             ];
         }
 
@@ -42,12 +43,39 @@ class InjuryLocationController extends Controller
         return null;
     }
 
+    private function authenticate(Request $request)
+    {
+        $admin_id   = $request->header('X-ADMIN-ID');
+        $api_key    = $request->header('X-API-KEY');
+        $secret_key = $request->header('X-SECRET-KEY');
+
+        if (!$admin_id || !$api_key || !$secret_key) {
+            return response()->json(['success' => false, 'message' => 'Kimlik doğrulama bilgileri eksik!']);
+        }
+
+        $admin = Admin::where('id', $admin_id)
+                      ->where('api_key', $api_key)
+                      ->where('secret_key', $secret_key)
+                      ->first();
+
+        if (!$admin) {
+            return response()->json(['success' => false, 'message' => 'Yetkiniz bulunmamaktadır!']);
+        }
+
+        return $admin;
+    }
+
     /**
      * Tüm kayıtları listele.
      */
     public function index()
     {
         $injuryLocations = InjuryLocation::all();
+
+        if ($injuryLocations->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Kayıt bulunamadı.']);
+        }
+
         return response()->json(['success' => true, 'data' => $injuryLocations]);
     }
 
@@ -56,6 +84,9 @@ class InjuryLocationController extends Controller
      */
     public function store(Request $request)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $validation = $this->validateRequest($request, 'store');
         if ($validation) return $validation;
 
@@ -66,13 +97,11 @@ class InjuryLocationController extends Controller
         $injuryLocation->sub_group_code = $request->sub_group_code;
         $injuryLocation->sub_group_name = $request->sub_group_name;
 
-        $result = $injuryLocation->save();
-
-        if ($result) {
+        if ($injuryLocation->save()) {
             return response()->json(['success' => true, 'message' => 'Kayıt başarıyla oluşturuldu.', 'data' => $injuryLocation]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Kayıt oluşturulurken hata oluştu.']);
         }
+
+        return response()->json(['success' => false, 'message' => 'Kayıt oluşturulurken hata oluştu.']);
     }
 
     /**
@@ -80,6 +109,9 @@ class InjuryLocationController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $injuryLocation = InjuryLocation::find($id);
         if (!$injuryLocation) {
             return response()->json(['success' => false, 'message' => 'Kayıt bulunamadı!']);
@@ -94,26 +126,30 @@ class InjuryLocationController extends Controller
         $injuryLocation->sub_group_code = $request->sub_group_code ?? $injuryLocation->sub_group_code;
         $injuryLocation->sub_group_name = $request->sub_group_name ?? $injuryLocation->sub_group_name;
 
-        $result = $injuryLocation->save();
-
-        if ($result) {
+        if ($injuryLocation->save()) {
             return response()->json(['success' => true, 'message' => 'Kayıt başarıyla güncellendi.', 'data' => $injuryLocation]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Kayıt güncellenirken hata oluştu.']);
         }
+
+        return response()->json(['success' => false, 'message' => 'Kayıt güncellenirken hata oluştu.']);
     }
 
     /**
      * Kaydı sil.
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $injuryLocation = InjuryLocation::find($id);
         if (!$injuryLocation) {
             return response()->json(['success' => false, 'message' => 'Kayıt bulunamadı!']);
         }
 
-        $injuryLocation->delete();
-        return response()->json(['success' => true, 'message' => 'Kayıt başarıyla silindi.']);
+        if ($injuryLocation->delete()) {
+            return response()->json(['success' => true, 'message' => 'Kayıt başarıyla silindi.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Kayıt silinirken hata oluştu.']);
     }
 }

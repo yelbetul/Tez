@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\WorkEnvironment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -45,27 +46,58 @@ class WorkEnvironmentController extends Controller
         return null;
     }
 
-    /**
-     * Tüm iş ortamı kayıtlarını listele.
-     */
+    private function authenticate(Request $request)
+    {
+        $admin_id   = $request->header('X-ADMIN-ID');
+        $api_key    = $request->header('X-API-KEY');
+        $secret_key = $request->header('X-SECRET-KEY');
+
+        if (!$admin_id || !$api_key || !$secret_key) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kimlik doğrulama bilgileri eksik!'
+            ]);
+        }
+
+        $admin = Admin::where('id', $admin_id)
+                      ->where('api_key', $api_key)
+                      ->where('secret_key', $secret_key)
+                      ->first();
+
+        if (!$admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yetkiniz bulunmamaktadır!'
+            ]);
+        }
+
+        return $admin;
+    }
+
     public function index()
     {
         $workEnvironments = WorkEnvironment::all();
+
+        if ($workEnvironments->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'İş ortamı kaydı bulunamadı.'
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'data'    => $workEnvironments
         ]);
     }
 
-    /**
-     * Yeni iş ortamı kaydı oluştur.
-     */
     public function store(Request $request)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $validation = $this->validateRequest($request, 'store');
-        if ($validation) {
-            return $validation;
-        }
+        if ($validation) return $validation;
 
         $workEnvironment = new WorkEnvironment();
         $workEnvironment->environment_code = $request->environment_code;
@@ -82,19 +114,19 @@ class WorkEnvironmentController extends Controller
                 'message' => 'İş ortamı kaydı başarıyla oluşturuldu.',
                 'data'    => $workEnvironment
             ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'İş ortamı kaydı oluşturulurken hata oluştu.'
-            ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'İş ortamı kaydı oluşturulurken hata oluştu.'
+        ]);
     }
 
-    /**
-     * İş ortamı kaydını güncelle.
-     */
     public function update(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $workEnvironment = WorkEnvironment::find($id);
         if (!$workEnvironment) {
             return response()->json([
@@ -104,9 +136,7 @@ class WorkEnvironmentController extends Controller
         }
 
         $validation = $this->validateRequest($request, 'update');
-        if ($validation) {
-            return $validation;
-        }
+        if ($validation) return $validation;
 
         $workEnvironment->environment_code = $request->environment_code ?? $workEnvironment->environment_code;
         $workEnvironment->group_code       = $request->group_code ?? $workEnvironment->group_code;
@@ -122,19 +152,19 @@ class WorkEnvironmentController extends Controller
                 'message' => 'İş ortamı kaydı başarıyla güncellendi.',
                 'data'    => $workEnvironment
             ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'İş ortamı kaydı güncellenirken hata oluştu.'
-            ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'İş ortamı kaydı güncellenirken hata oluştu.'
+        ]);
     }
 
-    /**
-     * İş ortamı kaydını sil.
-     */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $workEnvironment = WorkEnvironment::find($id);
         if (!$workEnvironment) {
             return response()->json([
@@ -143,10 +173,16 @@ class WorkEnvironmentController extends Controller
             ]);
         }
 
-        $workEnvironment->delete();
+        if ($workEnvironment->delete()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'İş ortamı kaydı başarıyla silindi.'
+            ]);
+        }
+
         return response()->json([
-            'success' => true,
-            'message' => 'İş ortamı kaydı başarıyla silindi.'
+            'success' => false,
+            'message' => 'İş ortamı kaydı silinirken hata oluştu.'
         ]);
     }
 }

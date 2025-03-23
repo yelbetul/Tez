@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AgeCode;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
@@ -28,85 +29,153 @@ class AgeCodeController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()->first()]);
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first()
+            ]);
         }
 
         return null;
     }
 
+    // Kimlik doğrulama fonksiyonu
+    private function authenticate(Request $request)
+    {
+        $admin_id = $request->header('X-ADMIN-ID');
+        $api_key = $request->header('X-API-KEY');
+        $secret_key = $request->header('X-SECRET-KEY');
+
+        if (!$admin_id || !$api_key || !$secret_key) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kimlik doğrulama bilgileri eksik!'
+            ]);
+        }
+
+        $admin = Admin::where('id', $admin_id)
+                      ->where('api_key', $api_key)
+                      ->where('secret_key', $secret_key)
+                      ->first();
+
+        if (!$admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yetkiniz bulunmamaktadır!'
+            ]);
+        }
+
+        return $admin;
+    }
+
     /**
-     * Display a listing of the resource.
+     * Listeleme
      */
     public function index()
     {
         $ageCodes = AgeCode::all();
-        return response()->json(['success' => true, 'data' => $ageCodes]);
+
+        if ($ageCodes->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yaş kodu kaydı bulunamadı.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $ageCodes
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Oluşturma
      */
     public function store(Request $request)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $validation = $this->validateRequest($request, 'store');
-        if ($validation) {
-            return $validation;
-        }
+        if ($validation) return $validation;
 
         $ageCode = new AgeCode();
         $ageCode->age = $request->age;
 
-        $result = $ageCode->save();
-
-        if ($result) {
-            return response()->json(['success' => true, 'message' => 'Yaş kodu başarıyla oluşturuldu.', 'data' => $ageCode]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Yaş kodu oluşturulurken bir hata oluştu.']);
+        if ($ageCode->save()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Yaş kodu başarıyla oluşturuldu.',
+                'data' => $ageCode
+            ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Yaş kodu oluşturulurken bir hata oluştu.'
+        ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Güncelleme
      */
     public function update(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $ageCode = AgeCode::find($id);
         if (!$ageCode) {
-            return response()->json(['success' => false, 'message' => 'Yaş kodu bulunamadı!']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Yaş kodu bulunamadı!'
+            ]);
         }
 
         $validation = $this->validateRequest($request, 'update');
-        if ($validation) {
-            return $validation;
+        if ($validation) return $validation;
+
+        $ageCode->age = $request->age ?? $ageCode->age;
+
+        if ($ageCode->save()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Yaş kodu başarıyla güncellendi.',
+                'data' => $ageCode
+            ]);
         }
 
-        $ageCode->age = $request->age;
-
-        $result = $ageCode->save();
-
-        if ($result) {
-            return response()->json(['success' => true, 'message' => 'Yaş kodu başarıyla güncellendi.', 'data' => $ageCode]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Yaş kodu güncellenirken bir hata oluştu.']);
-        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Yaş kodu güncellenirken bir hata oluştu.'
+        ]);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Silme
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $ageCode = AgeCode::find($id);
         if (!$ageCode) {
-            return response()->json(['success' => false, 'message' => 'Yaş kodu bulunamadı!']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Yaş kodu bulunamadı!'
+            ]);
         }
 
-        $result = $ageCode->delete();
-
-        if ($result) {
-            return response()->json(['success' => true, 'message' => 'Yaş kodu başarıyla silindi.']);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Yaş kodu silinirken bir hata oluştu.']);
+        if ($ageCode->delete()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Yaş kodu başarıyla silindi.'
+            ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Yaş kodu silinirken bir hata oluştu.'
+        ]);
     }
 }

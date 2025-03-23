@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EmployeeEmploymentDuration;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
@@ -37,12 +38,48 @@ class EmployeeEmploymentDurationController extends Controller
         return null;
     }
 
+    private function authenticate(Request $request)
+    {
+        $admin_id   = $request->header('X-ADMIN-ID');
+        $api_key    = $request->header('X-API-KEY');
+        $secret_key = $request->header('X-SECRET-KEY');
+
+        if (!$admin_id || !$api_key || !$secret_key) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kimlik doğrulama bilgileri eksik!'
+            ]);
+        }
+
+        $admin = Admin::where('id', $admin_id)
+                      ->where('api_key', $api_key)
+                      ->where('secret_key', $secret_key)
+                      ->first();
+
+        if (!$admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yetkiniz bulunmamaktadır!'
+            ]);
+        }
+
+        return $admin;
+    }
+
     /**
      * Tüm çalışan istihdam süresi kayıtlarını listele.
      */
     public function index()
     {
         $durations = EmployeeEmploymentDuration::all();
+
+        if ($durations->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Çalışan istihdam süresi kaydı bulunamadı.'
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'data'    => $durations
@@ -54,29 +91,28 @@ class EmployeeEmploymentDurationController extends Controller
      */
     public function store(Request $request)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $validation = $this->validateRequest($request, 'store');
-        if ($validation) {
-            return $validation;
-        }
+        if ($validation) return $validation;
 
         $duration = new EmployeeEmploymentDuration();
         $duration->code = $request->code;
         $duration->employment_duration = $request->employment_duration;
 
-        $result = $duration->save();
-
-        if ($result) {
+        if ($duration->save()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Çalışan istihdam süresi kaydı başarıyla oluşturuldu.',
                 'data'    => $duration
             ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Çalışan istihdam süresi kaydı oluşturulurken hata oluştu.'
-            ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Çalışan istihdam süresi kaydı oluşturulurken hata oluştu.'
+        ]);
     }
 
     /**
@@ -84,6 +120,9 @@ class EmployeeEmploymentDurationController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $duration = EmployeeEmploymentDuration::find($id);
         if (!$duration) {
             return response()->json([
@@ -93,34 +132,33 @@ class EmployeeEmploymentDurationController extends Controller
         }
 
         $validation = $this->validateRequest($request, 'update');
-        if ($validation) {
-            return $validation;
-        }
+        if ($validation) return $validation;
 
         $duration->code = $request->code ?? $duration->code;
         $duration->employment_duration = $request->employment_duration ?? $duration->employment_duration;
 
-        $result = $duration->save();
-
-        if ($result) {
+        if ($duration->save()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Çalışan istihdam süresi kaydı başarıyla güncellendi.',
                 'data'    => $duration
             ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Çalışan istihdam süresi kaydı güncellenirken hata oluştu.'
-            ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Çalışan istihdam süresi kaydı güncellenirken hata oluştu.'
+        ]);
     }
 
     /**
      * Çalışan istihdam süresi kaydını sil.
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $duration = EmployeeEmploymentDuration::find($id);
         if (!$duration) {
             return response()->json([
@@ -129,10 +167,16 @@ class EmployeeEmploymentDurationController extends Controller
             ]);
         }
 
-        $duration->delete();
+        if ($duration->delete()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Çalışan istihdam süresi kaydı başarıyla silindi.'
+            ]);
+        }
+
         return response()->json([
-            'success' => true,
-            'message' => 'Çalışan istihdam süresi kaydı başarıyla silindi.'
+            'success' => false,
+            'message' => 'Çalışan istihdam süresi kaydı silinirken hata oluştu.'
         ]);
     }
 }

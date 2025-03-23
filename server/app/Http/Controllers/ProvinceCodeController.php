@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\ProvinceCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -25,6 +26,7 @@ class ProvinceCodeController extends Controller
                 'province_name' => 'sometimes|string|max:15',
             ];
         }
+
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
@@ -33,14 +35,45 @@ class ProvinceCodeController extends Controller
 
         return null;
     }
+
+    private function authenticate(Request $request)
+    {
+        $admin_id = $request->header('X-ADMIN-ID');
+        $api_key = $request->header('X-API-KEY');
+        $secret_key = $request->header('X-SECRET-KEY');
+
+        if (!$admin_id || !$api_key || !$secret_key) {
+            return response()->json(['success' => false, 'message' => 'Kimlik doğrulama bilgileri eksik!']);
+        }
+
+        $admin = Admin::where('id', $admin_id)
+            ->where('api_key', $api_key)
+            ->where('secret_key', $secret_key)
+            ->first();
+
+        if (!$admin) {
+            return response()->json(['success' => false, 'message' => 'Yetkiniz bulunmamaktadır!']);
+        }
+
+        return $admin;
+    }
+
     public function index()
     {
         $provinceCodes = ProvinceCode::all();
+
+        if ($provinceCodes->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Şehir kaydı bulunamadı.']);
+        }
+
         return response()->json(['success' => true, 'data' => $provinceCodes]);
     }
 
     public function store(Request $request)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $validation = $this->validateRequest($request, 'store');
         if ($validation) {
             return $validation;
@@ -50,16 +83,18 @@ class ProvinceCodeController extends Controller
         $provinceCode->province_code = $request->province_code;
         $provinceCode->province_name = $request->province_name;
 
-        $result = $provinceCode->save();
-
-        if ($result) {
-            return response()->json(['success' => true, 'message' => 'ProvinceCode başarıyla oluşturuldu.', 'data' => $provinceCode]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'ProvinceCode oluşturulurken bir hata oluştu.']);
+        if ($provinceCode->save()) {
+            return response()->json(['success' => true, 'message' => 'Şehir başarıyla oluşturuldu.', 'data' => $provinceCode]);
         }
+
+        return response()->json(['success' => false, 'message' => 'Şehir oluşturulamadı.']);
     }
+
     public function update(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $validation = $this->validateRequest($request, 'update');
         if ($validation) {
             return $validation;
@@ -68,34 +103,35 @@ class ProvinceCodeController extends Controller
         $provinceCode = ProvinceCode::find($id);
 
         if (!$provinceCode) {
-            return response()->json(['success' => false, 'message' => 'ProvinceCode bulunamadı.'], 404);
+            return response()->json(['success' => false, 'message' => 'Şehir bulunamadı.']);
         }
 
         $provinceCode->province_code = $request->province_code ?? $provinceCode->province_code;
         $provinceCode->province_name = $request->province_name ?? $provinceCode->province_name;
 
-        $result = $provinceCode->save();
-
-        if ($result) {
-            return response()->json(['success' => true, 'message' => 'ProvinceCode başarıyla güncellendi.', 'data' => $provinceCode]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'ProvinceCode güncellenirken bir hata oluştu.']);
+        if ($provinceCode->save()) {
+            return response()->json(['success' => true, 'message' => 'Şehir başarıyla güncellendi.', 'data' => $provinceCode]);
         }
+
+        return response()->json(['success' => false, 'message' => 'Şehir güncellenemedi.']);
     }
 
-    /**
-     * İl silme
-     */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $provinceCode = ProvinceCode::find($id);
 
         if (!$provinceCode) {
-            return response()->json(['success' => false, 'message' => 'ProvinceCode bulunamadı.'], 404);
+            return response()->json(['success' => false, 'message' => 'Şehir bulunamadı.']);
         }
 
-        $provinceCode->delete();
+        if ($provinceCode->delete()) {
+            return response()->json(['success' => true, 'message' => 'Şehir başarıyla silindi.']);
+        }
 
-        return response()->json(['success' => true, 'message' => 'ProvinceCode başarıyla silindi.']);
+        return response()->json(['success' => false, 'message' => 'Şehir silinemedi.']);
     }
 }

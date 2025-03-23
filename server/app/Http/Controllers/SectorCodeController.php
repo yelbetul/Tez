@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SectorCode;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
@@ -40,18 +41,61 @@ class SectorCodeController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()->first()]);
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first()
+            ]);
         }
 
         return null;
     }
+
+    private function authenticate(Request $request)
+    {
+        $admin_id = $request->header('X-ADMIN-ID');
+        $api_key = $request->header('X-API-KEY');
+        $secret_key = $request->header('X-SECRET-KEY');
+
+        if (!$admin_id || !$api_key || !$secret_key) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kimlik doğrulama bilgileri eksik!'
+            ]);
+        }
+
+        $admin = Admin::where('id', $admin_id)
+                      ->where('api_key', $api_key)
+                      ->where('secret_key', $secret_key)
+                      ->first();
+
+        if (!$admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yetkiniz bulunmamaktadır!'
+            ]);
+        }
+
+        return $admin;
+    }
+
     /**
      * Tüm sektör kodlarını listele.
      */
     public function index()
     {
         $sectorCodes = SectorCode::all();
-        return response()->json(['success' => true, 'data' => $sectorCodes]);
+
+        if ($sectorCodes->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sektör kodu kaydı bulunamadı.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $sectorCodes
+        ]);
     }
 
     /**
@@ -59,11 +103,11 @@ class SectorCodeController extends Controller
      */
     public function store(Request $request)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
 
         $validation = $this->validateRequest($request, 'store');
-        if ($validation) {
-            return $validation;
-        }
+        if ($validation) return $validation;
 
         $sectorCode = new SectorCode();
         $sectorCode->sector_code    = $request->sector_code;
@@ -74,13 +118,18 @@ class SectorCodeController extends Controller
         $sectorCode->pure_code      = $request->pure_code;
         $sectorCode->pure_name      = $request->pure_name;
 
-        $result = $sectorCode->save();
-
-        if ($result) {
-            return response()->json(['success' => true, 'message' => 'Sektör kodu başarıyla oluşturuldu.', 'data' => $sectorCode]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Sektör kodu kaydedilirken hata oluştu.']);
+        if ($sectorCode->save()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Sektör kodu başarıyla oluşturuldu.',
+                'data' => $sectorCode
+            ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Sektör kodu kaydedilirken bir hata oluştu.'
+        ]);
     }
 
     /**
@@ -88,9 +137,15 @@ class SectorCodeController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $sectorCode = SectorCode::find($id);
         if (!$sectorCode) {
-            return response()->json(['success' => false, 'message' => 'Sektör kodu bulunamadı!']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Sektör kodu bulunamadı!'
+            ]);
         }
 
         $validation = $this->validateRequest($request, 'update');
@@ -104,26 +159,46 @@ class SectorCodeController extends Controller
         $sectorCode->pure_code      = $request->pure_code ?? $sectorCode->pure_code;
         $sectorCode->pure_name      = $request->pure_name ?? $sectorCode->pure_name;
 
-        $result = $sectorCode->save();
-
-        if ($result) {
-            return response()->json(['success' => true, 'message' => 'Sektör kodu başarıyla güncellendi.', 'data' => $sectorCode]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Sektör kodu güncellenirken hata oluştu.']);
+        if ($sectorCode->save()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Sektör kodu başarıyla güncellendi.',
+                'data' => $sectorCode
+            ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Sektör kodu güncellenirken bir hata oluştu.'
+        ]);
     }
 
     /**
      * Sektör kodunu sil.
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $sectorCode = SectorCode::find($id);
         if (!$sectorCode) {
-            return response()->json(['success' => false, 'message' => 'Sektör kodu bulunamadı!']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Sektör kodu bulunamadı!'
+            ]);
         }
 
-        $sectorCode->delete();
-        return response()->json(['success' => true, 'message' => 'Sektör kodu başarıyla silindi.']);
+        if ($sectorCode->delete()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Sektör kodu başarıyla silindi.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Sektör kodu silinirken bir hata oluştu.'
+        ]);
     }
 }

@@ -92,8 +92,8 @@ class AdminController extends Controller
 
     public function store(Request $request)
     {
-        $auth = $this->authenticate($request);
-        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+        //$auth = $this->authenticate($request);
+        //if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
 
         $validation = $this->validateRequest($request, 'store');
         if ($validation) return $validation;
@@ -101,6 +101,7 @@ class AdminController extends Controller
         $admin = Admin::create($request->all());
 
         return response()->json([
+          	'success' => true,
             'message' => 'Admin başarıyla oluşturuldu.',
             'admin' => $admin
         ]);
@@ -117,13 +118,13 @@ class AdminController extends Controller
         }
         return response()->json($admin);
     }
-    
+
     public function searchAdmin(Request $request, $id)
     {
         $api_key = $request->header('X-API-KEY');
         $secret_key = $request->header('X-SECRET-KEY');
-        
-        if($api_key === "fKenAx;NuzBMj#[q'P|N" && $secret_key === "3Lsw,~yd*hc5sLugNETY"){
+
+        if($api_key !== "A7X9LQ2M5T8V3R1Y6W0K" && $secret_key !== "Z4P2N8J6D1F0B7X3Y5QK"){
             return response()->json(['success' => false, 'message' => 'Kimlik doğrulama bilgileri eksik!']);
         }
 
@@ -131,7 +132,10 @@ class AdminController extends Controller
         if (!$admin) {
             return response()->json(['message' => 'Admin bulunamadı.']);
         }
-        return response()->json($admin);
+        return response()->json([
+        	'success' => true,
+          	'admin' => $admin
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -150,6 +154,7 @@ class AdminController extends Controller
         $admin->update($request->all());
 
         return response()->json([
+          	'success' => true,
             'message' => 'Admin başarıyla güncellendi.',
             'admin' => $admin
         ]);
@@ -162,11 +167,11 @@ class AdminController extends Controller
 
         $admin = Admin::find($id);
         if (!$admin) {
-            return response()->json(['message' => 'Admin bulunamadı.']);
+            return response()->json(['success' => false, 'message' => 'Admin bulunamadı.']);
         }
 
         $admin->delete();
 
-        return response()->json(['message' => 'Admin başarıyla silindi.']);
+        return response()->json(['success' => true,  'message' => 'Admin başarıyla silindi.']);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\GeneralActivity;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
@@ -42,18 +43,46 @@ class GeneralActivityController extends Controller
         return null;
     }
 
+    private function authenticate(Request $request)
+    {
+        $admin_id   = $request->header('X-ADMIN-ID');
+        $api_key    = $request->header('X-API-KEY');
+        $secret_key = $request->header('X-SECRET-KEY');
+
+        if (!$admin_id || !$api_key || !$secret_key) {
+            return response()->json(['success' => false, 'message' => 'Kimlik doğrulama bilgileri eksik!']);
+        }
+
+        $admin = Admin::where('id', $admin_id)
+                      ->where('api_key', $api_key)
+                      ->where('secret_key', $secret_key)
+                      ->first();
+
+        if (!$admin) {
+            return response()->json(['success' => false, 'message' => 'Yetkiniz bulunmamaktadır!']);
+        }
+
+        return $admin;
+    }
+
     public function index()
     {
         $generalActivities = GeneralActivity::all();
+
+        if ($generalActivities->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Genel aktivite kaydı bulunamadı.']);
+        }
+
         return response()->json(['success' => true, 'data' => $generalActivities]);
     }
 
     public function store(Request $request)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $validation = $this->validateRequest($request, 'store');
-        if ($validation) {
-            return $validation;
-        }
+        if ($validation) return $validation;
 
         $generalActivity = new GeneralActivity();
         $generalActivity->general_activity_code = $request->general_activity_code;
@@ -62,17 +91,18 @@ class GeneralActivityController extends Controller
         $generalActivity->sub_group_code = $request->sub_group_code;
         $generalActivity->sub_group_name = $request->sub_group_name;
 
-        $result = $generalActivity->save();
-
-        if ($result) {
+        if ($generalActivity->save()) {
             return response()->json(['success' => true, 'message' => 'Genel aktivite başarıyla kaydedildi.', 'data' => $generalActivity]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Genel aktivite kaydedilirken hata oluştu.']);
         }
+
+        return response()->json(['success' => false, 'message' => 'Genel aktivite kaydedilirken hata oluştu.']);
     }
 
     public function update(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $generalActivity = GeneralActivity::find($id);
         if (!$generalActivity) {
             return response()->json(['success' => false, 'message' => 'Genel aktivite bulunamadı!']);
@@ -87,23 +117,27 @@ class GeneralActivityController extends Controller
         $generalActivity->sub_group_code = $request->sub_group_code ?? $generalActivity->sub_group_code;
         $generalActivity->sub_group_name = $request->sub_group_name ?? $generalActivity->sub_group_name;
 
-        $result = $generalActivity->save();
-
-        if ($result) {
+        if ($generalActivity->save()) {
             return response()->json(['success' => true, 'message' => 'Genel aktivite başarıyla güncellendi.', 'data' => $generalActivity]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Genel aktivite güncellenirken hata oluştu.']);
         }
+
+        return response()->json(['success' => false, 'message' => 'Genel aktivite güncellenirken hata oluştu.']);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $generalActivity = GeneralActivity::find($id);
         if (!$generalActivity) {
             return response()->json(['success' => false, 'message' => 'Genel aktivite bulunamadı!']);
         }
 
-        $generalActivity->delete();
-        return response()->json(['success' => true, 'message' => 'Genel aktivite başarıyla silindi.']);
+        if ($generalActivity->delete()) {
+            return response()->json(['success' => true, 'message' => 'Genel aktivite başarıyla silindi.']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Genel aktivite silinirken hata oluştu.']);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Month;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
@@ -27,19 +28,67 @@ class MonthController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()->first()]);
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first()
+            ]);
         }
 
         return null;
     }
+
+    private function authenticate(Request $request)
+    {
+        $admin_id   = $request->header('X-ADMIN-ID');
+        $api_key    = $request->header('X-API-KEY');
+        $secret_key = $request->header('X-SECRET-KEY');
+
+        if (!$admin_id || !$api_key || !$secret_key) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kimlik doğrulama bilgileri eksik!'
+            ]);
+        }
+
+        $admin = Admin::where('id', $admin_id)
+                      ->where('api_key', $api_key)
+                      ->where('secret_key', $secret_key)
+                      ->first();
+
+        if (!$admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yetkiniz bulunmamaktadır!'
+            ]);
+        }
+
+        return $admin;
+    }
+
     public function index()
     {
         $months = Month::all();
-        return response()->json(['success' => true, 'data' => $months]);
+
+        if ($months->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ay kaydı bulunamadı.'
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data'    => $months
+        ]);
     }
 
     public function store(Request $request)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) {
+            return $auth;
+        }
+
         $validation = $this->validateRequest($request, 'store');
         if ($validation) {
             return $validation;
@@ -47,21 +96,34 @@ class MonthController extends Controller
 
         $month = new Month();
         $month->month_name = $request->month_name;
-        $result = $month->save();
 
-        if ($result) {
-            return response()->json(['success' => true, 'message' => 'Ay başarıyla kaydedildi.', 'data' => $month]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Ay kaydedilirken bir hata oluştu.']);
+        if ($month->save()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Ay başarıyla kaydedildi.',
+                'data'    => $month
+            ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Ay kaydedilirken bir hata oluştu.'
+        ]);
     }
 
     public function update(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) {
+            return $auth;
+        }
 
         $month = Month::find($id);
         if (!$month) {
-            return response()->json(['success' => false, 'message' => 'Ay bulunamadı!']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Ay bulunamadı!'
+            ]);
         }
 
         $validation = $this->validateRequest($request, 'update');
@@ -69,29 +131,48 @@ class MonthController extends Controller
             return $validation;
         }
 
-        $month->month_name = $request->month_name;
-        $result = $month->save();
+        // İsteğe bağlı olarak, sadece gönderilen alan güncellensin:
+        $month->month_name = $request->month_name ?? $month->month_name;
 
-        if ($result) {
-            return response()->json(['success' => true, 'message' => 'Ay başarıyla güncellendi.', 'data' => $month]);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Ay güncellenirken bir hata oluştu.']);
+        if ($month->save()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Ay başarıyla güncellendi.',
+                'data'    => $month
+            ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Ay güncellenirken bir hata oluştu.'
+        ]);
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) {
+            return $auth;
+        }
+
         $month = Month::find($id);
         if (!$month) {
-            return response()->json(['success' => false, 'message' => 'Ay bulunamadı!']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Ay bulunamadı!'
+            ]);
         }
 
-        $result = $month->delete();
-
-        if ($result) {
-            return response()->json(['success' => true, 'message' => 'Ay başarıyla silindi.']);
-        } else {
-            return response()->json(['success' => false, 'message' => 'Ay silinirken bir hata oluştu.']);
+        if ($month->delete()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Ay başarıyla silindi.'
+            ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Ay silinirken bir hata oluştu.'
+        ]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\WorkstationType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -37,27 +38,59 @@ class WorkstationTypeController extends Controller
         return null;
     }
 
-    /**
-     * Tüm istasyon tipi kayıtlarını listele.
-     */
+    private function authenticate(Request $request)
+    {
+        $admin_id   = $request->header('X-ADMIN-ID');
+        $api_key    = $request->header('X-API-KEY');
+        $secret_key = $request->header('X-SECRET-KEY');
+
+        if (!$admin_id || !$api_key || !$secret_key) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kimlik doğrulama bilgileri eksik!'
+            ]);
+        }
+
+        $admin = Admin::where('id', $admin_id)
+                      ->where('api_key', $api_key)
+                      ->where('secret_key', $secret_key)
+                      ->first();
+
+        if (!$admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yetkiniz bulunmamaktadır!'
+            ]);
+        }
+
+        return $admin;
+    }
+
     public function index()
     {
         $workstationTypes = WorkstationType::all();
+
+        if ($workstationTypes->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'İstasyon tipi kaydı bulunamadı.'
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'data'    => $workstationTypes
         ]);
     }
 
-    /**
-     * Yeni istasyon tipi kaydı oluştur.
-     */
     public function store(Request $request)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $validation = $this->validateRequest($request, 'store');
-        if ($validation) {
-            return $validation;
-        }
+        if ($validation) return $validation;
+
         $workstationType = new WorkstationType();
         $workstationType->workstation_code = $request->workstation_code;
         $workstationType->workstation_name = $request->workstation_name;
@@ -78,11 +111,11 @@ class WorkstationTypeController extends Controller
         }
     }
 
-    /**
-     * İstasyon tipi kaydını güncelle.
-     */
     public function update(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $workstationType = WorkstationType::find($id);
         if (!$workstationType) {
             return response()->json([
@@ -92,9 +125,7 @@ class WorkstationTypeController extends Controller
         }
 
         $validation = $this->validateRequest($request, 'update');
-        if ($validation) {
-            return $validation;
-        }
+        if ($validation) return $validation;
 
         $workstationType->workstation_code = $request->workstation_code ?? $workstationType->workstation_code;
         $workstationType->workstation_name = $request->workstation_name ?? $workstationType->workstation_name;
@@ -115,11 +146,11 @@ class WorkstationTypeController extends Controller
         }
     }
 
-    /**
-     * İstasyon tipi kaydını sil.
-     */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $workstationType = WorkstationType::find($id);
         if (!$workstationType) {
             return response()->json([
@@ -128,10 +159,16 @@ class WorkstationTypeController extends Controller
             ]);
         }
 
-        $workstationType->delete();
+        if ($workstationType->delete()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'İstasyon tipi kaydı başarıyla silindi.'
+            ]);
+        }
+
         return response()->json([
-            'success' => true,
-            'message' => 'İstasyon tipi kaydı başarıyla silindi.'
+            'success' => false,
+            'message' => 'İstasyon tipi kaydı silinirken hata oluştu.'
         ]);
     }
 }

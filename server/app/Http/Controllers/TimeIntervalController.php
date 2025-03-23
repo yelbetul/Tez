@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TimeInterval;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
@@ -37,35 +38,65 @@ class TimeIntervalController extends Controller
         return null;
     }
 
-    /**
-     * Tüm kayıtları listele.
-     */
+    private function authenticate(Request $request)
+    {
+        $admin_id   = $request->header('X-ADMIN-ID');
+        $api_key    = $request->header('X-API-KEY');
+        $secret_key = $request->header('X-SECRET-KEY');
+
+        if (!$admin_id || !$api_key || !$secret_key) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kimlik doğrulama bilgileri eksik!'
+            ]);
+        }
+
+        $admin = Admin::where('id', $admin_id)
+                      ->where('api_key', $api_key)
+                      ->where('secret_key', $secret_key)
+                      ->first();
+
+        if (!$admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Yetkiniz bulunmamaktadır!'
+            ]);
+        }
+
+        return $admin;
+    }
+
     public function index()
     {
         $timeIntervals = TimeInterval::all();
+
+        if ($timeIntervals->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Zaman aralığı kaydı bulunamadı.'
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'data'    => $timeIntervals
         ]);
     }
 
-    /**
-     * Yeni zaman aralığı kaydı oluştur.
-     */
     public function store(Request $request)
     {
-        // Validasyon işlemi
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $validation = $this->validateRequest($request, 'store');
         if ($validation) {
             return $validation;
         }
 
-        // Yeni kayıt oluşturma
         $timeInterval = new TimeInterval();
         $timeInterval->code = $request->code;
         $timeInterval->time_interval = $request->time_interval;
 
-        // Kaydetme işlemi
         $result = $timeInterval->save();
 
         if ($result) {
@@ -82,12 +113,11 @@ class TimeIntervalController extends Controller
         }
     }
 
-    /**
-     * Zaman aralığı kaydını güncelle.
-     */
     public function update(Request $request, $id)
     {
-        // İlgili kaydı bul
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $timeInterval = TimeInterval::find($id);
         if (!$timeInterval) {
             return response()->json([
@@ -120,11 +150,11 @@ class TimeIntervalController extends Controller
         }
     }
 
-    /**
-     * Zaman aralığı kaydını sil.
-     */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        $auth = $this->authenticate($request);
+        if ($auth instanceof \Illuminate\Http\JsonResponse) return $auth;
+
         $timeInterval = TimeInterval::find($id);
         if (!$timeInterval) {
             return response()->json([
@@ -133,10 +163,16 @@ class TimeIntervalController extends Controller
             ]);
         }
 
-        $timeInterval->delete();
+        if ($timeInterval->delete()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Zaman aralığı kaydı başarıyla silindi.'
+            ]);
+        }
+
         return response()->json([
-            'success' => true,
-            'message' => 'Zaman aralığı kaydı başarıyla silindi.'
+            'success' => false,
+            'message' => 'Zaman aralığı kaydı silinirken hata oluştu.'
         ]);
     }
 }
