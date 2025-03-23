@@ -10,9 +10,9 @@
                     <span><i class="fa-solid fa-xmark"></i> {{ errorMessage }}</span>
                 </div>
                 <div class="form-element">
-                    <label for="injury_cause">Yaralanma Nedeni</label>
-                    <input type="text" id="injury_cause" v-model="formData.injury_cause"
-                        placeholder="Yaralanma nedenini giriniz...">
+                    <label for="injury_cause">Yaralanma Nedeni (Kod)</label>
+                    <input type="text" id="injury_cause" v-model="formData.injury_cause_code"
+                        placeholder="Yaralanma nedenini (kod) giriniz...">
                 </div>
                 <div class="form-element">
                     <label for="group_code">Grup Kodu</label>
@@ -41,6 +41,9 @@
 </template>
 
 <script>
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
 export default {
     props: {
         visible: {
@@ -65,12 +68,56 @@ export default {
             errorMessage: null
         };
     },
+    watch: {
+        data: {
+            handler(newVal) {
+                if (newVal) {
+                    this.formData = { ...newVal };
+                }
+            },
+            deep: true,
+            immediate: true
+        }
+    },
     methods: {
         closeModal() {
             this.$emit('close');
         },
+
         submitForm() {
-            this.closeModal();
+            if (this.state == 'new') {
+                axios.post('https://iskazalarianaliz.com/api/injury-causes/store', this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true;
+                            this.errorMessage = res.data.message;
+                        } else {
+                            Swal.fire({
+                                title: 'Başarılı!',
+                                text: 'Yaralanma nedeni başarıyla eklendi.',
+                                icon: 'success',
+                            }).then(() => {
+                                this.$emit('close');
+                            });
+                        }
+                    });
+            } else {
+                axios.put('https://iskazalarianaliz.com/api/injury-causes/update/' + this.formData.id, this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true;
+                            this.errorMessage = res.data.message;
+                        } else {
+                            Swal.fire({
+                                title: 'Başarılı!',
+                                text: 'Yaralanma nedeni başarıyla güncellendi.',
+                                icon: 'success',
+                            }).then(() => {
+                                this.$emit('close');
+                            });
+                        }
+                    });
+            }
         }
     }
 }
