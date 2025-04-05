@@ -41,6 +41,9 @@
 </template>
 
 <script>
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
 export default {
     props: {
         visible: {
@@ -65,12 +68,55 @@ export default {
             errorMessage: null
         };
     },
+    watch: {
+        data: {
+            handler(newVal) {
+                if (newVal) {
+                    this.formData = { ...newVal };
+                }
+            },
+            deep: true,
+            immediate: true
+        }
+    },
     methods: {
         closeModal() {
             this.$emit('close');
         },
         submitForm() {
-            this.closeModal();
+            if (this.state == 'new') {
+                axios.post('https://iskazalarianaliz.com/api/materials/store', this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true;
+                            this.errorMessage = res.data.message;
+                        } else {
+                            Swal.fire({
+                                title: 'Başarılı!',
+                                text: 'Materyal başarıyla eklendi.',
+                                icon: 'success',
+                            }).then(() => {
+                                this.$emit('close');
+                            });
+                        }
+                    });
+            } else {
+                axios.put('https://iskazalarianaliz.com/api/materials/update/' + this.formData.id, this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true;
+                            this.errorMessage = res.data.message;
+                        } else {
+                            Swal.fire({
+                                title: 'Başarılı!',
+                                text: 'Materyal başarıyla güncellendi.',
+                                icon: 'success',
+                            }).then(() => {
+                                this.$emit('close');
+                            });
+                        }
+                    });
+            }
         }
     }
 }

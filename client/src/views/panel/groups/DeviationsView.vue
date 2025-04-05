@@ -15,89 +15,130 @@
                     <td style="width: 10%;"></td>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Lorem.</td>
-                        <td>Lorem.</td>
-                        <td>Lorem.</td>
-                        <td>Lorem.</td>
-                        <td>Lorem.</td>
+                    <tr v-for="item in deviations" :key="item.id">
+                        <td>{{ item.deviation_code }}</td>
+                        <td>{{ item.group_code }}</td>
+                        <td>{{ item.group_name }}</td>
+                        <td>{{ item.sub_group_code }}</td>
+                        <td>{{ item.sub_group_name }}</td>
                         <td>
-                            <i @click="updateDeviationCode" class="fa-solid fa-pen-to-square"></i>
-                            <i @click="deleteDeviationCode" class="fa-solid fa-trash-can"></i>
+                            <i @click="updateDeviationCode(item)" class="fa-solid fa-pen-to-square"></i>
+                            <i @click="deleteDeviationCode(item)" class="fa-solid fa-trash-can"></i>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
-    <DeviationCode v-if="modal_visible" :visible="modal_visible" :state="state" @close="closeModal" />
+    <DeviationCode v-if="modal_visible" :visible="modal_visible" :data="selected_deviation" :state="state" @close="closeModal" />
 </template>
 
 <script>
 import DeviationCode from '@/components/panel/groups/AppDeviations.vue';
 import PageNavbar from '@/components/panel/PageNavbar.vue';
+import { useAuthStore } from '@/stores/AuthStore';
+import axios from 'axios';
 import Swal from 'sweetalert2';
-    export default {
-        components: {
-            PageNavbar,
-            DeviationCode
-        },
-        data() {
-            return {
-                navbarData: {
-                    title: 'Sapmalar',
-                    backRoute: '/admin/groups',
-                },
-                state: null,
-                modal_visible: false
-            }
-        },
-        methods:{
-            newDeviationCode(){
-                this.state = 'new'
-                this.modal_visible = true
+export default {
+    components: {
+        PageNavbar,
+        DeviationCode
+    },
+    setup() {
+        const authStore = useAuthStore()
+        return { authStore }
+    },
+    data() {
+        return {
+            navbarData: {
+                title: 'Sapmalar',
+                backRoute: '/admin/groups',
             },
-            updateDeviationCode(){
-                this.state = 'update'
-                this.modal_visible = true
-            },
-            closeModal(){
-                this.state = null
-                this.modal_visible = false
-            },
-            deleteDeviationCode(){
-                Swal.fire({
-                    title: 'Emin misiniz?',
-                    text: "Bu işlemi geri alamazsınız!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#003049',
-                    cancelButtonColor: '#92140cff',
-                    confirmButtonText: 'Evet, sil!',
-                    cancelButtonText: 'Hayır, iptal et',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.reload();
-                    }
-                });
-            }
+            deviations: [],
+            state: null,
+            modal_visible: false,
+            selected_deviation: null
         }
+    },
+    methods: {
+        newDeviationCode() {
+            this.state = 'new'
+            this.modal_visible = true
+        },
+        updateDeviationCode(item) {
+            this.state = 'update'
+            this.modal_visible = true
+            this.selected_deviation = item
+        },
+        closeModal() {
+            this.state = null
+            this.modal_visible = false
+            this.selected_activity = null
+            this.initializeAuth()
+        },
+        deleteDeviationCode(item) {
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Bu işlemi geri alamazsınız!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#003049',
+                cancelButtonColor: '#92140cff',
+                confirmButtonText: 'Evet, sil!',
+                cancelButtonText: 'Hayır, iptal et',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.delete('https://iskazalarianaliz.com/api/deviations/delete/' + item.id)
+                        .then(res => {
+                            if (res.data.success) {
+                                this.initializeAuth()
+                                Swal.fire({
+                                    title: 'Silindi!',
+                                    text: 'Sapma kodu başarıyla silindi.',
+                                    icon: 'success',
+                                });
+                            }
+                        })
+                }
+            });
+        },
+        async initializeAuth() {
+            await this.authStore.fetchAuthData();
+
+            axios.get('https://iskazalarianaliz.com/api/deviations')
+                .then(res => {
+                    this.deviations = res.data.data
+                })
+        },
+    },
+    created() {
+        const is_logged_in = localStorage.getItem('is_logged_in') === 'true'
+
+        if (!is_logged_in) {
+            this.$router.push('/admin/login')
+            return
+        }
+
+        this.initializeAuth()
     }
+}
 </script>
 
 <style scoped>
-.page-container{
+.page-container {
     background-color: var(--panel-bg);
     min-height: 100vh;
 }
-.navbar-buttons{
-    width: 100%; 
+
+.navbar-buttons {
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     margin-top: 1%;
 }
-.navbar-buttons span{
+
+.navbar-buttons span {
     width: 20%;
     border: 1px solid var(--main-color);
     display: flex;
@@ -108,19 +149,23 @@ import Swal from 'sweetalert2';
     cursor: pointer;
     transition: all ease .3s;
 }
-.navbar-buttons span i{
+
+.navbar-buttons span i {
     margin-right: 10px;
 }
-.navbar-buttons span:hover{
+
+.navbar-buttons span:hover {
     background-color: var(--main-color);
     color: var(--second-color);
 }
-.table-container{
+
+.table-container {
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
 table {
     margin-top: 2%;
     width: 90%;
@@ -142,20 +187,24 @@ td {
     height: 50px;
     vertical-align: middle;
 }
-tr:hover{
+
+tr:hover {
     background-color: #f5e7cd;
 }
+
 tbody tr td:last-child {
     display: flex;
     justify-content: space-around;
     align-items: center;
 }
-tbody tr td:last-child i{
+
+tbody tr td:last-child i {
     font-size: 1.2rem;
     cursor: pointer;
     color: var(--main-color);
 }
-tbody tr td:last-child i:hover{
+
+tbody tr td:last-child i:hover {
     color: var(--penn-red);
 }
 </style>

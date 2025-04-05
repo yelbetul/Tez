@@ -89,6 +89,26 @@ const router = createRouter({
       name: 'admin_work-environments',
       component: () => import('../views/panel/groups/WorkEnvironmentsView.vue'),
     },
+    {
+      path: '/admin/groups/work-stations',
+      name: 'admin_work-stations',
+      component: () => import('../views/panel/groups/WorkStationsView.vue'),
+    },
+    {
+      path: '/admin/groups/work-times',
+      name: 'admin_work-times',
+      component: () => import('../views/panel/groups/WorkTimesView.vue'),
+    },
+    {
+      path: '/admin/groups/employee-groups',
+      name: 'admin_employee-groups',
+      component: () => import('../views/panel/groups/EmployeeGroupsView.vue'),
+    },
+    {
+      path: '/admin/groups/employee-times',
+      name: 'admin_employee-times',
+      component: () => import('../views/panel/groups/EmployeeTimesView.vue'),
+    },
 
 
     {

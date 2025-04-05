@@ -4,15 +4,15 @@
             <div class="close" @click="closeModal">
                 <i class="fa-solid fa-xmark"></i>
             </div>
-            <h2>Çalışma Ortamı Kodu {{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</h2>
+            <h2>Çalışılan Çevre Kodu {{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</h2>
             <form class="form" @submit.prevent="submitForm">
                 <div v-if="error" class="form-error">
                     <span><i class="fa-solid fa-xmark"></i> {{ errorMessage }}</span>
                 </div>
                 <div class="form-element">
-                    <label for="work_environment">Çalışma Ortamı Kodu</label>
-                    <input type="text" id="work_environment" v-model="formData.work_environment"
-                        placeholder="Çalışma ortamı kodu giriniz...">
+                    <label for="work_environment">Çalışılan Çevre Kodu</label>
+                    <input type="text" id="work_environment" v-model="formData.environment_code"
+                        placeholder="Çalışılan Çevre kodu giriniz...">
                 </div>
                 <div class="form-element">
                     <label for="group_code">Grup Kodu</label>
@@ -41,6 +41,9 @@
 </template>
 
 <script>
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
 export default {
     props: {
         visible: {
@@ -59,18 +62,61 @@ export default {
     data() {
         return {
             formData: {
-                
+
             },
             error: false,
             errorMessage: null
         };
+    },
+    watch: {
+        data: {
+            handler(newVal) {
+                if (newVal) {
+                    this.formData = { ...newVal };
+                }
+            },
+            deep: true,
+            immediate: true
+        }
     },
     methods: {
         closeModal() {
             this.$emit('close');
         },
         submitForm() {
-            this.closeModal();
+            if (this.state == 'new') {
+                axios.post('https://iskazalarianaliz.com/api/work-environments/store', this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true;
+                            this.errorMessage = res.data.message;
+                        } else {
+                            Swal.fire({
+                                title: 'Başarılı!',
+                                text: 'Çalışılan çevre başarıyla eklendi.',
+                                icon: 'success',
+                            }).then(() => {
+                                this.$emit('close');
+                            });
+                        }
+                    });
+            } else {
+                axios.put('https://iskazalarianaliz.com/api/work-environments/update/' + this.formData.id, this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true;
+                            this.errorMessage = res.data.message;
+                        } else {
+                            Swal.fire({
+                                title: 'Başarılı!',
+                                text: 'Çalışılan çevre başarıyla güncellendi.',
+                                icon: 'success',
+                            }).then(() => {
+                                this.$emit('close');
+                            });
+                        }
+                    });
+            }
         }
     }
 }

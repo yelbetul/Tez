@@ -14,7 +14,11 @@
             <button @click.prevent="goToPage('/admin/groups/special-activities')">Özel Faaliyet</button>
             <button @click.prevent="goToPage('/admin/groups/deviations')">Sapmalar</button>
             <button @click.prevent="goToPage('/admin/groups/materials')">Materyaller</button>
-            <button @click.prevent="goToPage('/admin/groups/work-environments')">Çalışma Ortamları</button>
+            <button @click.prevent="goToPage('/admin/groups/work-environments')">Çalışılan Çevre</button>
+            <button @click.prevent="goToPage('/admin/groups/work-stations')">Çalışma Ortamları</button>
+            <button @click.prevent="goToPage('/admin/groups/work-times')">Çalışma Saatleri</button>
+            <button @click.prevent="goToPage('/admin/groups/employee-groups')">Çalışma Grupları</button>
+            <button @click.prevent="goToPage('/admin/groups/employee-times')">Çalışma Süreleri</button>
         </div>
     </div>
 </template>
@@ -71,10 +75,10 @@ export default {
 }
 
 .go-to-page-container {
-    min-height: 80vh;
+    min-height: 100vh;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
 }
 
@@ -100,8 +104,7 @@ export default {
 
 .go-to-page-container button {
     width: 30%;
-    height: 15vh;
-    margin: 1% 0;
+    min-height: 12vh;
     background-color: var(--second-color);
     color: var(--main-color);
     border: none;
@@ -117,7 +120,7 @@ export default {
 
 .go-to-page-container button i {
     margin-right: 24px;
-    font-size: 1.9rem;
+    font-size: 1.7rem;
 }
 
 .go-to-page-container button:hover {

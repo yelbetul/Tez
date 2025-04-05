@@ -11,7 +11,7 @@
                 </div>
                 <div class="form-element">
                     <label for="deviations_code">Sapma Kodu</label>
-                    <input type="text" id="deviations_code" v-model="formData.deviations_code"
+                    <input type="text" id="deviations_code" v-model="formData.deviation_code"
                         placeholder="Sapma kodu giriniz...">
                 </div>
                 <div class="form-element">
@@ -41,6 +41,9 @@
 </template>
 
 <script>
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
 export default {
     props: {
         visible: {
@@ -65,12 +68,55 @@ export default {
             errorMessage: null
         };
     },
+    watch: {
+        data: {
+            handler(newVal) {
+                if (newVal) {
+                    this.formData = { ...newVal };
+                }
+            },
+            deep: true,
+            immediate: true
+        }
+    },
     methods: {
         closeModal() {
             this.$emit('close');
         },
         submitForm() {
-            this.closeModal();
+            if (this.state == 'new') {
+                axios.post('https://iskazalarianaliz.com/api/deviations/store', this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true;
+                            this.errorMessage = res.data.message;
+                        } else {
+                            Swal.fire({
+                                title: 'Başarılı!',
+                                text: 'Sapma kodu başarıyla eklendi.',
+                                icon: 'success',
+                            }).then(() => {
+                                this.$emit('close');
+                            });
+                        }
+                    });
+            } else {
+                axios.put('https://iskazalarianaliz.com/api/deviations/update/' + this.formData.id, this.formData)
+                    .then(res => {
+                        if (!res.data.success) {
+                            this.error = true;
+                            this.errorMessage = res.data.message;
+                        } else {
+                            Swal.fire({
+                                title: 'Başarılı!',
+                                text: 'Sapma kodu başarıyla güncellendi.',
+                                icon: 'success',
+                            }).then(() => {
+                                this.$emit('close');
+                            });
+                        }
+                    });
+            }
         }
     }
 }
