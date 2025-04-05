@@ -65,13 +65,7 @@ export default {
     width: 100%;
     min-height: 100vh;
     padding: 2% 3%;
-    background-color: var(--panel-bg);
-}
-
-.log-out-container {
-    width: 100%;
-    display: flex;
-    justify-content: end;
+    background-color: var(--panel-main-bg);
 }
 
 .go-to-page-container {
@@ -82,31 +76,11 @@ export default {
     align-items: center;
 }
 
-.log-out-container button {
-    width: 15%;
-    background-color: var(--second-color);
-    color: var(--main-color);
-    padding: 8px 0;
-    border-radius: 10px;
-    border: none;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all .3s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.log-out-container button i {
-    margin-right: 8px;
-    font-size: 1.2rem;
-}
-
 .go-to-page-container button {
     width: 30%;
     min-height: 12vh;
-    background-color: var(--second-color);
-    color: var(--main-color);
+    background-color: var(--main-color);
+    color: var(--text-white);
     border: none;
     padding: 8px 0;
     border-radius: 10px;

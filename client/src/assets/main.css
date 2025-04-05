@@ -19,5 +19,7 @@ body {
   --penn-red: #92140cff;
   --battleship-gray: #909590ff;
   --label-color: #000;
-  --panel-bg: #f2ebde;
+  --panel-main-bg: linear-gradient(to right, #f0f4f8, #d9e2ec);
+  --panel-bg: #f0f4f8;
+  --text-white: #fff;
 }

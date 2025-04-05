@@ -111,6 +111,24 @@ const router = createRouter({
     },
 
 
+
+    {
+      path: '/admin/tables',
+      name: 'admin_tables',
+      component: () => import('../views/panel/tables/WelcomeView.vue'),
+    },
+    {
+      path: '/admin/tables/sector-codes/work-accidents',
+      name: 'admin_tables_sector_codes_work_accidents',
+      component: () => import('../views/panel/tables/WorkAccidentsBySectorCodesView.vue'),
+    },
+    {
+      path: '/admin/tables/sector-codes/fatal-work-accidents',
+      name: 'admin_tables_sector_codes_fatal_work_accidents',
+      component: () => import('../views/panel/tables/FatalWorkAccidentsBySectorCodesView.vue'),
+    },
+
+
     {
       path: '/admin/developers',
       name: 'admin_developers',

@@ -3,6 +3,7 @@
         <PageNavbar :navData="navbarData" />
         <div class="navbar-buttons">
             <span @click="newSpecialActivity"><i class="fa-solid fa-plus"></i>Yeni Özel Faaliyet Kodu</span>
+            <span @click="downloadExcel"><i class="fa-solid fa-download"></i> Dışarı Aktar</span>
         </div>
         <div class="table-container">
             <table>
@@ -40,6 +41,7 @@ import PageNavbar from '@/components/panel/PageNavbar.vue';
 import { useAuthStore } from '@/stores/AuthStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import ExcelJS from 'exceljs'
 export default {
     components: {
         PageNavbar,
@@ -103,6 +105,59 @@ export default {
                 }
             });
         },
+        downloadExcel() {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Özel Faaliyet');
+
+            worksheet.columns = [
+                { header: 'Özel Faaliyet Kodu', key: 'special_activity_code', width: 20 },
+                { header: 'Grup Kodu', key: 'group_code', width: 15 },
+                { header: 'Grup Adı', key: 'group_name', width: 25 },
+                { header: 'Alt Grup Kodu', key: 'sub_group_code', width: 20 },
+                { header: 'Alt Grup Adı', key: 'sub_group_name', width: 25 },
+            ];
+
+            this.special_activities.forEach((item) => {
+                worksheet.addRow({
+                    special_activity_code: item.special_activity_code,
+                    group_code: item.group_code,
+                    group_name: item.group_name,
+                    sub_group_code: item.sub_group_code,
+                    sub_group_name: item.sub_group_name,
+                });
+            });
+
+            const headerRow = worksheet.getRow(1);
+            headerRow.font = {
+                bold: true,
+                size: 14,
+                color: { argb: 'FFFFFFFF' },
+            };
+
+            headerRow.eachCell((cell) => {
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FF003049' },
+                };
+                cell.alignment = {
+                    horizontal: 'center',
+                    vertical: 'middle',
+                };
+            });
+
+            workbook.xlsx.writeBuffer().then((buffer) => {
+                const blob = new Blob([buffer], { type: 'application/octet-stream' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Özel_Faaliyet.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            });
+        },
         async initializeAuth() {
             await this.authStore.fetchAuthData();
 
@@ -134,7 +189,7 @@ export default {
 .navbar-buttons {
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
     margin-top: 1%;
 }

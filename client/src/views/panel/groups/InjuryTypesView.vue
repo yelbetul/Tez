@@ -2,7 +2,8 @@
     <div class="page-container">
         <PageNavbar :navData="navbarData" />
         <div class="navbar-buttons">
-            <span @click="newInjuryType"><i class="fa-solid fa-plus"></i> Yeni Yara Türü</span>
+            <span @click="newInjuryType"><i class="fa-solid fa-plus"></i> Yeni Yara Türü</span> 
+            <span @click="downloadExcel"><i class="fa-solid fa-download"></i> Dışarı Aktar</span>
         </div>
         <div class="table-container">
             <table>
@@ -40,6 +41,7 @@ import PageNavbar from '@/components/panel/PageNavbar.vue';
 import { useAuthStore } from '@/stores/AuthStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import ExcelJS from 'exceljs';
 export default {
     components: {
         PageNavbar,
@@ -103,6 +105,61 @@ export default {
                 }
             });
         },
+        downloadExcel() {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Yara Türleri');
+
+            worksheet.columns = [
+                { header: 'Yara Kodu', key: 'injury_code', width: 15 },
+                { header: 'Grup Kodu', key: 'group_code', width: 15 },
+                { header: 'Grup Adı', key: 'group_name', width: 30 },
+                { header: 'Alt Grup Kodu', key: 'sub_group_code', width: 20 },
+                { header: 'Alt Grup Adı', key: 'sub_group_name', width: 30 },
+            ];
+
+            this.injury_types.forEach((item) => {
+                worksheet.addRow({
+                    injury_code: item.injury_code,
+                    group_code: item.group_code,
+                    group_name: item.group_name,
+                    sub_group_code: item.sub_group_code,
+                    sub_group_name: item.sub_group_name,
+                });
+            });
+
+            // Başlık stil ayarları
+            const headerRow = worksheet.getRow(1);
+            headerRow.font = {
+                bold: true,
+                size: 14,
+                color: { argb: 'FFFFFFFF' },
+            };
+
+            headerRow.eachCell((cell) => {
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FF003049' },
+                };
+                cell.alignment = {
+                    horizontal: 'center',
+                    vertical: 'middle',
+                };
+            });
+
+            // Dosya olarak indir
+            workbook.xlsx.writeBuffer().then((buffer) => {
+                const blob = new Blob([buffer], { type: 'application/octet-stream' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Yara_Turleri.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            });
+        },
         async initializeAuth() {
             await this.authStore.fetchAuthData();
 
@@ -134,7 +191,7 @@ export default {
 .navbar-buttons {
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
     margin-top: 1%;
 }

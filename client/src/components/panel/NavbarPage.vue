@@ -10,6 +10,11 @@
             <h2>İş Kazaları Analizi <br> {{ title }}</h2>
         </div>
         <div class="panel-nav-item3">
+            <div v-if="this.$route.path !== '/admin/welcome'" class="logout-button"
+                @click="this.$router.push('/admin/welcome')">
+                <i class="fa-solid fa-home"></i>
+                <span>Anasayfa</span>
+            </div>
             <div class="logout-button" @click="logout">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 <span @click="logout">Çıkış Yap</span>

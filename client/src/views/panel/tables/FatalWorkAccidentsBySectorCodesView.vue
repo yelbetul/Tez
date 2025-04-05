@@ -2,50 +2,50 @@
     <div class="page-container">
         <PageNavbar :navData="navbarData" />
         <div class="navbar-buttons">
-            <span @click="newInjuryCause"><i class="fa-solid fa-plus"></i> Yeni Yaralanma Nedeni</span>
+            <span @click="newData"><i class="fa-solid fa-plus"></i> Yeni Veri Ekle</span>
             <span @click="downloadExcel"><i class="fa-solid fa-download"></i> Dışarı Aktar</span>
         </div>
         <div class="table-container">
             <table>
                 <thead>
-                    <td>Yaralanma Nedeni</td>
-                    <td>Grup Kodu</td>
-                    <td>Grup Adı</td>
-                    <td>Alt Grup Kodu</td>
-                    <td>Alt Grup Adı</td>
+                    <td>Yıl</td>
+                    <td>Sektör Kodu</td>
+                    <td>Cinsiyet</td>
+                    <td>İş Kazası Sonucu <br> <span>Ölenler</span></td>
+                    <td>Meslek Hastalığı Sonucu<br> <span>Ölenler</span></td>
                     <td style="width: 10%;"></td>
                 </thead>
                 <tbody>
-                    <tr v-for="item in injury_causes" :key="item.id">
-                        <td>{{ item.injury_cause_code }}</td>
-                        <td>{{ item.group_code }}</td>
-                        <td>{{ item.group_name }}</td>
-                        <td>{{ item.sub_group_code }}</td>
-                        <td>{{ item.sub_group_name }}</td>
+                    <tr v-for="item in data" :key="item.id">
+                        <td>{{ item.year }}</td>
+                        <td>{{ item.sector.sector_code }}</td>
+                        <td>{{ item.gender === 1 ? 'Kadın' : 'Erkek' }}</td>
+                        <td>{{ item.work_accident_fatalities }}</td>
+                        <td>{{ item.occupational_disease_fatalities }}</td>
                         <td>
-                            <i @click="updateInjuryCause(item)" class="fa-solid fa-pen-to-square"></i>
-                            <i @click="deleteInjuryCause(item)" class="fa-solid fa-trash-can"></i>
+                            <i @click="updateData(item)" class="fa-solid fa-pen-to-square"></i>
+                            <i @click="deleteData(item)" class="fa-solid fa-trash-can"></i>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
-    <InjuryCause v-if="modal_visible" :visible="modal_visible" :data="selected_cause" :state="state"
+    <WorkAccidentsBySectorCodes v-if="modal_visible" :visible="modal_visible" :data="selected_code" :state="state"
         @close="closeModal" />
 </template>
 
 <script>
-import InjuryCause from '@/components/panel/groups/InjuryCauses.vue';
 import PageNavbar from '@/components/panel/PageNavbar.vue';
 import { useAuthStore } from '@/stores/AuthStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import ExcelJS from 'exceljs'
+import ExcelJS from 'exceljs';
+import WorkAccidentsBySectorCodes from '@/components/panel/tables/FatalWorkAccidentsBySectorCodes.vue';
 export default {
     components: {
         PageNavbar,
-        InjuryCause
+        WorkAccidentsBySectorCodes
     },
     setup() {
         const authStore = useAuthStore()
@@ -54,32 +54,32 @@ export default {
     data() {
         return {
             navbarData: {
-                title: 'Yaralanma Nedenleri',
-                backRoute: '/admin/groups',
+                title: 'Sektörlere Göre Ölümlü İş Kazaları',
+                backRoute: '/admin/tables',
             },
             state: null,
             modal_visible: false,
-            injury_causes: [],
-            selected_cause: null,
+            selected_code: null,
+            data: []
         }
     },
     methods: {
-        newInjuryCause() {
+        newData() {
             this.state = 'new'
             this.modal_visible = true
         },
-        updateInjuryCause(item) {
+        updateData(item) {
             this.state = 'update'
             this.modal_visible = true
-            this.selected_cause = item
+            this.selected_code = item
         },
         closeModal() {
             this.state = null
             this.modal_visible = false
-            this.selected_cause = null
+            this.selected_code = null
             this.initializeAuth()
         },
-        deleteInjuryCause(item) {
+        deleteData(item) {
             Swal.fire({
                 title: 'Emin misiniz?',
                 text: "Bu işlemi geri alamazsınız!",
@@ -91,42 +91,44 @@ export default {
                 cancelButtonText: 'Hayır, iptal et',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.delete('https://iskazalarianaliz.com/api/injury-causes/delete/' + item.id)
+                    axios.delete('https://iskazalarianaliz.com/api/fatal-work-accidents-by-sector/delete/' + item.id)
                         .then(res => {
                             if (res.data.success) {
                                 this.initializeAuth()
                                 Swal.fire({
                                     title: 'Silindi!',
-                                    text: 'Yaralanma nedeni başarıyla silindi.',
+                                    text: 'Veri başarıyla silindi.',
                                     icon: 'success',
                                 });
                             }
                         })
                 }
             });
-        },
+        }, 
         downloadExcel() {
             const workbook = new ExcelJS.Workbook();
-            const worksheet = workbook.addWorksheet('Yaralanma Nedenleri');
+            const worksheet = workbook.addWorksheet('Ölümlü İş Kazaları Sektöre Göre');
 
             worksheet.columns = [
-                { header: 'Yaralanma Nedeni', key: 'injury_cause_code', width: 20 },
-                { header: 'Grup Kodu', key: 'group_code', width: 15 },
-                { header: 'Grup Adı', key: 'group_name', width: 25 },
-                { header: 'Alt Grup Kodu', key: 'sub_group_code', width: 20 },
-                { header: 'Alt Grup Adı', key: 'sub_group_name', width: 25 },
+                { header: 'Yıl', key: 'year', width: 10 },
+                { header: 'Sektör Kodu', key: 'sector_code', width: 15 },
+                { header: 'Cinsiyet', key: 'gender', width: 10 },
+                { header: 'İş Kazası Sonucu Ölenler', key: 'work_accident_fatalities', width: 15 },
+                { header: 'Meslek Hastalığı Sonucu Ölenler', key: 'occupational_disease_fatalities', width: 20 },
             ];
 
-            this.injury_causes.forEach((item) => {
+            // Verileri ekleyin
+            this.data.forEach((item) => {
                 worksheet.addRow({
-                    injury_cause_code: item.injury_cause_code,
-                    group_code: item.group_code,
-                    group_name: item.group_name,
-                    sub_group_code: item.sub_group_code,
-                    sub_group_name: item.sub_group_name,
+                    year: item.year,
+                    sector_code: item.sector.sector_code,  // Sektör Kodu
+                    gender: item.gender === 1 ? 'Kadın' : 'Erkek',  // Cinsiyet
+                    work_accident_fatalities: item.work_accident_fatalities,
+                    occupational_disease_fatalities: item.occupational_disease_fatalities,
                 });
             });
 
+            // Header stil ayarı
             const headerRow = worksheet.getRow(1);
             headerRow.font = {
                 bold: true,
@@ -146,12 +148,13 @@ export default {
                 };
             });
 
+            // Dosyayı indir
             workbook.xlsx.writeBuffer().then((buffer) => {
                 const blob = new Blob([buffer], { type: 'application/octet-stream' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'Yaralanma_Nedenleri.xlsx';
+                a.download = 'Olumlu_Is_Kazalari_Sektor_Gore.xlsx';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -161,9 +164,9 @@ export default {
         async initializeAuth() {
             await this.authStore.fetchAuthData();
 
-            axios.get('https://iskazalarianaliz.com/api/injury-causes')
+            axios.get('https://iskazalarianaliz.com/api/fatal-work-accidents-by-sector')
                 .then(res => {
-                    this.injury_causes = res.data.data
+                    this.data = res.data
                 })
         },
     },
@@ -176,6 +179,7 @@ export default {
         }
 
         this.initializeAuth()
+
     }
 }
 </script>
@@ -233,6 +237,9 @@ table {
 thead {
     background: var(--main-color);
     color: var(--second-color);
+}
+thead td span{
+    font-size: .8rem;
 }
 
 th,

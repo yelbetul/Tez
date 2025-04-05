@@ -3,6 +3,7 @@
         <PageNavbar :navData="navbarData" />
         <div class="navbar-buttons">
             <span @click="newOccupationCode"><i class="fa-solid fa-plus"></i> Yeni Meslek Grubu</span>
+            <span @click="downloadExcel"><i class="fa-solid fa-download"></i> Dışarı Aktar</span>
         </div>
         <div class="table-container">
             <table>
@@ -48,6 +49,7 @@ import PageNavbar from '@/components/panel/PageNavbar.vue';
 import { useAuthStore } from '@/stores/AuthStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import ExcelJS from 'exceljs';
 export default {
     components: {
         PageNavbar,
@@ -111,6 +113,69 @@ export default {
                 }
             });
         },
+        downloadExcel() {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Meslek Grupları');
+
+            worksheet.columns = [
+                { header: 'Kod', key: 'code', width: 10 },
+                { header: 'Meslek Kodu', key: 'occupation_code', width: 15 },
+                { header: 'Meslek Adı', key: 'occupation_name', width: 30 },
+                { header: 'Grup Kodu', key: 'group_code', width: 15 },
+                { header: 'Grup Adı', key: 'group_name', width: 30 },
+                { header: 'Alt Grup Kodu', key: 'sub_group_code', width: 15 },
+                { header: 'Alt Grup Adı', key: 'sub_group_name', width: 30 },
+                { header: 'Asil Kod', key: 'pure_code', width: 15 },
+                { header: 'Asil Ad', key: 'pure_name', width: 30 },
+            ];
+
+            this.occupation_groups.forEach((item) => {
+                worksheet.addRow({
+                    code: item.code,
+                    occupation_code: item.occupation_code,
+                    occupation_name: item.occupation_name,
+                    group_code: item.group_code,
+                    group_name: item.group_name,
+                    sub_group_code: item.sub_group_code,
+                    sub_group_name: item.sub_group_name,
+                    pure_code: item.pure_code,
+                    pure_name: item.pure_name,
+                });
+            });
+
+            // Başlık stil ayarları
+            const headerRow = worksheet.getRow(1);
+            headerRow.font = {
+                bold: true,
+                size: 14,
+                color: { argb: 'FFFFFFFF' },
+            };
+
+            headerRow.eachCell((cell) => {
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FF003049' },
+                };
+                cell.alignment = {
+                    horizontal: 'center',
+                    vertical: 'middle',
+                };
+            });
+
+            // Dosya olarak indir
+            workbook.xlsx.writeBuffer().then((buffer) => {
+                const blob = new Blob([buffer], { type: 'application/octet-stream' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Meslek_Grup_Kodlari.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            });
+        },
         async initializeAuth() {
             await this.authStore.fetchAuthData();
 
@@ -142,7 +207,7 @@ export default {
 .navbar-buttons {
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
     margin-top: 1%;
 }

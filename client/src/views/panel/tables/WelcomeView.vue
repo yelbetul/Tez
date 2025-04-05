@@ -1,14 +1,9 @@
 <template>
     <div class="welcome-container">
-
-        <PageNavbar title="Yönetim Paneli" />
-
+        <PageNavbar title="Tablolar"/>
         <div class="go-to-page-container">
-            <button @click.prevent="goToPage('/admin/groups')"><i class="fa-solid fa-list-ol"></i>İlgili
-                Gruplar</button>
-            <button @click.prevent="goToPage('/admin/tables')"><i class="fa-solid fa-database"></i>Tablolar</button>
-            <button @click.prevent="goToPage('/admin/developers')"><i
-                    class="fa-solid fa-user-secret"></i>Geliştiriciler</button>
+            <button @click.prevent="goToPage('/admin/tables/sector-codes/work-accidents')">Sektörlere Göre İş Kazaları</button>
+            <button @click.prevent="goToPage('/admin/tables/sector-codes/fatal-work-accidents')">Sektörlere Göre Ölümlü İş Kazaları</button>
         </div>
     </div>
 </template>
@@ -20,14 +15,18 @@ import { useAuthStore } from '@/stores/AuthStore';
 export default {
     components: {
         PageNavbar
-    },
+    },  
     setup() {
         const authStore = useAuthStore()
         return { authStore }
     },
+    data() {
+        return {
+        }
+    },
     methods: {
         goToPage(route) {
-            this.$router.push(route); 
+            this.$router.push(route);
         },
         async initializeAuth() {
             await this.authStore.fetchAuthData()
@@ -47,39 +46,42 @@ export default {
 </script>
 
 <style scoped>
-.welcome-container{
+.welcome-container {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     padding: 2% 3%;
-    background-color: var(--pane-main-bg);
+    background-color: var(--panel-main-bg);
 }
 
-.go-to-page-container{
-    height: 70vh;
+.go-to-page-container {
+    min-height: 80vh;
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-around;
     align-items: center;
 }
 
 .go-to-page-container button {
-    width: 30%;
-    height: 25vh;
+    width: 40%;
+    min-height: 12vh;
     background-color: var(--main-color);
     color: var(--text-white);
     border: none;
     padding: 8px 0;
     border-radius: 10px;
-    font-size: 2.4rem;
+    font-size: 1.7rem;
     cursor: pointer;
     transition: all .3s ease;
     display: flex;
     justify-content: center;
     align-items: center;
 }
-.go-to-page-container button i{
+
+.go-to-page-container button i {
     margin-right: 24px;
-    font-size: 2.8rem;
+    font-size: 1.7rem;
 }
+
 .go-to-page-container button:hover {
     background-color: var(--main-color);
     color: var(--second-color);
