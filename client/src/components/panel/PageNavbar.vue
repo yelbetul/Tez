@@ -87,6 +87,7 @@ export default {
 
 .nav-item-2 h3 {
     font-size: 1.5rem;
+    text-align: center;
     color: var(--main-color);
 }
 

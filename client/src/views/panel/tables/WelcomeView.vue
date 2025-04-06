@@ -4,6 +4,7 @@
         <div class="go-to-page-container">
             <button @click.prevent="goToPage('/admin/tables/sector-codes/work-accidents')">Sektörlere Göre İş Kazaları</button>
             <button @click.prevent="goToPage('/admin/tables/sector-codes/fatal-work-accidents')">Sektörlere Göre Ölümlü İş Kazaları</button>
+            <button @click.prevent="goToPage('/admin/tables/sector-codes/temporary-disability-days')">Sektörlere Göre Geçici İş Göremezlik Süreleri</button>
         </div>
     </div>
 </template>
@@ -69,7 +70,7 @@ export default {
     border: none;
     padding: 8px 0;
     border-radius: 10px;
-    font-size: 1.7rem;
+    font-size: 1.3rem;
     cursor: pointer;
     transition: all .3s ease;
     display: flex;

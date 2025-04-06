@@ -127,6 +127,11 @@ const router = createRouter({
       name: 'admin_tables_sector_codes_fatal_work_accidents',
       component: () => import('../views/panel/tables/FatalWorkAccidentsBySectorCodesView.vue'),
     },
+    {
+      path: '/admin/tables/sector-codes/temporary-disability-days',
+      name: 'admin_tables_sector_codes_temporary_disability_days',
+      component: () => import('../views/panel/tables/TemporaryDisabilityDaysBySectorCodesView.vue'),
+    },
 
 
     {
