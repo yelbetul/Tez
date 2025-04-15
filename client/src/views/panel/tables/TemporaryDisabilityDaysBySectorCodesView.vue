@@ -5,23 +5,41 @@
             <span @click="newData"><i class="fa-solid fa-plus"></i> Yeni Veri Ekle</span>
             <span @click="import_visible = true"><i class="fa-solid fa-upload"></i> İçeri Aktar</span>
             <span @click="downloadExcel"><i class="fa-solid fa-download"></i> Dışarı Aktar</span>
+            <!-- Yıl Filtresi -->
+            <div class="year-filter">
+                <select v-model="selectedYear" @change="filterData">
+                    <option value="">Tüm Yıllar</option>
+                    <option v-for="year in uniqueYears" :key="year" :value="year">{{ year }}</option>
+                </select>
+            </div>
         </div>
-        <div class="table-container">
+        <!-- Yükleniyor Durumu -->
+        <div v-if="isLoading" class="loading-overlay">
+            <div class="loader"></div>
+            <p>Veriler yükleniyor...</p>
+        </div>
+
+        <!-- Hata Mesajı -->
+        <div v-if="error" class="error-message">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            {{ error }}
+        </div>
+        <div class="table-container" v-if="!isLoading && !error">
             <table>
                 <thead>
                     <td>Yıl</td>
                     <td>Sektör Kodu</td>
                     <td>Cinsiyet</td>
                     <td>Durum</td>
+                    <td>1 Gün <br> <span>İş Göremez</span></td>
                     <td>2 Gün <br> <span>İş Göremez</span></td>
                     <td>3 Gün <br> <span>İş Göremez</span></td>
                     <td>4 Gün <br> <span>İş Göremez</span></td>
                     <td>5+ Gün <br> <span>İş Göremez</span></td>
-                    <td>Meslek Hastalığına Yakalanan</td>
                     <td style="width: 10%;"></td>
                 </thead>
                 <tbody>
-                    <tr v-for="item in data" :key="item.id">
+                    <tr v-for="item in filteredData" :key="item.id">
                         <td>{{ item.year }}</td>
                         <td>{{ item.sector.sector_code }}</td>
                         <td>{{ item.gender === 1 ? 'Kadın' : 'Erkek' }}</td>
@@ -75,8 +93,21 @@ export default {
             modal_visible: false,
             selected_code: null,
             data: [],
-            import_visible: false
-
+            import_visible: false,
+            selectedYear: '',
+            isLoading: false,
+            error: null
+        }
+    },
+    computed: {
+        // Filtrelenmiş veri
+        filteredData() {
+            if (!this.selectedYear) return this.data
+            return this.data.filter(item => item.year == this.selectedYear)
+        },
+        // Benzersiz yıllar
+        uniqueYears() {
+            return [...new Set(this.data.map(item => item.year))].sort((a, b) => b - a)
         }
     },
     methods: {
@@ -187,13 +218,19 @@ export default {
             });
         },
         async initializeAuth() {
-            await this.authStore.fetchAuthData();
+            this.isLoading = true
+            this.error = null
 
-            axios.get('https://iskazalarianaliz.com/api/temporary-disability-day-by-sector')
-                .then(res => {
-                    this.data = res.data
-                })
-        },
+            try {
+                await this.authStore.fetchAuthData()
+                const response = await axios.get('https://iskazalarianaliz.com/api/temporary-disability-day-by-sector')
+                this.data = response.data
+            } catch (err) {
+                this.error = 'Veriler yüklenirken bir hata oluştu: ' + (err.response?.data?.message || err.message)
+            } finally {
+                this.isLoading = false
+            }
+        }
     },
     created() {
         const is_logged_in = localStorage.getItem('is_logged_in') === 'true'
@@ -297,5 +334,60 @@ tbody tr td:last-child i:hover {
 
 .fa-pen-to-square {
     margin-right: 10px;
+}
+
+/* Yıl Filtresi Stili */
+.year-filter {
+    display: inline-block;
+    margin-left: 20px;
+}
+
+.year-filter select {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #003049;
+    background-color: white;
+}
+
+/* Yükleniyor Stili */
+.loading-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1000;
+}
+
+.loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #003049;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 10px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Hata Mesajı Stili */
+.error-message {
+    padding: 15px;
+    background-color: #ffebee;
+    color: #b71c1c;
+    border-radius: 4px;
+    margin: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 </style>
