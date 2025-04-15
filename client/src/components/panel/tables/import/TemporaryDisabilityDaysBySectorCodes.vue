@@ -4,7 +4,7 @@
             <div class="close" @click="closeModal">
                 <i class="fa-solid fa-xmark"></i>
             </div>
-            <h2>Sektöre Göre İş Kazası Verisi Aktar</h2>
+            <h2>Sektörlere Göre Geçici İş Göremezlik Verisi Aktar</h2>
 
             <form class="form" @submit.prevent="submitForm">
                 <div v-if="error" class="form-error">
@@ -81,20 +81,20 @@ export default {
                 icon: 'info',
                 showConfirmButton: false,
                 didOpen: () => {
-                    Swal.showLoading();  
+                    Swal.showLoading();
                 }
             });
 
             const formData = new FormData();
             formData.append('file', this.file);
 
-            axios.post('https://iskazalarianaliz.com/api/work-accidents-by-sector/import', formData, {
+            axios.post('https://iskazalarianaliz.com/api/temporary-disability-day-by-sector/import', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             })
                 .then(res => {
-                    Swal.close(); 
+                    Swal.close();
 
                     if (!res.data.success) {
                         this.error = true;
@@ -111,7 +111,7 @@ export default {
                 })
                 .catch(err => {
                     console.log(err)
-                    Swal.close(); 
+                    Swal.close();
                     Swal.fire({
                         title: 'Hata!',
                         text: 'Bir şeyler ters gitti, lütfen tekrar deneyin.',
@@ -286,6 +286,7 @@ button {
     border-radius: 10px;
     margin-bottom: 15px;
 }
+
 .drop-zone {
     width: 100%;
     padding: 30px;
@@ -320,6 +321,7 @@ button {
     font-weight: bold;
     color: #333;
 }
+
 @media (max-width: 480px) {
     .sector-codes-modal {
         max-width: 90%;

@@ -3,6 +3,7 @@
         <PageNavbar :navData="navbarData" />
         <div class="navbar-buttons">
             <span @click="newData"><i class="fa-solid fa-plus"></i> Yeni Veri Ekle</span>
+            <span @click="import_visible = true"><i class="fa-solid fa-upload"></i> İçeri Aktar</span>
             <span @click="downloadExcel"><i class="fa-solid fa-download"></i> Dışarı Aktar</span>
         </div>
         <div class="table-container">
@@ -33,6 +34,7 @@
     </div>
     <WorkAccidentsBySectorCodes v-if="modal_visible" :visible="modal_visible" :data="selected_code" :state="state"
         @close="closeModal" />
+    <ImportData v-if="import_visible" :visible="import_visible" @close="closeModal" />
 </template>
 
 <script>
@@ -42,10 +44,12 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import ExcelJS from 'exceljs';
 import WorkAccidentsBySectorCodes from '@/components/panel/tables/FatalWorkAccidentsBySectorCodes.vue';
+import ImportData from '@/components/panel/tables/import/FatalWorkAccidentsBySectorCodes.vue';
 export default {
     components: {
         PageNavbar,
-        WorkAccidentsBySectorCodes
+        WorkAccidentsBySectorCodes,
+        ImportData
     },
     setup() {
         const authStore = useAuthStore()
@@ -60,7 +64,8 @@ export default {
             state: null,
             modal_visible: false,
             selected_code: null,
-            data: []
+            data: [],
+            import_visible: false
         }
     },
     methods: {
@@ -77,6 +82,7 @@ export default {
             this.state = null
             this.modal_visible = false
             this.selected_code = null
+            this.import_visible = false
             this.initializeAuth()
         },
         deleteData(item) {
