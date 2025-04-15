@@ -152,7 +152,7 @@ export default {
                         })
                 }
             });
-        }, 
+        },
         downloadExcel() {
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('İş Kazaları Sektöre Göre');

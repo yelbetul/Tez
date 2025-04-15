@@ -81,7 +81,7 @@ export default {
                 icon: 'info',
                 showConfirmButton: false,
                 didOpen: () => {
-                    Swal.showLoading();  
+                    Swal.showLoading();
                 }
             });
 
@@ -94,11 +94,12 @@ export default {
                 }
             })
                 .then(res => {
-                    Swal.close(); 
+                    Swal.close();
 
                     if (!res.data.success) {
                         this.error = true;
                         this.errorMessage = res.data.message;
+                        console.log(res.data)
                     } else {
                         Swal.fire({
                             title: 'Başarılı!',
@@ -111,7 +112,7 @@ export default {
                 })
                 .catch(err => {
                     console.log(err)
-                    Swal.close(); 
+                    Swal.close();
                     Swal.fire({
                         title: 'Hata!',
                         text: 'Bir şeyler ters gitti, lütfen tekrar deneyin.',
