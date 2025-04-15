@@ -114,6 +114,7 @@ export default {
             const worksheet = workbook.addWorksheet('Sektör Kodları');
 
             worksheet.columns = [
+                { header: 'ID', key: 'id', width: 10 },
                 { header: 'Sektör Kodu', key: 'sector_code', width: 10 },
                 { header: 'Grup Kodu', key: 'group_code', width: 10 },
                 { header: 'Grup Adı', key: 'group_name', width: 35 },
@@ -125,6 +126,7 @@ export default {
 
             this.sector_codes.forEach((item) => {
                 worksheet.addRow({
+                    id: item.id,
                     sector_code: item.sector_code,
                     group_code: item.group_code,
                     group_name: item.group_name,

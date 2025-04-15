@@ -145,7 +145,6 @@ export default {
             if (this.state == 'new') {
                 axios.post('https://iskazalarianaliz.com/api/work-accidents-by-sector/store', this.formData)
                     .then(res => {
-                        console.log(res.data)
                         if (!res.data.success) {
                             this.error = true;
                             this.errorMessage = res.data.message;
