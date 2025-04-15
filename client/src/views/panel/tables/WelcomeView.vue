@@ -1,10 +1,15 @@
 <template>
     <div class="welcome-container">
-        <PageNavbar title="Tablolar"/>
+        <PageNavbar title="Tablolar" />
         <div class="go-to-page-container">
-            <button @click.prevent="goToPage('/admin/tables/sector-codes/work-accidents')">Sektörlere Göre İş Kazaları</button>
-            <button @click.prevent="goToPage('/admin/tables/sector-codes/fatal-work-accidents')">Sektörlere Göre Ölümlü İş Kazaları</button>
-            <button @click.prevent="goToPage('/admin/tables/sector-codes/temporary-disability-days')">Sektörlere Göre Geçici İş Göremezlik Süreleri</button>
+            <button @click.prevent="goToPage('/admin/tables/sector-codes/work-accidents')">Sektörlere Göre İş
+                Kazaları</button>
+            <button @click.prevent="goToPage('/admin/tables/sector-codes/fatal-work-accidents')">Sektörlere Göre Ölümlü
+                İş Kazaları</button>
+            <button @click.prevent="goToPage('/admin/tables/sector-codes/temporary-disability-days')">Sektörlere Göre
+                Geçici İş Göremezlik Süreleri</button>
+            <button @click.prevent="goToPage('/admin/tables/provinces/work-accidents')">İllere Göre İş Kazaları</button>
+            <button @click.prevent="goToPage('/admin/tables/provinces/fatal-work-accidents')">İllere Göre Ölümlü İş Kazaları</button>
         </div>
     </div>
 </template>

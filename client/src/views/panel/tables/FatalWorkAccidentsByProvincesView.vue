@@ -28,29 +28,19 @@
             <table>
                 <thead>
                     <td>Yıl</td>
-                    <td>Sektör Kodu</td>
+                    <td>İl</td>
                     <td>Cinsiyet</td>
-                    <td>Çalışır <br> <span>Kaza Günü</span></td>
-                    <td>İş Göremez <br> <span>Kaza Günü</span></td>
-                    <td>2 Gün <br> <span>İş Göremez</span></td>
-                    <td>3 Gün <br> <span>İş Göremez</span></td>
-                    <td>4 Gün <br> <span>İş Göremez</span></td>
-                    <td>5+ Gün <br> <span>İş Göremez</span></td>
-                    <td>Meslek Hastalığına Yakalanan</td>
+                    <td>İş Kazası Sonucu <br> <span>Ölenler</span></td>
+                    <td>Meslek Hastalığı Sonucu<br> <span>Ölenler</span></td>
                     <td style="width: 10%;"></td>
                 </thead>
                 <tbody>
                     <tr v-for="item in filteredData" :key="item.id">
                         <td>{{ item.year }}</td>
-                        <td>{{ item.sector.sector_code }}</td>
+                        <td>{{ item.province.province_name }}</td>
                         <td>{{ item.gender === 1 ? 'Kadın' : 'Erkek' }}</td>
-                        <td>{{ item.works_on_accident_day }}</td>
-                        <td>{{ item.unfit_on_accident_day }}</td>
-                        <td>{{ item.two_days_unfit }}</td>
-                        <td>{{ item.three_days_unfit }}</td>
-                        <td>{{ item.four_days_unfit }}</td>
-                        <td>{{ item.five_or_more_days_unfit }}</td>
-                        <td>{{ item.occupational_disease_cases }}</td>
+                        <td>{{ item.work_accident_fatalities }}</td>
+                        <td>{{ item.occupational_disease_fatalities }}</td>
                         <td>
                             <i @click="updateData(item)" class="fa-solid fa-pen-to-square"></i>
                             <i @click="deleteData(item)" class="fa-solid fa-trash-can"></i>
@@ -60,7 +50,7 @@
             </table>
         </div>
     </div>
-    <WorkAccidentsBySectorCodes v-if="modal_visible" :visible="modal_visible" :data="selected_code" :state="state"
+    <FatalWorkAccidentsByProvinces v-if="modal_visible" :visible="modal_visible" :data="selected_code" :state="state"
         @close="closeModal" />
     <ImportData v-if="import_visible" :visible="import_visible" @close="closeModal" />
 </template>
@@ -71,12 +61,12 @@ import { useAuthStore } from '@/stores/AuthStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import ExcelJS from 'exceljs';
-import WorkAccidentsBySectorCodes from '@/components/panel/tables/WorkAccidentsBySectorCodes.vue';
+import FatalWorkAccidentsByProvinces from '@/components/panel/tables/FatalWorkAccidentsByProvinces.vue';
 import ImportData from '@/components/panel/tables/import/WorkAccidentBySectorCodes.vue';
 export default {
     components: {
         PageNavbar,
-        WorkAccidentsBySectorCodes,
+        FatalWorkAccidentsByProvinces,
         ImportData
     },
     setup() {
@@ -86,7 +76,7 @@ export default {
     data() {
         return {
             navbarData: {
-                title: 'Sektörlere Göre İş Kazaları',
+                title: 'İllere Göre Ölümlü İş Kazaları',
                 backRoute: '/admin/tables',
             },
             state: null,
@@ -139,7 +129,7 @@ export default {
                 cancelButtonText: 'Hayır, iptal et',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.delete('https://iskazalarianaliz.com/api/work-accidents-by-sector/delete/' + item.id)
+                    axios.delete('https://iskazalarianaliz.com/api/fatal-work-accidents-by-province/delete/' + item.id)
                         .then(res => {
                             if (res.data.success) {
                                 this.initializeAuth()
@@ -155,34 +145,24 @@ export default {
         }, 
         downloadExcel() {
             const workbook = new ExcelJS.Workbook();
-            const worksheet = workbook.addWorksheet('İş Kazaları Sektöre Göre');
+            const worksheet = workbook.addWorksheet('Ölümlü İş Kazaları İllere Göre');
 
             worksheet.columns = [
                 { header: 'Yıl', key: 'year', width: 10 },
-                { header: 'Sektör Kodu', key: 'sector_code', width: 15 },
+                { header: 'Sektör Kodu', key: 'province', width: 15 },
                 { header: 'Cinsiyet', key: 'gender', width: 10 },
-                { header: 'Çalışır Kaza Günü', key: 'works_on_accident_day', width: 15 },
-                { header: 'İş Göremez Kaza Günü', key: 'unfit_on_accident_day', width: 20 },
-                { header: '2 Gün İş Göremez', key: 'two_days_unfit', width: 15 },
-                { header: '3 Gün İş Göremez', key: 'three_days_unfit', width: 15 },
-                { header: '4 Gün İş Göremez', key: 'four_days_unfit', width: 15 },
-                { header: '5+ Gün İş Göremez', key: 'five_or_more_days_unfit', width: 20 },
-                { header: 'Meslek Hastalığına Yakalanan', key: 'occupational_disease_cases', width: 25 },
+                { header: 'İş Kazası Sonucu Ölenler', key: 'work_accident_fatalities', width: 15 },
+                { header: 'Meslek Hastalığı Sonucu Ölenler', key: 'occupational_disease_fatalities', width: 20 },
             ];
 
             // Verileri ekleyin
             this.data.forEach((item) => {
                 worksheet.addRow({
                     year: item.year,
-                    sector_code: item.sector.sector_code,  // Sektör Kodu
+                    province: item.province.province_name,  // Sektör Kodu
                     gender: item.gender === 1 ? 'Kadın' : 'Erkek',  // Cinsiyet
-                    works_on_accident_day: item.works_on_accident_day,
-                    unfit_on_accident_day: item.unfit_on_accident_day,
-                    two_days_unfit: item.two_days_unfit,
-                    three_days_unfit: item.three_days_unfit,
-                    four_days_unfit: item.four_days_unfit,
-                    five_or_more_days_unfit: item.five_or_more_days_unfit,
-                    occupational_disease_cases: item.occupational_disease_cases,
+                    work_accident_fatalities: item.work_accident_fatalities,
+                    occupational_disease_fatalities: item.occupational_disease_fatalities,
                 });
             });
 
@@ -212,7 +192,7 @@ export default {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'Is_Kazalari_Sektor_Gore.xlsx';
+                a.download = 'Olumlu_Is_Kazalari_Illere_Gore.xlsx';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -224,7 +204,7 @@ export default {
             this.error = null
             try {
                 await this.authStore.fetchAuthData()
-                const response = await axios.get('https://iskazalarianaliz.com/api/work-accidents-by-sector')
+                const response = await axios.get('https://iskazalarianaliz.com/api/fatal-work-accidents-by-province')
                 this.data = response.data
             } catch (err) {
                 this.error = 'Veriler yüklenirken bir hata oluştu: ' + (err.response?.data?.message || err.message)

@@ -2,9 +2,6 @@
     <div class="page-container">
         <PageNavbar :navData="navbarData" />
         <div class="navbar-buttons">
-            <span @click="newData"><i class="fa-solid fa-plus"></i> Yeni Veri Ekle</span>
-            <span @click="import_visible = true"><i class="fa-solid fa-upload"></i> İçeri Aktar</span>
-            <span @click="downloadExcel"><i class="fa-solid fa-download"></i> Dışarı Aktar</span>
             <!-- Yıl Filtresi -->
             <div class="year-filter">
                 <select v-model="selectedYear" @change="filterData">
@@ -12,6 +9,9 @@
                     <option v-for="year in uniqueYears" :key="year" :value="year">{{ year }}</option>
                 </select>
             </div>
+            <span @click="newData"><i class="fa-solid fa-plus"></i> Yeni Veri Ekle</span>
+            <span @click="import_visible = true"><i class="fa-solid fa-upload"></i> İçeri Aktar</span>
+            <span @click="downloadExcel"><i class="fa-solid fa-download"></i> Dışarı Aktar</span>
         </div>
         <!-- Yükleniyor Durumu -->
         <div v-if="isLoading" class="loading-overlay">
@@ -84,7 +84,7 @@ export default {
             selected_code: null,
             data: [],
             import_visible: false,
-            selectedYear: '',
+            selectedYear: '2023',
             isLoading: false,
             error: null
         }
