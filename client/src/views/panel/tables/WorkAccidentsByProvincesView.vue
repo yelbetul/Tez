@@ -72,7 +72,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import ExcelJS from 'exceljs';
 import WorkAccidentsByProvinces from '@/components/panel/tables/WorkAccidentsByProvinces.vue';
-import ImportData from '@/components/panel/tables/import/WorkAccidentBySectorCodes.vue';
+import ImportData from '@/components/panel/tables/import/WorkAccidentByProvinces.vue';
 export default {
     components: {
         PageNavbar,

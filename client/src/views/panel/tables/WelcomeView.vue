@@ -9,7 +9,10 @@
             <button @click.prevent="goToPage('/admin/tables/sector-codes/temporary-disability-days')">Sektörlere Göre
                 Geçici İş Göremezlik Süreleri</button>
             <button @click.prevent="goToPage('/admin/tables/provinces/work-accidents')">İllere Göre İş Kazaları</button>
-            <button @click.prevent="goToPage('/admin/tables/provinces/fatal-work-accidents')">İllere Göre Ölümlü İş Kazaları</button>
+            <button @click.prevent="goToPage('/admin/tables/provinces/fatal-work-accidents')">İllere Göre Ölümlü İş
+                Kazaları</button>
+            <button @click.prevent="goToPage('/admin/tables/provinces/temporary-disability-days')">İllere Göre
+                Geçici İş Göremezlik Süreleri</button>
         </div>
     </div>
 </template>

@@ -4,7 +4,7 @@
             <div class="close" @click="closeModal">
                 <i class="fa-solid fa-xmark"></i>
             </div>
-            <h2>Sektöre Göre İş Kazası Verisi Aktar</h2>
+            <h2>İllere Göre Ölümlü İş Kazası Verisi Aktar</h2>
 
             <form class="form" @submit.prevent="submitForm">
                 <div v-if="error" class="form-error">
@@ -87,8 +87,8 @@ export default {
 
             const formData = new FormData();
             formData.append('file', this.file);
-
-            axios.post('https://iskazalarianaliz.com/api/work-accidents-by-sector/import', formData, {
+            
+            axios.post('https://iskazalarianaliz.com/api/fatal-work-accidents-by-province/import', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -139,7 +139,7 @@ export default {
                         text: 'Bir şeyler ters gitti, lütfen tekrar deneyin.',
                         icon: 'error',
                     });
-                });
+                });      
         }
     },
 }
@@ -308,6 +308,7 @@ button {
     border-radius: 10px;
     margin-bottom: 15px;
 }
+
 .drop-zone {
     width: 100%;
     padding: 30px;
@@ -342,6 +343,7 @@ button {
     font-weight: bold;
     color: #333;
 }
+
 @media (max-width: 480px) {
     .sector-codes-modal {
         max-width: 90%;

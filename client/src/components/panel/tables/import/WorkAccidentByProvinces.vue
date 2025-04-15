@@ -4,7 +4,7 @@
             <div class="close" @click="closeModal">
                 <i class="fa-solid fa-xmark"></i>
             </div>
-            <h2>Sektöre Göre İş Kazası Verisi Aktar</h2>
+            <h2>İllere Göre İş Kazası Verisi Aktar</h2>
 
             <form class="form" @submit.prevent="submitForm">
                 <div v-if="error" class="form-error">
@@ -88,7 +88,7 @@ export default {
             const formData = new FormData();
             formData.append('file', this.file);
 
-            axios.post('https://iskazalarianaliz.com/api/work-accidents-by-sector/import', formData, {
+            axios.post('https://iskazalarianaliz.com/api/work-accidents-by-province/import', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -113,6 +113,7 @@ export default {
                             });
                         } else {
                             // Genel hata mesajı
+                            console.log(res.data)
                             this.errorMessage = res.data.message || "Bir hata oluştu.";
                             Swal.fire({
                                 title: 'Hata!',

@@ -87,7 +87,7 @@ export default {
 
             const formData = new FormData();
             formData.append('file', this.file);
-
+            
             axios.post('https://iskazalarianaliz.com/api/temporary-disability-day-by-sector/import', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
@@ -98,11 +98,32 @@ export default {
 
                     if (!res.data.success) {
                         this.error = true;
-                        this.errorMessage = res.data.message;
+
+                        // Eğer failures varsa, onları ayrı bir formatla hazırla
+                        if (res.data.failures) {
+                            let failureMessages = res.data.failures.map(failure => {
+                                return `Satır ${failure.row}: ${failure.errors.join(', ')}`;
+                            }).join('\n');
+
+                            Swal.fire({
+                                title: 'Hatalı Satırlar!',
+                                html: `<pre style="text-align: left; white-space: pre-wrap;">${failureMessages}</pre>`,
+                                icon: 'error',
+                                width: 600,
+                            });
+                        } else {
+                            // Genel hata mesajı
+                            this.errorMessage = res.data.message || "Bir hata oluştu.";
+                            Swal.fire({
+                                title: 'Hata!',
+                                text: this.errorMessage,
+                                icon: 'error',
+                            });
+                        }
                     } else {
                         Swal.fire({
                             title: 'Başarılı!',
-                            text: 'Veriler başarıyla eklendi.',
+                            text: 'Veriler başarıyla yüklendi.',
                             icon: 'success',
                         }).then(() => {
                             this.$emit('close');
@@ -110,14 +131,15 @@ export default {
                     }
                 })
                 .catch(err => {
-                    console.log(err)
                     Swal.close();
+                    console.log(err);
+
                     Swal.fire({
                         title: 'Hata!',
                         text: 'Bir şeyler ters gitti, lütfen tekrar deneyin.',
                         icon: 'error',
                     });
-                });
+                });    
         }
     },
 }
