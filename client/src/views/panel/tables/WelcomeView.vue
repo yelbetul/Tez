@@ -2,27 +2,60 @@
     <div class="welcome-container">
         <PageNavbar title="Tablolar" />
         <div class="go-to-page-container">
-            <button @click.prevent="goToPage('/admin/tables/sector-codes/work-accidents')">Sektörlere Göre İş
-                Kazaları</button>
-            <button @click.prevent="goToPage('/admin/tables/sector-codes/fatal-work-accidents')">Sektörlere Göre Ölümlü
-                İş Kazaları</button>
-            <button @click.prevent="goToPage('/admin/tables/sector-codes/temporary-disability-days')">Sektörlere Göre
-                Geçici İş Göremezlik Süreleri</button>
-            <button @click.prevent="goToPage('/admin/tables/provinces/work-accidents')">İllere Göre İş Kazaları</button>
-            <button @click.prevent="goToPage('/admin/tables/provinces/fatal-work-accidents')">İllere Göre Ölümlü İş
-                Kazaları</button>
-            <button @click.prevent="goToPage('/admin/tables/provinces/temporary-disability-days')">İllere Göre
-                Geçici İş Göremezlik Süreleri</button>
-            <button @click.prevent="goToPage('/admin/tables/ages/work-accidents')">Yaşlara Göre
-                İş Kazaları</button>
-            <button @click.prevent="goToPage('/admin/tables/ages/fatal-work-accidents')">Yaşlara Göre Ölümlü İş
-                Kazaları</button>
-            <button @click.prevent="goToPage('/admin/tables/months/work-accidents')">Aylara Göre
-                İş Kazaları</button>
-            <button @click.prevent="goToPage('/admin/tables/months/fatal-work-accidents')">Aylara Göre Ölümlü İş
-                Kazaları</button>
-            <button @click.prevent="goToPage('/admin/tables/months/temporary-disability-days')">Aylara Göre
-                Geçici İş Göremezlik Süreleri</button>
+            <button @click.prevent="goToPage('/admin/tables/sector-codes/work-accidents')">
+                <i class="fas fa-industry"></i>
+                <span>Sektörlere Göre İş Kazaları</span>
+            </button>
+
+            <button @click.prevent="goToPage('/admin/tables/sector-codes/fatal-work-accidents')">
+                <i class="fas fa-skull-crossbones"></i>
+                <span>Sektörlere Göre Ölümlü İş Kazaları</span>
+            </button>
+
+            <button @click.prevent="goToPage('/admin/tables/sector-codes/temporary-disability-days')">
+                <i class="fas fa-calendar-times"></i>
+                <span>Sektörlere Göre Geçici İş Göremezlik Süreleri</span>
+            </button>
+
+            <button @click.prevent="goToPage('/admin/tables/provinces/work-accidents')">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>İllere Göre İş Kazaları</span>
+            </button>
+
+            <button @click.prevent="goToPage('/admin/tables/provinces/fatal-work-accidents')">
+                <i class="fas fa-map-marked"></i>
+                <span>İllere Göre Ölümlü İş Kazaları</span>
+            </button>
+
+            <button @click.prevent="goToPage('/admin/tables/provinces/temporary-disability-days')">
+                <i class="fas fa-procedures"></i>
+                <span>İllere Göre Geçici İş Göremezlik Süreleri</span>
+            </button>
+
+            <button @click.prevent="goToPage('/admin/tables/ages/work-accidents')">
+                <i class="fas fa-user-friends"></i>
+                <span>Yaşlara Göre İş Kazaları</span>
+            </button>
+
+            <button @click.prevent="goToPage('/admin/tables/ages/fatal-work-accidents')">
+                <i class="fas fa-users-slash"></i>
+                <span>Yaşlara Göre Ölümlü İş Kazaları</span>
+            </button>
+
+            <button @click.prevent="goToPage('/admin/tables/months/work-accidents')">
+                <i class="fas fa-chart-line"></i>
+                <span>Aylara Göre İş Kazaları</span>
+            </button>
+
+            <button @click.prevent="goToPage('/admin/tables/months/fatal-work-accidents')">
+                <i class="fas fa-chart-bar"></i>
+                <span>Aylara Göre Ölümlü İş Kazaları</span>
+            </button>
+
+            <button @click.prevent="goToPage('/admin/tables/months/temporary-disability-days')">
+                <i class="fas fa-calendar-week"></i>
+                <span>Aylara Göre Geçici İş Göremezlik Süreleri</span>
+            </button>
         </div>
     </div>
 </template>
@@ -34,14 +67,10 @@ import { useAuthStore } from '@/stores/AuthStore';
 export default {
     components: {
         PageNavbar
-    },  
+    },
     setup() {
         const authStore = useAuthStore()
         return { authStore }
-    },
-    data() {
-        return {
-        }
     },
     methods: {
         goToPage(route) {
@@ -51,15 +80,10 @@ export default {
             await this.authStore.fetchAuthData()
         },
     },
-    created(){
+    created() {
         const is_logged_in = localStorage.getItem('is_logged_in') === 'true'
-
-        if (!is_logged_in) {
-            this.$router.push('/admin/login')
-            return
-        }
-
-        this.initializeAuth()
+        if (!is_logged_in) this.$router.push('/admin/login')
+        else this.initializeAuth()
     }
 }
 </script>
@@ -74,35 +98,75 @@ export default {
 
 .go-to-page-container {
     min-height: 80vh;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
 }
 
 .go-to-page-container button {
-    width: 40%;
-    min-height: 12vh;
+    height: 120px;
     background-color: var(--main-color);
     color: var(--text-white);
     border: none;
-    padding: 8px 0;
     border-radius: 10px;
-    font-size: 1.3rem;
+    font-size: 1rem;
     cursor: pointer;
-    transition: all .3s ease;
+    transition: all 0.3s ease;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
 }
 
-.go-to-page-container button i {
-    margin-right: 24px;
-    font-size: 1.7rem;
+.go-to-page-container button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.go-to-page-container button:hover::after {
+    opacity: 1;
 }
 
 .go-to-page-container button:hover {
-    background-color: var(--main-color);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.go-to-page-container button i {
+    font-size: 2rem;
+    margin-bottom: 12px;
     color: var(--second-color);
+}
+
+.go-to-page-container button span {
+    display: block;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .go-to-page-container {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome-container {
+        padding: 1rem;
+    }
+
+    .go-to-page-container button {
+        height: 100px;
+    }
 }
 </style>
