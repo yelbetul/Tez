@@ -32,12 +32,12 @@
                     <td>Yıl</td>
                     <td>Ay</td>
                     <td>Cinsiyet</td>
-                    <td>Durum</td>
                     <td>1 Gün <br> <span>İş Göremez</span></td>
                     <td>2 Gün <br> <span>İş Göremez</span></td>
                     <td>3 Gün <br> <span>İş Göremez</span></td>
                     <td>4 Gün <br> <span>İş Göremez</span></td>
                     <td>5+ Gün <br> <span>İş Göremez</span></td>
+                    <td>Meslek Hastalığına Yakalanan</td>
                     <td style="width: 10%;"></td>
                 </thead>
                 <tbody>
@@ -45,12 +45,12 @@
                         <td>{{ item.year }}</td>
                         <td>{{ item.month.month_name }}</td>
                         <td>{{ item.gender === 1 ? 'Kadın' : 'Erkek' }}</td>
-                        <td>{{ item.is_outpatient === 1 ? 'Ayakta' : 'Hastanede Yatarak' }}</td>
                         <td>{{ item.one_day_unfit }}</td>
                         <td>{{ item.two_days_unfit }}</td>
                         <td>{{ item.three_days_unfit }}</td>
                         <td>{{ item.four_days_unfit }}</td>
                         <td>{{ item.five_or_more_days_unfit }}</td>
+                        <td>{{ item.occupational_disease_cases }}</td>
                         <td>
                             <i @click="updateData(item)" class="fa-solid fa-pen-to-square"></i>
                             <i @click="deleteData(item)" class="fa-solid fa-trash-can"></i>
@@ -163,12 +163,12 @@ export default {
                 { header: 'Yıl', key: 'year', width: 10 },
                 { header: 'Ay', key: 'month', width: 15 },
                 { header: 'Cinsiyet', key: 'gender', width: 10 },
-                { header: 'Durum', key: 'is_outpatient', width: 20 },
                 { header: '1 Gün İş Göremez', key: 'one_day_unfit', width: 15 },
                 { header: '2 Gün İş Göremez', key: 'two_days_unfit', width: 15 },
                 { header: '3 Gün İş Göremez', key: 'three_days_unfit', width: 15 },
                 { header: '4 Gün İş Göremez', key: 'four_days_unfit', width: 15 },
                 { header: '5+ Gün İş Göremez', key: 'five_or_more_days_unfit', width: 15 },
+                { header: 'Meslek Hastalığına Yakalanan', key: 'occupational_disease_cases', width: 20 },
             ];
 
             // Verileri ekleyin
@@ -177,7 +177,7 @@ export default {
                     year: item.year,
                     month: item.month.month_name,  // İl
                     gender: item.gender === 1 ? 'Kadın' : 'Erkek',  // Cinsiyet
-                    is_outpatient: item.is_outpatient === 1 ? 'Ayakta' : 'Hastanede Yatarak',
+                    occupational_disease_cases: item.occupational_disease_cases,
                     one_day_unfit: item.one_day_unfit,
                     two_days_unfit: item.two_days_unfit,
                     three_days_unfit: item.three_days_unfit,

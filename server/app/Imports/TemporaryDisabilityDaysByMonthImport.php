@@ -19,12 +19,12 @@ class TemporaryDisabilityDaysByMonthImport implements ToCollection, WithHeadingR
                 'year' => 'required',
                 'months' => 'required|integer|exists:months,id',
                 'gender' => 'required|boolean',
-                'is_outpatient' => 'required|boolean',
                 'one_day_unfit' => 'required|integer',
                 'two_days_unfit' => 'required|integer',
                 'three_days_unfit' => 'required|integer',
                 'four_days_unfit' => 'required|integer',
                 'five_or_more_days_unfit' => 'required|integer',
+                'occupational_disease_cases' => 'required|integer',
             ]);
 
             if ($validator->fails()) {
@@ -44,12 +44,12 @@ class TemporaryDisabilityDaysByMonthImport implements ToCollection, WithHeadingR
                 'year' => $row['year'],
                 'month_id' => $row['month_id'],
                 'gender' => $row['gender'],
-                'is_outpatient' => $row['is_outpatient'],
                 'one_day_unfit' => $row['one_day_unfit'],
                 'two_days_unfit' => $row['two_days_unfit'],
                 'three_days_unfit' => $row['three_days_unfit'],
                 'four_days_unfit' => $row['four_days_unfit'],
                 'five_or_more_days_unfit' => $row['five_or_more_days_unfit'],
+                'occupational_disease_cases' => $row['occupational_disease_cases'],
             ]);
         }
     }

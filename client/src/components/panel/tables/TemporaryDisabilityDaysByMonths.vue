@@ -40,15 +40,6 @@
                     </select>
                 </div>
 
-                <div class="form-element">
-                    <label for="is_outpatient">Durum</label>
-                    <select id="is_outpatient" v-model="formData.is_outpatient">
-                        <option value="0">Seçiniz...</option>
-                        <option :value="true">Ayakta</option>
-                        <option :value="false">Hastanede Yatarak</option>
-                    </select>
-                </div>
-
                 <!-- Tabloya ait ek alanlar -->
                 <div class="form-element">
                     <label for="one_day_unfit">1 Gün İş Göremez</label>
@@ -73,6 +64,12 @@
                 <div class="form-element">
                     <label for="five_or_more_days_unfit">5+ Gün İş Göremez</label>
                     <input type="number" id="five_or_more_days_unfit" v-model="formData.five_or_more_days_unfit"
+                        min="0" />
+                </div>
+
+                <div class="form-element">
+                    <label for="occupational_disease_cases">Meslek Hastalığına Yakalanan</label>
+                    <input type="number" id="occupational_disease_cases" v-model="formData.occupational_disease_cases"
                         min="0" />
                 </div>
 
@@ -113,7 +110,7 @@ export default {
                 two_days_unfit: null,
                 three_days_unfit: null,
                 four_days_unfit: null,
-                five_or_more_days_unfit: null,
+                five_or_more_days_unfit: null
             },
             months: [],
             error: false,

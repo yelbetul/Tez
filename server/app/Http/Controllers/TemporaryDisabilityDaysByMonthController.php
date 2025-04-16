@@ -25,24 +25,24 @@ class TemporaryDisabilityDaysByMonthController extends Controller
                 'year'                      => 'required|string|max:4',
                 'month_id'                  => 'required|integer|exists:months,id',
                 'gender'                    => 'required|boolean',
-                'is_outpatient'             => 'required|boolean',
                 'one_day_unfit'             => 'required|integer',
                 'two_days_unfit'            => 'required|integer',
                 'three_days_unfit'          => 'required|integer',
                 'four_days_unfit'           => 'required|integer',
                 'five_or_more_days_unfit'   => 'required|integer',
+                'occupational_disease_cases'=> 'required|integer',
             ];
         } elseif ($type === 'update') {
             $rules = [
                 'year'                      => 'sometimes|string|max:4',
                 'month_id'                  => 'sometimes|integer|exists:months,id',
                 'gender'                    => 'sometimes|boolean',
-                'is_outpatient'             => 'sometimes|boolean',
                 'one_day_unfit'             => 'sometimes|integer',
                 'two_days_unfit'            => 'sometimes|integer',
                 'three_days_unfit'          => 'sometimes|integer',
                 'four_days_unfit'           => 'sometimes|integer',
                 'five_or_more_days_unfit'   => 'sometimes|integer',
+                'occupational_disease_cases'=> 'sometimes|integer',
             ];
         }
 
@@ -125,12 +125,12 @@ class TemporaryDisabilityDaysByMonthController extends Controller
         $record->year = $request->year;
         $record->month_id = $request->month_id;
         $record->gender = $request->gender;
-        $record->is_outpatient = $request->is_outpatient;
         $record->one_day_unfit = $request->one_day_unfit;
         $record->two_days_unfit = $request->two_days_unfit;
         $record->three_days_unfit = $request->three_days_unfit;
         $record->four_days_unfit = $request->four_days_unfit;
         $record->five_or_more_days_unfit = $request->five_or_more_days_unfit;
+        $record->occupational_disease_cases = $request->occupational_disease_cases;
 
         $result = $record->save();
 
@@ -169,12 +169,12 @@ class TemporaryDisabilityDaysByMonthController extends Controller
         $record->year = $request->year ?? $record->year;
         $record->month_id = $request->month_id ?? $record->month_id;
         $record->gender = $request->gender ?? $record->gender;
-        $record->is_outpatient = $request->is_outpatient ?? $record->is_outpatient;
         $record->one_day_unfit = $request->one_day_unfit ?? $record->one_day_unfit;
         $record->two_days_unfit = $request->two_days_unfit ?? $record->two_days_unfit;
         $record->three_days_unfit = $request->three_days_unfit ?? $record->three_days_unfit;
         $record->four_days_unfit = $request->four_days_unfit ?? $record->four_days_unfit;
         $record->five_or_more_days_unfit = $request->five_or_more_days_unfit ?? $record->five_or_more_days_unfit;
+        $record->occupational_disease_cases = $request->occupational_disease_cases ?? $record->occupational_disease_cases;
 
         $result = $record->save();
 
