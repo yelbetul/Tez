@@ -20,24 +20,24 @@ class OccupationGroupController extends Controller
             $rules = [
                 'code'             => 'required|string|max:16|unique:occupation_groups,code',
                 'occupation_code'  => 'required|string|max:16',
-                'occupation_name'  => 'required|string|max:16',
+                'occupation_name'  => 'required|string|max:55',
                 'group_code'       => 'required|string|max:3',
                 'group_name'       => 'required|string|max:255',
                 'sub_group_code'   => 'required|string|max:3',
                 'sub_group_name'   => 'required|string|max:255',
-                'pure_code'        => 'required|string|max:3',
+                'pure_code'        => 'required|string|max:4',
                 'pure_name'        => 'required|string|max:255',
             ];
         } elseif ($type === 'update') {
             $rules = [
                 'code'             => 'sometimes|string|max:16|unique:occupation_groups,code,' . $request->id,
                 'occupation_code'  => 'sometimes|string|max:16',
-                'occupation_name'  => 'sometimes|string|max:16',
+                'occupation_name'  => 'sometimes|string|max:55',
                 'group_code'       => 'sometimes|string|max:3',
                 'group_name'       => 'sometimes|string|max:255',
                 'sub_group_code'   => 'sometimes|string|max:3',
                 'sub_group_name'   => 'sometimes|string|max:255',
-                'pure_code'        => 'sometimes|string|max:3',
+                'pure_code'        => 'sometimes|string|max:4',
                 'pure_name'        => 'sometimes|string|max:255',
             ];
         }

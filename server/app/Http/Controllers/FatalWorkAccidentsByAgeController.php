@@ -6,6 +6,9 @@ use App\Models\FatalWorkAccidentsByAge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
+use App\Imports\FatalWorkAccidentsByAgeImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class FatalWorkAccidentsByAgeController extends Controller
 {
@@ -50,7 +53,7 @@ class FatalWorkAccidentsByAgeController extends Controller
      */
     public function index()
     {
-        $records = FatalWorkAccidentsByAge::all();
+        $records = FatalWorkAccidentsByAge::with('age')->get();
         return response()->json([
             'success' => true,
             'data'    => $records
@@ -167,4 +170,38 @@ class FatalWorkAccidentsByAgeController extends Controller
             'message' => 'İş kazası kaydı başarıyla silindi.'
         ]);
     }
+  
+  
+  	public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv,xls',
+        ]);
+
+        try {
+            $import = new FatalWorkAccidentsByAgeImport;
+            Excel::import($import, $request->file('file'));
+
+            if (!empty($import->failures())) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bazı satırlar hatalı!',
+                    'failures' => $import->failures(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Veriler başarıyla yüklendi.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bir hata oluştu',
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
 }

@@ -12,7 +12,6 @@ class TemporaryDisabilityDaysBySector extends Model
         'group_id',
         'gender',
         'is_outpatient',
-        'is_inpatient',
         'one_day_unfit',
         'two_days_unfit',
         'three_days_unfit',

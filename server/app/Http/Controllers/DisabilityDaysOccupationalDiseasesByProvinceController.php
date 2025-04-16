@@ -24,7 +24,6 @@ class DisabilityDaysOccupationalDiseasesByProvinceController extends Controller
                 'province_id' => 'required|exists:province_codes,id',
                 'gender' => 'required|boolean',
                 'is_outpatient' => 'required|boolean',
-                'is_inpatient' => 'required|boolean',
                 'one_day_unfit' => 'required|integer|min:0',
                 'two_days_unfit' => 'required|integer|min:0',
                 'three_days_unfit' => 'required|integer|min:0',
@@ -37,7 +36,6 @@ class DisabilityDaysOccupationalDiseasesByProvinceController extends Controller
                 'province_id' => 'sometimes|exists:province_codes,id',
                 'gender' => 'sometimes|boolean',
                 'is_outpatient' => 'sometimes|boolean',
-                'is_inpatient' => 'sometimes|boolean',
                 'one_day_unfit' => 'sometimes|integer|min:0',
                 'two_days_unfit' => 'sometimes|integer|min:0',
                 'three_days_unfit' => 'sometimes|integer|min:0',
@@ -108,7 +106,6 @@ class DisabilityDaysOccupationalDiseasesByProvinceController extends Controller
         $disabilityRecord->province_id               = $request->province_id;
         $disabilityRecord->gender                    = $request->gender;
         $disabilityRecord->is_outpatient             = $request->is_outpatient;
-        $disabilityRecord->is_inpatient              = $request->is_inpatient;
         $disabilityRecord->one_day_unfit             = $request->one_day_unfit;
         $disabilityRecord->two_days_unfit            = $request->two_days_unfit;
         $disabilityRecord->three_days_unfit          = $request->three_days_unfit;
@@ -144,7 +141,6 @@ class DisabilityDaysOccupationalDiseasesByProvinceController extends Controller
         $disabilityRecord->province_id               = $request->province_id ?? $disabilityRecord->province_id;
         $disabilityRecord->gender                    = $request->gender ?? $disabilityRecord->gender;
         $disabilityRecord->is_outpatient             = $request->is_outpatient ?? $disabilityRecord->is_outpatient;
-        $disabilityRecord->is_inpatient              = $request->is_inpatient ?? $disabilityRecord->is_inpatient;
         $disabilityRecord->one_day_unfit             = $request->one_day_unfit ?? $disabilityRecord->one_day_unfit;
         $disabilityRecord->two_days_unfit            = $request->two_days_unfit ?? $disabilityRecord->two_days_unfit;
         $disabilityRecord->three_days_unfit          = $request->three_days_unfit ?? $disabilityRecord->three_days_unfit;

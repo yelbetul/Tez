@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('code',16);
             $table->string('occupation_code',16);
-            $table->string('occupation_name',16);
+            $table->string('occupation_name',55);
             $table->string('group_code',3);
             $table->string('group_name',255);
             $table->string('sub_group_code',3);

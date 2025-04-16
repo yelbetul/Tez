@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('three_days_unfit'); // 3 gün iş göremez
             $table->integer('four_days_unfit'); // 4 gün iş göremez
             $table->integer('five_or_more_days_unfit'); // 5 gün iş göremez
-            $table->tinyInteger('occupational_disease_cases'); // Meslek hastalığına yakalanan
+            $table->integer('occupational_disease_cases'); // Meslek hastalığına yakalanan
             $table->timestamps();
 
             $table->foreign('province_id')->references('id')->on('province_codes')->onDelete('cascade');

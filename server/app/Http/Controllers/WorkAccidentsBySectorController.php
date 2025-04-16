@@ -6,6 +6,9 @@ use App\Models\WorkAccidentsBySector;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
+use App\Imports\WorkAccidentBySectorImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class WorkAccidentsBySectorController extends Controller
 {
@@ -45,7 +48,7 @@ class WorkAccidentsBySectorController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()]);
         }
 
         return null;
@@ -55,7 +58,7 @@ class WorkAccidentsBySectorController extends Controller
      */
     public function index()
     {
-        $data = WorkAccidentsBySector::all();
+        $data = WorkAccidentsBySector::with('sector')->get();
         return response()->json($data);
     }
 
@@ -205,6 +208,38 @@ class WorkAccidentsBySectorController extends Controller
             return response()->json(['success' => true, 'message' => 'Kayıt başarıyla silindi.']);
         } else {
             return response()->json(['success' => false, 'message' => 'Kayıt silinirken hata oluştu.']);
+        }
+    }
+  
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv,xls',
+        ]);
+
+        try {
+            $import = new WorkAccidentBySectorImport;
+            Excel::import($import, $request->file('file'));
+
+            if (!empty($import->failures())) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bazı satırlar hatalı!',
+                    'failures' => $import->failures(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Veriler başarıyla yüklendi.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bir hata oluştu',
+                'error' => $e->getMessage()
+            ]);
         }
     }
 }

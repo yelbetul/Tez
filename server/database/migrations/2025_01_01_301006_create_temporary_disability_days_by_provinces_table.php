@@ -17,8 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('province_id'); // İlgili Şehir
             $table->boolean('gender'); // Cinsiyet
             $table->boolean('is_outpatient'); // Ayakta
-            $table->boolean('is_inpatient'); // Hastanede yatarak
-            $table->integer('one_day_unfit'); // 1 gün iş göremez
+			$table->integer('one_day_unfit'); // 1 gün iş göremez
             $table->integer('two_days_unfit'); // 2 gün iş göremez
             $table->integer('three_days_unfit'); // 3 gün iş göremez
             $table->integer('four_days_unfit'); // 4 gün iş göremez

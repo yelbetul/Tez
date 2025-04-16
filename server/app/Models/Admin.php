@@ -22,9 +22,7 @@ class Admin extends Model
     ];
 
     protected $hidden = [
-        'password',
-        'api_key',
-        'secret_key',
+        'password'
     ];
 
     protected $casts = [

@@ -6,6 +6,9 @@ use App\Models\TemporaryDisabilityDaysBySector;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
+use App\Imports\TemporaryDisabilityDaysBySectorImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Validation\ValidationException;
 
 class TemporaryDisabilityDaysBySectorController extends Controller
 {
@@ -22,7 +25,6 @@ class TemporaryDisabilityDaysBySectorController extends Controller
                 'group_id' => 'required|exists:sector_codes,id',
                 'gender' => 'required|boolean',
                 'is_outpatient' => 'required|boolean',
-                'is_inpatient' => 'required|boolean',
                 'one_day_unfit' => 'required|integer|min:0',
                 'two_days_unfit' => 'required|integer|min:0',
                 'three_days_unfit' => 'required|integer|min:0',
@@ -35,7 +37,6 @@ class TemporaryDisabilityDaysBySectorController extends Controller
                 'group_id' => 'sometimes|exists:sector_codes,id',
                 'gender' => 'sometimes|boolean',
                 'is_outpatient' => 'sometimes|boolean',
-                'is_inpatient' => 'sometimes|boolean',
                 'one_day_unfit' => 'sometimes|integer|min:0',
                 'two_days_unfit' => 'sometimes|integer|min:0',
                 'three_days_unfit' => 'sometimes|integer|min:0',
@@ -49,7 +50,7 @@ class TemporaryDisabilityDaysBySectorController extends Controller
 
         // Hata varsa döndür
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()]);
         }
 
         return null;
@@ -60,7 +61,7 @@ class TemporaryDisabilityDaysBySectorController extends Controller
      */
     public function index()
     {
-        $data = TemporaryDisabilityDaysBySector::all();
+        $data = TemporaryDisabilityDaysBySector::with('sector')->get();
         return response()->json($data);
     }
 
@@ -141,7 +142,6 @@ class TemporaryDisabilityDaysBySectorController extends Controller
         $temporaryDisability->group_id                  = $request->group_id;
         $temporaryDisability->gender                    = $request->gender;
         $temporaryDisability->is_outpatient             = $request->is_outpatient;
-        $temporaryDisability->is_inpatient              = $request->is_inpatient;
         $temporaryDisability->one_day_unfit             = $request->one_day_unfit;
         $temporaryDisability->two_days_unfit            = $request->two_days_unfit;
         $temporaryDisability->three_days_unfit          = $request->three_days_unfit;
@@ -173,7 +173,6 @@ class TemporaryDisabilityDaysBySectorController extends Controller
         $temporaryDisability->group_id                  = $request->group_id ?? $temporaryDisability->group_id;
         $temporaryDisability->gender                    = $request->gender ?? $temporaryDisability->gender;
         $temporaryDisability->is_outpatient             = $request->is_outpatient ?? $temporaryDisability->is_outpatient;
-        $temporaryDisability->is_inpatient              = $request->is_inpatient ?? $temporaryDisability->is_inpatient;
         $temporaryDisability->one_day_unfit             = $request->one_day_unfit ?? $temporaryDisability->one_day_unfit;
         $temporaryDisability->two_days_unfit            = $request->two_days_unfit ?? $temporaryDisability->two_days_unfit;
         $temporaryDisability->three_days_unfit          = $request->three_days_unfit ?? $temporaryDisability->three_days_unfit;
@@ -206,6 +205,38 @@ class TemporaryDisabilityDaysBySectorController extends Controller
             return response()->json(['success' => true, 'message' => 'Kayıt başarıyla silindi.']);
         } else {
             return response()->json(['success' => false, 'message' => 'Kayıt silinirken hata oluştu.']);
+        }
+    }
+  
+  
+  	public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv,xls',
+        ]);
+
+        try {
+            $import = new TemporaryDisabilityDaysBySectorImport;
+            Excel::import($import, $request->file('file'));
+
+            if (!empty($import->failures())) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bazı satırlar hatalı!',
+                    'failures' => $import->failures(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Veriler başarıyla yüklendi.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bir hata oluştu',
+                'error' => $e->getMessage()
+            ]);
         }
     }
 }

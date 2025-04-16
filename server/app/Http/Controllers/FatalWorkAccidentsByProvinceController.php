@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\FatalWorkAccidentsByProvince;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Imports\FatalWorkAccidentsByProvinceImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class FatalWorkAccidentsByProvinceController extends Controller
 {
@@ -46,7 +49,7 @@ class FatalWorkAccidentsByProvinceController extends Controller
      */
     public function index()
     {
-        $data = FatalWorkAccidentsByProvince::all();
+        $data = FatalWorkAccidentsByProvince::with('province')->get();
         return response()->json($data);
     }
 
@@ -153,6 +156,38 @@ class FatalWorkAccidentsByProvinceController extends Controller
             return response()->json(['success' => true, 'message' => 'Kayıt başarıyla silindi.']);
         } else {
             return response()->json(['success' => false, 'message' => 'Kayıt silinirken hata oluştu.'], 500);
+        }
+    }
+  
+  	public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv,xls',
+        ]);
+
+        try {
+            $import = new FatalWorkAccidentsByProvinceImport;
+            Excel::import($import, $request->file('file'));
+
+            if (!empty($import->failures())) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bazı satırlar hatalı!',
+                    'failures' => $import->failures(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Veriler başarıyla yüklendi.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bir hata oluştu',
+                'error' => $e->getMessage()
+            ]);
         }
     }
 }

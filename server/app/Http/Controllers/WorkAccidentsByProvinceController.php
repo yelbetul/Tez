@@ -6,6 +6,9 @@ use App\Models\WorkAccidentsByProvince;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
+use App\Imports\WorkAccidentsByProvinceImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class WorkAccidentsByProvinceController extends Controller
 {
@@ -26,7 +29,7 @@ class WorkAccidentsByProvinceController extends Controller
                 'three_days_unfit' => 'required|integer|min:0',
                 'four_days_unfit' => 'required|integer|min:0',
                 'five_or_more_days_unfit' => 'required|integer|min:0',
-                'occupational_disease_cases' => 'required|integer|min:0|max:127',
+                'occupational_disease_cases' => 'required|integer|min:0',
             ];
         } elseif ($type === 'update') {
             $rules = [
@@ -39,7 +42,7 @@ class WorkAccidentsByProvinceController extends Controller
                 'three_days_unfit' => 'sometimes|integer|min:0',
                 'four_days_unfit' => 'sometimes|integer|min:0',
                 'five_or_more_days_unfit' => 'sometimes|integer|min:0',
-                'occupational_disease_cases' => 'sometimes|integer|min:0|max:127',
+                'occupational_disease_cases' => 'sometimes|integer|min:0',
             ];
         }
         $validator = Validator::make($request->all(), $rules);
@@ -55,7 +58,7 @@ class WorkAccidentsByProvinceController extends Controller
      */
     public function index()
     {
-        $data = WorkAccidentsByProvince::all();
+        $data = WorkAccidentsByProvince::with('province')->get();
         return response()->json($data);
     }
 
@@ -165,6 +168,38 @@ class WorkAccidentsByProvinceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Kayıt silinirken hata oluştu.'
+            ]);
+        }
+    }
+  
+  	public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv,xls',
+        ]);
+
+        try {
+            $import = new WorkAccidentsByProvinceImport;
+			Excel::import($import, $request->file('file'));
+
+            if (!empty($import->failures())) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bazı satırlar hatalı!',
+                    'failures' => $import->failures(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Veriler başarıyla yüklendi.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bir hata oluştu',
+                'error' => $e->getMessage()
             ]);
         }
     }

@@ -6,6 +6,10 @@ use App\Models\TemporaryDisabilityDaysByMonth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
+use App\Imports\TemporaryDisabilityDaysByMonthImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
+
 
 class TemporaryDisabilityDaysByMonthController extends Controller
 {
@@ -22,7 +26,6 @@ class TemporaryDisabilityDaysByMonthController extends Controller
                 'month_id'                  => 'required|integer|exists:months,id',
                 'gender'                    => 'required|boolean',
                 'is_outpatient'             => 'required|boolean',
-                'is_inpatient'              => 'required|boolean',
                 'one_day_unfit'             => 'required|integer',
                 'two_days_unfit'            => 'required|integer',
                 'three_days_unfit'          => 'required|integer',
@@ -35,7 +38,6 @@ class TemporaryDisabilityDaysByMonthController extends Controller
                 'month_id'                  => 'sometimes|integer|exists:months,id',
                 'gender'                    => 'sometimes|boolean',
                 'is_outpatient'             => 'sometimes|boolean',
-                'is_inpatient'              => 'sometimes|boolean',
                 'one_day_unfit'             => 'sometimes|integer',
                 'two_days_unfit'            => 'sometimes|integer',
                 'three_days_unfit'          => 'sometimes|integer',
@@ -124,7 +126,6 @@ class TemporaryDisabilityDaysByMonthController extends Controller
         $record->month_id = $request->month_id;
         $record->gender = $request->gender;
         $record->is_outpatient = $request->is_outpatient;
-        $record->is_inpatient = $request->is_inpatient;
         $record->one_day_unfit = $request->one_day_unfit;
         $record->two_days_unfit = $request->two_days_unfit;
         $record->three_days_unfit = $request->three_days_unfit;
@@ -169,7 +170,6 @@ class TemporaryDisabilityDaysByMonthController extends Controller
         $record->month_id = $request->month_id ?? $record->month_id;
         $record->gender = $request->gender ?? $record->gender;
         $record->is_outpatient = $request->is_outpatient ?? $record->is_outpatient;
-        $record->is_inpatient = $request->is_inpatient ?? $record->is_inpatient;
         $record->one_day_unfit = $request->one_day_unfit ?? $record->one_day_unfit;
         $record->two_days_unfit = $request->two_days_unfit ?? $record->two_days_unfit;
         $record->three_days_unfit = $request->three_days_unfit ?? $record->three_days_unfit;
@@ -211,4 +211,37 @@ class TemporaryDisabilityDaysByMonthController extends Controller
             'message' => 'Geçici iş göremezlik günü kaydı başarıyla silindi.'
         ]);
     }
+  
+  	public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv,xls',
+        ]);
+
+        try {
+            $import = new TemporaryDisabilityDaysByMonthImport;
+            Excel::import($import, $request->file('file'));
+
+            if (!empty($import->failures())) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bazı satırlar hatalı!',
+                    'failures' => $import->failures(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Veriler başarıyla yüklendi.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bir hata oluştu',
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
 }

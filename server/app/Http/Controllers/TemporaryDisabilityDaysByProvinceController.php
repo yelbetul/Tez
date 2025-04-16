@@ -6,6 +6,9 @@ use App\Models\TemporaryDisabilityDaysByProvince;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
+use App\Imports\TemporaryDisabilityDaysByProvinceImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class TemporaryDisabilityDaysByProvinceController extends Controller
 {
@@ -24,7 +27,6 @@ class TemporaryDisabilityDaysByProvinceController extends Controller
                 'province_id' => 'required|exists:province_codes,id',
                 'gender' => 'required|boolean',
                 'is_outpatient' => 'required|boolean',
-                'is_inpatient' => 'required|boolean',
                 'one_day_unfit' => 'required|integer|min:0',
                 'two_days_unfit' => 'required|integer|min:0',
                 'three_days_unfit' => 'required|integer|min:0',
@@ -37,7 +39,6 @@ class TemporaryDisabilityDaysByProvinceController extends Controller
                 'province_id' => 'sometimes|exists:province_codes,id',
                 'gender' => 'sometimes|boolean',
                 'is_outpatient' => 'sometimes|boolean',
-                'is_inpatient' => 'sometimes|boolean',
                 'one_day_unfit' => 'sometimes|integer|min:0',
                 'two_days_unfit' => 'sometimes|integer|min:0',
                 'three_days_unfit' => 'sometimes|integer|min:0',
@@ -49,7 +50,7 @@ class TemporaryDisabilityDaysByProvinceController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()->first()], 422);
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()]);
         }
 
         return null;
@@ -60,7 +61,7 @@ class TemporaryDisabilityDaysByProvinceController extends Controller
      */
     public function index()
     {
-        $data = TemporaryDisabilityDaysByProvince::all();
+        $data = TemporaryDisabilityDaysByProvince::with('province')->get();
         return response()->json($data);
     }
 
@@ -108,7 +109,6 @@ class TemporaryDisabilityDaysByProvinceController extends Controller
         $temporaryDisability->province_id               = $request->province_id;
         $temporaryDisability->gender                    = $request->gender;
         $temporaryDisability->is_outpatient             = $request->is_outpatient;
-        $temporaryDisability->is_inpatient              = $request->is_inpatient;
         $temporaryDisability->one_day_unfit             = $request->one_day_unfit;
         $temporaryDisability->two_days_unfit            = $request->two_days_unfit;
         $temporaryDisability->three_days_unfit          = $request->three_days_unfit;
@@ -144,7 +144,6 @@ class TemporaryDisabilityDaysByProvinceController extends Controller
         $temporaryDisability->province_id               = $request->province_id ?? $temporaryDisability->province_id;
         $temporaryDisability->gender                    = $request->gender ?? $temporaryDisability->gender;
         $temporaryDisability->is_outpatient             = $request->is_outpatient ?? $temporaryDisability->is_outpatient;
-        $temporaryDisability->is_inpatient              = $request->is_inpatient ?? $temporaryDisability->is_inpatient;
         $temporaryDisability->one_day_unfit             = $request->one_day_unfit ?? $temporaryDisability->one_day_unfit;
         $temporaryDisability->two_days_unfit            = $request->two_days_unfit ?? $temporaryDisability->two_days_unfit;
         $temporaryDisability->three_days_unfit          = $request->three_days_unfit ?? $temporaryDisability->three_days_unfit;
@@ -177,6 +176,39 @@ class TemporaryDisabilityDaysByProvinceController extends Controller
             return response()->json(['success' => true, 'message' => 'Kayıt başarıyla silindi.']);
         } else {
             return response()->json(['success' => false, 'message' => 'Kayıt silinirken hata oluştu.']);
+        }
+    }
+  	
+  
+  	public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv,xls',
+        ]);
+
+        try {
+            $import = new TemporaryDisabilityDaysByProvinceImport;
+            Excel::import($import, $request->file('file'));
+
+            if (!empty($import->failures())) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bazı satırlar hatalı!',
+                    'failures' => $import->failures(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Veriler başarıyla yüklendi.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bir hata oluştu',
+                'error' => $e->getMessage()
+            ]);
         }
     }
 }
