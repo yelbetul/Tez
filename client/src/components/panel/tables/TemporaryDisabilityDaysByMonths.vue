@@ -42,8 +42,13 @@
 
                 <!-- Tabloya ait ek alanlar -->
                 <div class="form-element">
-                    <label for="one_day_unfit">1 Gün İş Göremez</label>
-                    <input type="number" id="one_day_unfit" v-model="formData.one_day_unfit" min="0" />
+                    <label for="works_on_accident_day">Kaza Günü Çalışır</label>
+                    <input type="number" id="works_on_accident_day" v-model="formData.works_on_accident_day" min="0" />
+                </div>
+
+                <div class="form-element">
+                    <label for="unfit_on_accident_day">Kaza Günü İş Göremez</label>
+                    <input type="number" id="unfit_on_accident_day" v-model="formData.unfit_on_accident_day" min="0" />
                 </div>
 
                 <div class="form-element">

@@ -32,7 +32,8 @@
                     <td>Yıl</td>
                     <td>Ay</td>
                     <td>Cinsiyet</td>
-                    <td>1 Gün <br> <span>İş Göremez</span></td>
+                    <td>Çalışır <br> <span>Kaza Günü</span></td>
+                    <td>İş Göremez <br> <span>Kaza Günü</span></td>
                     <td>2 Gün <br> <span>İş Göremez</span></td>
                     <td>3 Gün <br> <span>İş Göremez</span></td>
                     <td>4 Gün <br> <span>İş Göremez</span></td>
@@ -45,7 +46,8 @@
                         <td>{{ item.year }}</td>
                         <td>{{ item.month.month_name }}</td>
                         <td>{{ item.gender === 1 ? 'Kadın' : 'Erkek' }}</td>
-                        <td>{{ item.one_day_unfit }}</td>
+                        <td>{{ item.works_on_accident_day }}</td>
+                        <td>{{ item.unfit_on_accident_day }}</td>
                         <td>{{ item.two_days_unfit }}</td>
                         <td>{{ item.three_days_unfit }}</td>
                         <td>{{ item.four_days_unfit }}</td>
@@ -163,7 +165,8 @@ export default {
                 { header: 'Yıl', key: 'year', width: 10 },
                 { header: 'Ay', key: 'month', width: 15 },
                 { header: 'Cinsiyet', key: 'gender', width: 10 },
-                { header: '1 Gün İş Göremez', key: 'one_day_unfit', width: 15 },
+                { header: 'Çalışır Kaza Günü', key: 'works_on_accident_day', width: 15 },
+                { header: 'İş Göremez Kaza Günü', key: 'unfit_on_accident_day', width: 20 },
                 { header: '2 Gün İş Göremez', key: 'two_days_unfit', width: 15 },
                 { header: '3 Gün İş Göremez', key: 'three_days_unfit', width: 15 },
                 { header: '4 Gün İş Göremez', key: 'four_days_unfit', width: 15 },
@@ -177,12 +180,13 @@ export default {
                     year: item.year,
                     month: item.month.month_name,  // İl
                     gender: item.gender === 1 ? 'Kadın' : 'Erkek',  // Cinsiyet
-                    occupational_disease_cases: item.occupational_disease_cases,
-                    one_day_unfit: item.one_day_unfit,
+                    works_on_accident_day: item.works_on_accident_day,
+                    unfit_on_accident_day: item.unfit_on_accident_day,
                     two_days_unfit: item.two_days_unfit,
                     three_days_unfit: item.three_days_unfit,
                     four_days_unfit: item.four_days_unfit,
                     five_or_more_days_unfit: item.five_or_more_days_unfit,
+                    occupational_disease_cases: item.occupational_disease_cases,
                 });
             });
 
