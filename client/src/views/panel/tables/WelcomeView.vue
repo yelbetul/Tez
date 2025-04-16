@@ -4,57 +4,57 @@
         <div class="go-to-page-container">
             <button @click.prevent="goToPage('/admin/tables/sector-codes/work-accidents')">
                 <i class="fas fa-industry"></i>
-                <span>Sektörlere Göre İş Kazaları</span>
+                <span>3.1.1 | Sektörlere Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/sector-codes/fatal-work-accidents')">
                 <i class="fas fa-skull-crossbones"></i>
-                <span>Sektörlere Göre Ölümlü İş Kazaları</span>
+                <span>3.1.2 | Sektörlere Göre Ölümlü İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/sector-codes/temporary-disability-days')">
                 <i class="fas fa-calendar-times"></i>
-                <span>Sektörlere Göre Geçici İş Göremezlik Süreleri</span>
+                <span>3.1.3 | Sektörlere Göre Geçici İş Göremezlik Süreleri</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/provinces/work-accidents')">
                 <i class="fas fa-map-marked-alt"></i>
-                <span>İllere Göre İş Kazaları</span>
+                <span>3.1.4 | İllere Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/provinces/fatal-work-accidents')">
                 <i class="fas fa-map-marked"></i>
-                <span>İllere Göre Ölümlü İş Kazaları</span>
+                <span>3.1.5 | İllere Göre Ölümlü İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/provinces/temporary-disability-days')">
                 <i class="fas fa-procedures"></i>
-                <span>İllere Göre Geçici İş Göremezlik Süreleri</span>
+                <span>3.1.6 | İllere Göre Geçici İş Göremezlik Süreleri</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/ages/work-accidents')">
                 <i class="fas fa-user-friends"></i>
-                <span>Yaşlara Göre İş Kazaları</span>
+                <span>3.1.8 | Yaşlara Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/ages/fatal-work-accidents')">
                 <i class="fas fa-users-slash"></i>
-                <span>Yaşlara Göre Ölümlü İş Kazaları</span>
+                <span>3.1.9 | Yaşlara Göre Ölümlü İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/months/work-accidents')">
                 <i class="fas fa-chart-line"></i>
-                <span>Aylara Göre İş Kazaları</span>
-            </button>
-
-            <button @click.prevent="goToPage('/admin/tables/months/fatal-work-accidents')">
-                <i class="fas fa-chart-bar"></i>
-                <span>Aylara Göre Ölümlü İş Kazaları</span>
+                <span>3.1.11 | Aylara Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/months/temporary-disability-days')">
                 <i class="fas fa-calendar-week"></i>
-                <span>Aylara Göre Geçici İş Göremezlik Süreleri</span>
+                <span>3.1.12 | Aylara Göre Geçici İş Göremezlik Süreleri</span>
+            </button>
+
+            <button @click.prevent="goToPage('/admin/tables/months/fatal-work-accidents')">
+                <i class="fas fa-chart-bar"></i>
+                <span>3.1.13 | Aylara Göre Ölümlü İş Kazaları</span>
             </button>
         </div>
     </div>
