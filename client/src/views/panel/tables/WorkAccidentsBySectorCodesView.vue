@@ -18,7 +18,9 @@
             <div class="loader"></div>
             <p>Veriler yükleniyor...</p>
         </div>
-
+        <p class="data-info">
+            {{ filteredData.length }} satır veri listelenmiştir.
+        </p>
         <!-- Hata Mesajı -->
         <div v-if="error" class="error-message">
             <i class="fa-solid fa-triangle-exclamation"></i>
@@ -248,6 +250,14 @@ export default {
 </script>
 
 <style scoped>
+.data-info{
+    width: 100%;
+    text-align: center;
+    margin-top: 1%;
+    font-size: .9rem;
+    font-style: italic;
+    opacity: .8;
+}
 .page-container {
     background-color: var(--panel-bg);
     min-height: 100vh;
