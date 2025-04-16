@@ -28,7 +28,7 @@
             <table>
                 <thead>
                     <td>Yıl</td>
-                    <td>İl</td>
+                    <td>Ay</td>
                     <td>Cinsiyet</td>
                     <td>Durum</td>
                     <td>1 Gün <br> <span>İş Göremez</span></td>
@@ -41,7 +41,7 @@
                 <tbody>
                     <tr v-for="item in filteredData" :key="item.id">
                         <td>{{ item.year }}</td>
-                        <td>{{ item.province.province_name }}</td>
+                        <td>{{ item.month.month_name }}</td>
                         <td>{{ item.gender === 1 ? 'Kadın' : 'Erkek' }}</td>
                         <td>{{ item.is_outpatient === 1 ? 'Ayakta' : 'Hastanede Yatarak' }}</td>
                         <td>{{ item.one_day_unfit }}</td>
@@ -58,8 +58,8 @@
             </table>
         </div>
     </div>
-    <TemporaryDisabilityDaysBySectorCodes v-if="modal_visible" :visible="modal_visible" :data="selected_code"
-        :state="state" @close="closeModal" />
+    <TemporaryDisabilityDaysByMonths v-if="modal_visible" :visible="modal_visible" :data="selected_code" :state="state"
+        @close="closeModal" />
     <ImportData v-if="import_visible" :visible="import_visible" @close="closeModal" />
 
 </template>
@@ -70,13 +70,13 @@ import { useAuthStore } from '@/stores/AuthStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import ExcelJS from 'exceljs';
-import TemporaryDisabilityDaysBySectorCodes from '@/components/panel/tables/TemporaryDisabilityDaysByProvinces.vue';
-import ImportData from '@/components/panel/tables/import/TemporaryDisabilityDaysByProvinces.vue';
+import TemporaryDisabilityDaysByMonths from '@/components/panel/tables/TemporaryDisabilityDaysByMonths.vue';
+import ImportData from '@/components/panel/tables/import/TemporaryDisabilityDaysByMonths.vue';
 
 export default {
     components: {
         PageNavbar,
-        TemporaryDisabilityDaysBySectorCodes,
+        TemporaryDisabilityDaysByMonths,
         ImportData
     },
     setup() {
@@ -86,7 +86,7 @@ export default {
     data() {
         return {
             navbarData: {
-                title: 'İllere Göre Geçici İş Göremezlik Süreleri',
+                title: 'Aylara Göre Geçici İş Göremezlik Süreleri',
                 backRoute: '/admin/tables',
             },
             state: null,
@@ -139,7 +139,7 @@ export default {
                 cancelButtonText: 'Hayır, iptal et',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.delete('https://iskazalarianaliz.com/api/temporary-disability-day-by-province/delete/' + item.id)
+                    axios.delete('https://iskazalarianaliz.com/api/temporary-disability-days-by-month/delete/' + item.id)
                         .then(res => {
                             if (res.data.success) {
                                 this.initializeAuth()
@@ -155,11 +155,11 @@ export default {
         }, 
         downloadExcel() {
             const workbook = new ExcelJS.Workbook();
-            const worksheet = workbook.addWorksheet('Geçici İş Göremezlik İllere Göre');
+            const worksheet = workbook.addWorksheet('Geçici İş Göremezlik Aylara Göre');
 
             worksheet.columns = [
                 { header: 'Yıl', key: 'year', width: 10 },
-                { header: 'İl', key: 'province', width: 15 },
+                { header: 'Ay', key: 'month', width: 15 },
                 { header: 'Cinsiyet', key: 'gender', width: 10 },
                 { header: 'Durum', key: 'is_outpatient', width: 20 },
                 { header: '1 Gün İş Göremez', key: 'one_day_unfit', width: 15 },
@@ -173,7 +173,7 @@ export default {
             this.data.forEach((item) => {
                 worksheet.addRow({
                     year: item.year,
-                    province: item.province.province_name,  // İl
+                    month: item.month.month_name,  // İl
                     gender: item.gender === 1 ? 'Kadın' : 'Erkek',  // Cinsiyet
                     is_outpatient: item.is_outpatient === 1 ? 'Ayakta' : 'Hastanede Yatarak',
                     one_day_unfit: item.one_day_unfit,
@@ -210,7 +210,7 @@ export default {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'Gecici_Is_Göremezlik_Illere_Gore.xlsx';
+                a.download = 'Gecici_Is_Göremezlik_Aylara_Gore.xlsx';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -223,8 +223,8 @@ export default {
 
             try {
                 await this.authStore.fetchAuthData()
-                const response = await axios.get('https://iskazalarianaliz.com/api/temporary-disability-day-by-province')
-                this.data = response.data
+                const response = await axios.get('https://iskazalarianaliz.com/api/temporary-disability-days-by-month')
+                this.data = response.data.data
             } catch (err) {
                 this.error = 'Veriler yüklenirken bir hata oluştu: ' + (err.response?.data?.message || err.message)
             } finally {

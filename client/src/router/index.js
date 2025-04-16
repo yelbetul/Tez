@@ -147,7 +147,31 @@ const router = createRouter({
       name: 'admin_tables_provinces_temporary_disability_days',
       component: () => import('../views/panel/tables/TemporaryDisabilityDaysByProvincesView.vue'),
     },
-
+    {
+      path: '/admin/tables/ages/work-accidents',
+      name: 'admin_tables_ages_work_accidents',
+      component: () => import('../views/panel/tables/WorkAccidentsByAgesView.vue'),
+    },
+    {
+      path: '/admin/tables/ages/fatal-work-accidents',
+      name: 'admin_tables_ages_fatal_work_accidents',
+      component: () => import('../views/panel/tables/FatalWorkAccidentsByAgesView.vue'),
+    },
+    {
+      path: '/admin/tables/months/temporary-disability-days',
+      name: 'admin_tables_months_temporary_disability_days',
+      component: () => import('../views/panel/tables/TemporaryDisabilityDaysByMonthsView.vue'),
+    },
+    {
+      path: '/admin/tables/months/work-accidents',
+      name: 'admin_tables_months_work_accidents',
+      component: () => import('../views/panel/tables/WorkAccidentsByMonthsView.vue'),
+    },
+    {
+      path: '/admin/tables/months/fatal-work-accidents',
+      name: 'admin_tables_months_fatal_work_accidents',
+      component: () => import('../views/panel/tables/FatalWorkAccidentsByMonthsView.vue'),
+    },
 
 
     {

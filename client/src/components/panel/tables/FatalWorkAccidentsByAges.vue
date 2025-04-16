@@ -4,7 +4,7 @@
             <div class="close" @click="closeModal">
                 <i class="fa-solid fa-xmark"></i>
             </div>
-            <h2>İllere Göre İş Kazası Verisi {{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</h2>
+            <h2>Yaşlara Göre Ölümlü İş Kazası Verisi {{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</h2>
             <form class="form" @submit.prevent="submitForm">
                 <div v-if="error" class="form-error">
                     <span><i class="fa-solid fa-xmark"></i> {{ errorMessage }}</span>
@@ -22,11 +22,11 @@
                 </div>
 
                 <div class="form-element">
-                    <label for="province_code">İl</label>
-                    <select id="province_code" v-model="formData.province_id">
+                    <label for="age_code">Yaş</label>
+                    <select id="age_code" v-model="formData.age_id">
                         <option value="0">Seçiniz...</option>
-                        <option v-for="item in province_codes" :key="item.id" :value="item.id">
-                            {{ item.province_name }}
+                        <option v-for="item in age_codes" :key="item.id" :value="item.id">
+                            {{ item.age }}
                         </option>
                     </select>
                 </div>
@@ -40,39 +40,16 @@
                     </select>
                 </div>
 
-                <div class="form-element">
-                    <label for="is_outpatient">Durum</label>
-                    <select id="is_outpatient" v-model="formData.is_outpatient">
-                        <option value="0">Seçiniz...</option>
-                        <option :value="true">Ayakta</option>
-                        <option :value="false">Hastanede Yatarak</option>
-                    </select>
-                </div>
-
                 <!-- Tabloya ait ek alanlar -->
                 <div class="form-element">
-                    <label for="one_day_unfit">1 Gün İş Göremez</label>
-                    <input type="number" id="one_day_unfit" v-model="formData.one_day_unfit" min="0" />
+                    <label for="work_accident_fatalities">İş Kazası Sonucu (Ölenler)</label>
+                    <input type="number" id="work_accident_fatalities" v-model="formData.work_accident_fatalities"
+                        min="0" />
                 </div>
 
                 <div class="form-element">
-                    <label for="two_days_unfit">2 Gün İş Göremez</label>
-                    <input type="number" id="two_days_unfit" v-model="formData.two_days_unfit" min="0" />
-                </div>
-
-                <div class="form-element">
-                    <label for="three_days_unfit">3 Gün İş Göremez</label>
-                    <input type="number" id="three_days_unfit" v-model="formData.three_days_unfit" min="0" />
-                </div>
-
-                <div class="form-element">
-                    <label for="four_days_unfit">4 Gün İş Göremez</label>
-                    <input type="number" id="four_days_unfit" v-model="formData.four_days_unfit" min="0" />
-                </div>
-
-                <div class="form-element">
-                    <label for="five_or_more_days_unfit">5+ Gün İş Göremez</label>
-                    <input type="number" id="five_or_more_days_unfit" v-model="formData.five_or_more_days_unfit"
+                    <label for="occupational_disease_fatalities">Meslek Hastalığı Sonucu (Ölenler)</label>
+                    <input type="number" id="occupational_disease_fatalities" v-model="formData.occupational_disease_fatalities"
                         min="0" />
                 </div>
 
@@ -107,15 +84,12 @@ export default {
         return {
             formData: {
                 year: null,
-                province_id: null,
+                group_id: null,
                 gender: null,
-                one_day_unfit: null,
-                two_days_unfit: null,
-                three_days_unfit: null,
-                four_days_unfit: null,
-                five_or_more_days_unfit: null,
+                work_accident_fatalities: null,
+                occupational_disease_fatalities: null,
             },
-            province_codes: [],
+            age_codes: [],
             error: false,
             errorMessage: null
         };
@@ -126,7 +100,6 @@ export default {
                 if (newVal) {
                     this.formData = { ...newVal };
                     this.formData.gender = this.formData.gender === 1;
-                    this.formData.is_outpatient = this.formData.is_outpatient === 1;
                 }
             },
             deep: true,
@@ -139,7 +112,7 @@ export default {
         },
         submitForm() {
             if (this.state == 'new') {
-                axios.post('https://iskazalarianaliz.com/api/temporary-disability-day-by-province/store', this.formData)
+                axios.post('https://iskazalarianaliz.com/api/fatal-work-accidents-by-age/store', this.formData)
                     .then(res => {
                         if (!res.data.success) {
                             this.error = true;
@@ -155,7 +128,7 @@ export default {
                         }
                     });
             } else {
-                axios.put('https://iskazalarianaliz.com/api/temporary-disability-day-by-province/update/' + this.formData.id, this.formData)
+                axios.put('https://iskazalarianaliz.com/api/fatal-work-accidents-by-age/update/' + this.formData.id, this.formData)
                     .then(res => {
                         if (!res.data.success) {
                             this.error = true;
@@ -174,9 +147,9 @@ export default {
         }
     },
     created() {
-        axios.get('https://iskazalarianaliz.com/api/province-codes')
+        axios.get('https://iskazalarianaliz.com/api/age-codes')
             .then(res => {
-                this.province_codes = res.data.data
+                this.age_codes = res.data.data
             })
     },
 }
@@ -201,7 +174,7 @@ export default {
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
     padding: 40px;
     width: 100%;
-    max-width: 90%;
+    max-width: 600px;
     z-index: 4500;
     position: relative;
     animation: fadeIn 0.3s ease;
@@ -236,7 +209,7 @@ export default {
 h2 {
     margin: 0 0 10px;
     color: var(--main-color);
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     text-align: center;
 }
 
@@ -248,7 +221,7 @@ h2 {
 
 .form-element {
     margin-bottom: 10px;
-    width: 30%;
+    width: 48%;
 }
 
 label {
@@ -263,7 +236,7 @@ input[type="number"],
 input[type="date"],
 select {
     width: 100%;
-    padding: 10px;
+    padding: 8px;
     border: 1px solid #dcdcdc;
     border-radius: 8px;
     transition: border-color 0.3s;

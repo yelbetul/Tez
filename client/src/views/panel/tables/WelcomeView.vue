@@ -13,6 +13,16 @@
                 Kazaları</button>
             <button @click.prevent="goToPage('/admin/tables/provinces/temporary-disability-days')">İllere Göre
                 Geçici İş Göremezlik Süreleri</button>
+            <button @click.prevent="goToPage('/admin/tables/ages/work-accidents')">Yaşlara Göre
+                İş Kazaları</button>
+            <button @click.prevent="goToPage('/admin/tables/ages/fatal-work-accidents')">Yaşlara Göre Ölümlü İş
+                Kazaları</button>
+            <button @click.prevent="goToPage('/admin/tables/months/work-accidents')">Aylara Göre
+                İş Kazaları</button>
+            <button @click.prevent="goToPage('/admin/tables/months/fatal-work-accidents')">Aylara Göre Ölümlü İş
+                Kazaları</button>
+            <button @click.prevent="goToPage('/admin/tables/months/temporary-disability-days')">Aylara Göre
+                Geçici İş Göremezlik Süreleri</button>
         </div>
     </div>
 </template>

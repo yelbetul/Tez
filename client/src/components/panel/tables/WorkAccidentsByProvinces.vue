@@ -4,7 +4,7 @@
             <div class="close" @click="closeModal">
                 <i class="fa-solid fa-xmark"></i>
             </div>
-            <h2>Sektöre Göre İş Kazası Verisi {{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</h2>
+            <h2>İllere Göre İş Kazası Verisi {{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</h2>
             <form class="form" @submit.prevent="submitForm">
                 <div v-if="error" class="form-error">
                     <span><i class="fa-solid fa-xmark"></i> {{ errorMessage }}</span>

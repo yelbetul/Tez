@@ -4,7 +4,7 @@
             <div class="close" @click="closeModal">
                 <i class="fa-solid fa-xmark"></i>
             </div>
-            <h2>İllere Göre İş Kazası Verisi {{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</h2>
+            <h2>Aylara Göre İş Kazası Verisi {{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</h2>
             <form class="form" @submit.prevent="submitForm">
                 <div v-if="error" class="form-error">
                     <span><i class="fa-solid fa-xmark"></i> {{ errorMessage }}</span>
@@ -22,11 +22,11 @@
                 </div>
 
                 <div class="form-element">
-                    <label for="province_code">İl</label>
-                    <select id="province_code" v-model="formData.province_id">
+                    <label for="month_code">Ay</label>
+                    <select id="month_code" v-model="formData.month_id">
                         <option value="0">Seçiniz...</option>
-                        <option v-for="item in province_codes" :key="item.id" :value="item.id">
-                            {{ item.province_name }}
+                        <option v-for="item in months" :key="item.id" :value="item.id">
+                            {{ item.month_name }}
                         </option>
                     </select>
                 </div>
@@ -107,7 +107,7 @@ export default {
         return {
             formData: {
                 year: null,
-                province_id: null,
+                age_id: null,
                 gender: null,
                 one_day_unfit: null,
                 two_days_unfit: null,
@@ -115,7 +115,7 @@ export default {
                 four_days_unfit: null,
                 five_or_more_days_unfit: null,
             },
-            province_codes: [],
+            months: [],
             error: false,
             errorMessage: null
         };
@@ -139,7 +139,7 @@ export default {
         },
         submitForm() {
             if (this.state == 'new') {
-                axios.post('https://iskazalarianaliz.com/api/temporary-disability-day-by-province/store', this.formData)
+                axios.post('https://iskazalarianaliz.com/api/temporary-disability-days-by-month/store', this.formData)
                     .then(res => {
                         if (!res.data.success) {
                             this.error = true;
@@ -155,7 +155,7 @@ export default {
                         }
                     });
             } else {
-                axios.put('https://iskazalarianaliz.com/api/temporary-disability-day-by-province/update/' + this.formData.id, this.formData)
+                axios.put('https://iskazalarianaliz.com/api/temporary-disability-days-by-month/update/' + this.formData.id, this.formData)
                     .then(res => {
                         if (!res.data.success) {
                             this.error = true;
@@ -174,9 +174,10 @@ export default {
         }
     },
     created() {
-        axios.get('https://iskazalarianaliz.com/api/province-codes')
+        axios.get('https://iskazalarianaliz.com/api/months')
             .then(res => {
-                this.province_codes = res.data.data
+                console.log(res.data)
+                this.months = res.data.data
             })
     },
 }

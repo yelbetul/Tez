@@ -149,7 +149,7 @@ export default {
 
             worksheet.columns = [
                 { header: 'Yıl', key: 'year', width: 10 },
-                { header: 'Sektör Kodu', key: 'province', width: 15 },
+                { header: 'İl', key: 'province', width: 15 },
                 { header: 'Cinsiyet', key: 'gender', width: 10 },
                 { header: 'İş Kazası Sonucu Ölenler', key: 'work_accident_fatalities', width: 15 },
                 { header: 'Meslek Hastalığı Sonucu Ölenler', key: 'occupational_disease_fatalities', width: 20 },
