@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('year'); // Yıl
             $table->unsignedBigInteger('month_id'); // İlgili Ay
             $table->boolean('gender'); // Cinsiyet
-            $table->integer('one_day_unfit'); // 1 gün iş göremez
+            $table->integer('works_on_accident_day'); // Kaza günü çalışır
+            $table->integer('unfit_on_accident_day'); // Kaza günü iş göremez
             $table->integer('two_days_unfit'); // 2 gün iş göremez
             $table->integer('three_days_unfit'); // 3 gün iş göremez
             $table->integer('four_days_unfit'); // 4 gün iş göremez

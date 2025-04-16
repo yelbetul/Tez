@@ -24,8 +24,8 @@ class TemporaryDisabilityDaysByMonthController extends Controller
             $rules = [
                 'year'                      => 'required|string|max:4',
                 'month_id'                  => 'required|integer|exists:months,id',
-                'gender'                    => 'required|boolean',
-                'one_day_unfit'             => 'required|integer',
+                'gender'                    => 'required|boolean', 'works_on_accident_day'     => 'required|integer|min:0',
+                'unfit_on_accident_day'     => 'required|integer|min:0','one_day_unfit'             => 'required|integer',
                 'two_days_unfit'            => 'required|integer',
                 'three_days_unfit'          => 'required|integer',
                 'four_days_unfit'           => 'required|integer',
@@ -37,7 +37,8 @@ class TemporaryDisabilityDaysByMonthController extends Controller
                 'year'                      => 'sometimes|string|max:4',
                 'month_id'                  => 'sometimes|integer|exists:months,id',
                 'gender'                    => 'sometimes|boolean',
-                'one_day_unfit'             => 'sometimes|integer',
+                'works_on_accident_day'     => 'sometimes|integer',
+                'unfit_on_accident_day'     => 'sometimes|integer',
                 'two_days_unfit'            => 'sometimes|integer',
                 'three_days_unfit'          => 'sometimes|integer',
                 'four_days_unfit'           => 'sometimes|integer',
@@ -125,7 +126,8 @@ class TemporaryDisabilityDaysByMonthController extends Controller
         $record->year = $request->year;
         $record->month_id = $request->month_id;
         $record->gender = $request->gender;
-        $record->one_day_unfit = $request->one_day_unfit;
+        $record->works_on_accident_day     = $request->works_on_accident_day;
+        $record->unfit_on_accident_day     = $request->unfit_on_accident_day;
         $record->two_days_unfit = $request->two_days_unfit;
         $record->three_days_unfit = $request->three_days_unfit;
         $record->four_days_unfit = $request->four_days_unfit;
@@ -169,7 +171,8 @@ class TemporaryDisabilityDaysByMonthController extends Controller
         $record->year = $request->year ?? $record->year;
         $record->month_id = $request->month_id ?? $record->month_id;
         $record->gender = $request->gender ?? $record->gender;
-        $record->one_day_unfit = $request->one_day_unfit ?? $record->one_day_unfit;
+        $record->works_on_accident_day = $request->works_on_accident_day ?? $record->works_on_accident_day;
+        $record->unfit_on_accident_day = $request->unfit_on_accident_day ?? $record->unfit_on_accident_day;
         $record->two_days_unfit = $request->two_days_unfit ?? $record->two_days_unfit;
         $record->three_days_unfit = $request->three_days_unfit ?? $record->three_days_unfit;
         $record->four_days_unfit = $request->four_days_unfit ?? $record->four_days_unfit;
