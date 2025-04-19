@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccidentsAndFatalitiesByInjuryController;
 use App\Http\Controllers\AccidentsAndFatalitiesByOccupationController;
 use App\Http\Controllers\AccidentsAndFatalitiesByInjuryLocationController;
+use App\Http\Controllers\AccidentsAndFatalitiesByInjuryCauseController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AgeCodeController;
 use App\Http\Controllers\DeviationController;
@@ -383,3 +384,19 @@ Route::get('/accidents-and-fatalities-by-injury-locations/sub-group-code/{subGro
 Route::post('/accidents-and-fatalities-by-injury-locations/store',                                    [AccidentsAndFatalitiesByInjuryLocationController::class, 'store']);
 Route::put('/accidents-and-fatalities-by-injury-locations/update/{id}',                               [AccidentsAndFatalitiesByInjuryLocationController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-injury-locations/delete/{id}',                            [AccidentsAndFatalitiesByInjuryLocationController::class, 'destroy']);
+
+
+
+
+// Accidents And Fatalities By Injury Causes
+
+Route::get('/accidents-and-fatalities-by-injury-causes',                                           [AccidentsAndFatalitiesByInjuryCauseController::class, 'index']);
+Route::get('/accidents-and-fatalities-by-injury-causes/year/{year}',                               [AccidentsAndFatalitiesByInjuryCauseController::class, 'indexByYear']);
+Route::get('/accidents-and-fatalities-by-injury-causes/group-id/{groupId}',                        [AccidentsAndFatalitiesByInjuryCauseController::class, 'indexByGroupId']);
+Route::get('/accidents-and-fatalities-by-injury-causes/gender/{gender}',                           [AccidentsAndFatalitiesByInjuryCauseController::class, 'indexByGender']);
+Route::get('/accidents-and-fatalities-by-injury-causes/injury-code/{injuryCode}',                  [AccidentsAndFatalitiesByInjuryCauseController::class, 'indexByInjuryCode']);
+Route::get('/accidents-and-fatalities-by-injury-causes/group-code/{groupCode}',                    [AccidentsAndFatalitiesByInjuryCauseController::class, 'indexByGroupCode']);
+Route::get('/accidents-and-fatalities-by-injury-causes/sub-group-code/{subGroupCode}',             [AccidentsAndFatalitiesByInjuryCauseController::class, 'indexBySubGroupCode']);
+Route::post('/accidents-and-fatalities-by-injury-causes/store',                                    [AccidentsAndFatalitiesByInjuryCauseController::class, 'store']);
+Route::put('/accidents-and-fatalities-by-injury-causes/update/{id}',                               [AccidentsAndFatalitiesByInjuryCauseController::class, 'update']);
+Route::delete('/accidents-and-fatalities-by-injury-causes/delete/{id}',                            [AccidentsAndFatalitiesByInjuryCauseController::class, 'destroy']);
