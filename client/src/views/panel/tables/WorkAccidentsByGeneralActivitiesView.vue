@@ -30,7 +30,7 @@
             <table>
                 <thead>
                     <td>Yıl</td>
-                    <td>Yaralanma Olayı</td>
+                    <td>Genel Faaliyet</td>
                     <td>Cinsiyet</td>
                     <td>Çalışır <br> <span>Kaza Günü</span></td>
                     <td>İş Göremez <br> <span>Kaza Günü</span></td>
@@ -44,7 +44,7 @@
                 <tbody>
                     <tr v-for="item in filteredData" :key="item.id">
                         <td>{{ item.year }}</td>
-                        <td>{{ item.injury_cause.injury_cause_code }}</td>
+                        <td>{{ item.general_activity.general_activity_code }}</td>
                         <td>{{ item.gender === 1 ? 'Kadın' : 'Erkek' }}</td>
                         <td>{{ item.works_on_accident_day }}</td>
                         <td>{{ item.unfit_on_accident_day }}</td>
@@ -62,7 +62,7 @@
             </table>
         </div>
     </div>
-    <WorkAccidentsByInjuryCauses v-if="modal_visible" :visible="modal_visible" :data="selected_code" :state="state"
+    <WorkAccidentsByGeneralActivities v-if="modal_visible" :visible="modal_visible" :data="selected_code" :state="state"
         @close="closeModal" />
     <ImportData v-if="import_visible" :visible="import_visible" @close="closeModal" />
 </template>
@@ -73,12 +73,12 @@ import { useAuthStore } from '@/stores/AuthStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import ExcelJS from 'exceljs';
-import WorkAccidentsByInjuryCauses from '@/components/panel/tables/WorkAccidentsByInjuryCauses.vue';
-import ImportData from '@/components/panel/tables/import/WorkAccidentByInjuryCauses.vue';
+import WorkAccidentsByGeneralActivities from '@/components/panel/tables/WorkAccidentsByGeneralActivities.vue';
+import ImportData from '@/components/panel/tables/import/WorkAccidentByGeneralActivities.vue';
 export default {
     components: {
         PageNavbar,
-        WorkAccidentsByInjuryCauses,
+        WorkAccidentsByGeneralActivities,
         ImportData
     },
     setup() {
@@ -88,7 +88,7 @@ export default {
     data() {
         return {
             navbarData: {
-                title: 'Yaralanmaya Sebep Olaya Göre İş Kazaları',
+                title: 'Genel Faaliyete Göre İş Kazaları',
                 backRoute: '/admin/tables',
             },
             state: null,
@@ -141,7 +141,7 @@ export default {
                 cancelButtonText: 'Hayır, iptal et',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.delete('https://iskazalarianaliz.com/api/accidents-and-fatalities-by-injury-causes/delete/' + item.id)
+                    axios.delete('https://iskazalarianaliz.com/api/accidents-and-fatalities-by-general-activities/delete/' + item.id)
                         .then(res => {
                             if (res.data.success) {
                                 this.initializeAuth()
@@ -157,11 +157,11 @@ export default {
         },
         downloadExcel() {
             const workbook = new ExcelJS.Workbook();
-            const worksheet = workbook.addWorksheet('İş Kazaları Yaralanma Olayına Göre');
+            const worksheet = workbook.addWorksheet('İş Kazaları Genel Faaliyete Göre');
 
             worksheet.columns = [
                 { header: 'Yıl', key: 'year', width: 10 },
-                { header: 'Yaralanmaya Sebep Olan Olay', key: 'injury_cause_code', width: 15 },
+                { header: 'Genel Faaliyet', key: 'general_activity_code', width: 15 },
                 { header: 'Cinsiyet', key: 'gender', width: 10 },
                 { header: 'Çalışır Kaza Günü', key: 'works_on_accident_day', width: 15 },
                 { header: 'İş Göremez Kaza Günü', key: 'unfit_on_accident_day', width: 20 },
@@ -176,7 +176,7 @@ export default {
             this.data.forEach((item) => {
                 worksheet.addRow({
                     year: item.year,
-                    injury_cause_code: item.injury_cause.injury_cause_code,  // Yara Kodu
+                    general_activity_code: item.general_activity.general_activity_code,  // Yara Kodu
                     gender: item.gender === 1 ? 'Kadın' : 'Erkek',  // Cinsiyet
                     works_on_accident_day: item.works_on_accident_day,
                     unfit_on_accident_day: item.unfit_on_accident_day,
@@ -214,7 +214,7 @@ export default {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'Is_Kazalari_Yaralanma_Olayina_Gore.xlsx';
+                a.download = 'Is_Kazalari_Genel_Faaliyete_Gore.xlsx';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -226,7 +226,7 @@ export default {
             this.error = null
             try {
                 await this.authStore.fetchAuthData()
-                const response = await axios.get('https://iskazalarianaliz.com/api/accidents-and-fatalities-by-injury-causes')
+                const response = await axios.get('https://iskazalarianaliz.com/api/accidents-and-fatalities-by-general-activities')
                 this.data = response.data                
             } catch (err) {
                 this.error = 'Veriler yüklenirken bir hata oluştu: ' + (err.response?.data?.message || err.message)
