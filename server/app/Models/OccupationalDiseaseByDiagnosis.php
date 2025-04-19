@@ -10,7 +10,8 @@ class OccupationalDiseaseByDiagnosis extends Model
     protected $fillable = [
         'year',
         'diagnosis_code',
-        'gender'
+        'gender',
+      	'occupational_disease_cases'
     ];
 
     /**

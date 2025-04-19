@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('year');
             $table->unsignedBigInteger('diagnosis_code');
             $table->boolean('gender');
+            $table->integer('occupational_disease_cases'); 
             $table->timestamps();
 
             $table->foreign('diagnosis_code')->references('id')->on('diagnosis_groups')->onDelete('cascade');

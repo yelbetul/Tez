@@ -18,15 +18,17 @@ class OccupationalDiseaseByDiagnosisController extends Controller
 
         if ($type === 'store') {
             $rules = [
-                'year'           => 'required|string|max:4',
-                'diagnosis_code' => 'required|integer|exists:diagnosis_groups,id',
-                'gender'         => 'required|boolean',
+                'year'                       => 'required|string|max:4',
+                'diagnosis_code'             => 'required|integer|exists:diagnosis_groups,id',
+                'gender'                     => 'required|boolean',
+                'occupational_disease_cases' => 'required|integer',
             ];
         } elseif ($type === 'update') {
             $rules = [
-                'year'           => 'sometimes|string|max:4',
-                'diagnosis_code' => 'sometimes|integer|exists:diagnosis_groups,id',
-                'gender'         => 'sometimes|boolean',
+                'year'                       => 'sometimes|string|max:4',
+                'diagnosis_code'             => 'sometimes|integer|exists:diagnosis_groups,id',
+                'gender'                     => 'sometimes|boolean',
+                'occupational_disease_cases' => 'sometimes|integer',
             ];
         }
 
@@ -43,11 +45,11 @@ class OccupationalDiseaseByDiagnosisController extends Controller
     }
 
     /**
-     * index: Tüm kayıtları, ilişkili occupationGroup bilgileriyle birlikte listele.
+     * index: Tüm kayıtları, ilişkili diagnosisGroup bilgileriyle birlikte listele.
      */
     public function index()
     {
-        $records = OccupationalDiseaseByDiagnosis::with('occupationGroup')->get();
+        $records = OccupationalDiseaseByDiagnosis::with('diagnosisGroup')->get();
         return response()->json([
             'success' => true,
             'data'    => $records
@@ -60,7 +62,7 @@ class OccupationalDiseaseByDiagnosisController extends Controller
     public function indexByYear($year)
     {
         $records = OccupationalDiseaseByDiagnosis::where('year', $year)
-            ->with('occupationGroup')
+            ->with('diagnosisGroup')
             ->get();
         return response()->json([
             'success' => true,
@@ -74,7 +76,7 @@ class OccupationalDiseaseByDiagnosisController extends Controller
     public function indexByGender($gender)
     {
         $records = OccupationalDiseaseByDiagnosis::where('gender', $gender)
-            ->with('occupationGroup')
+            ->with('diagnosisGroup')
             ->get();
         return response()->json([
             'success' => true,
@@ -83,14 +85,14 @@ class OccupationalDiseaseByDiagnosisController extends Controller
     }
 
     /**
-     * indexByGroupCode: occupationGroup ilişkisi üzerinden group_code'a göre filtrele.
+     * indexByGroupCode: diagnosisGroup ilişkisi üzerinden group_code'a göre filtrele.
      */
     public function indexByGroupCode($groupCode)
     {
-        $records = OccupationalDiseaseByDiagnosis::whereHas('occupationGroup', function ($query) use ($groupCode) {
+        $records = OccupationalDiseaseByDiagnosis::whereHas('diagnosisGroup', function ($query) use ($groupCode) {
                 $query->where('group_code', $groupCode);
             })
-            ->with('occupationGroup')
+            ->with('diagnosisGroup')
             ->get();
         return response()->json([
             'success' => true,
@@ -99,14 +101,14 @@ class OccupationalDiseaseByDiagnosisController extends Controller
     }
 
     /**
-     * indexBySubGroupCode: occupationGroup ilişkisi üzerinden sub_group_code'a göre filtrele.
+     * indexBySubGroupCode: diagnosisGroup ilişkisi üzerinden sub_group_code'a göre filtrele.
      */
     public function indexBySubGroupCode($subGroupCode)
     {
-        $records = OccupationalDiseaseByDiagnosis::whereHas('occupationGroup', function ($query) use ($subGroupCode) {
+        $records = OccupationalDiseaseByDiagnosis::whereHas('diagnosisGroup', function ($query) use ($subGroupCode) {
                 $query->where('sub_group_code', $subGroupCode);
             })
-            ->with('occupationGroup')
+            ->with('diagnosisGroup')
             ->get();
         return response()->json([
             'success' => true,
@@ -128,6 +130,7 @@ class OccupationalDiseaseByDiagnosisController extends Controller
         $record->year = $request->year;
         $record->diagnosis_code = $request->diagnosis_code;
         $record->gender = $request->gender;
+        $record->occupational_disease_cases = $request->occupational_disease_cases;
 
         $result = $record->save();
 
@@ -166,6 +169,7 @@ class OccupationalDiseaseByDiagnosisController extends Controller
         $record->year = $request->year ?? $record->year;
         $record->diagnosis_code = $request->diagnosis_code ?? $record->diagnosis_code;
         $record->gender = $request->gender ?? $record->gender;
+        $record->occupational_disease_cases = $request->occupational_disease_cases ?? $record->occupational_disease_cases;
 
         $result = $record->save();
 

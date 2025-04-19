@@ -227,6 +227,11 @@ const router = createRouter({
       name: 'admin_tables_environments_work_accidents',
       component: () => import('../views/panel/tables/WorkAccidentsByEnvironmentsView.vue'),
     },
+    {
+      path: '/admin/tables/diagnosis-groups/occupational-diasese',
+      name: 'admin_tables_diagnosis_groups_occupational_diasese',
+      component: () => import('../views/panel/tables/OccupationalDiseaseByDiagnosisView.vue'),
+    },
 
     {
       path: '/admin/developers',

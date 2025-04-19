@@ -42,6 +42,11 @@
                 <span>3.1.9 | Yaşlara Göre Ölümlü İş Kazaları</span>
             </button>
 
+            <button @click.prevent="goToPage('/admin/tables/diagnosis-groups/occupational-diasese')">
+                <i class="fas fa-users-slash"></i>
+                <span>3.1.10 | Tanılara Göre Meslek Hastalığına Yakalananlar</span>
+            </button>
+
             <button @click.prevent="goToPage('/admin/tables/months/work-accidents')">
                 <i class="fas fa-chart-line"></i>
                 <span>3.1.11 | Aylara Göre İş Kazaları</span>
