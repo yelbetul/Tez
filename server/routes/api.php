@@ -7,6 +7,7 @@ use App\Http\Controllers\AccidentsAndFatalitiesByInjuryLocationController;
 use App\Http\Controllers\AccidentsAndFatalitiesByInjuryCauseController;
 use App\Http\Controllers\AccidentsAndFatalitiesByGeneralActivityController;
 use App\Http\Controllers\AccidentsAndFatalitiesByDeviationController;
+use App\Http\Controllers\AccidentsAndFatalitiesByMaterialController;
 use App\Http\Controllers\AccidentsAndFatalitiesBySpecialActivityBeforeAccidentController;
 use App\Http\Controllers\AgeCodeController;
 use App\Http\Controllers\DeviationController;
@@ -350,3 +351,13 @@ Route::get('/accidents-and-fatalities-by-deviations',                           
 Route::post('/accidents-and-fatalities-by-deviations/store',                                    [AccidentsAndFatalitiesByDeviationController::class, 'store']);
 Route::put('/accidents-and-fatalities-by-deviations/update/{id}',                               [AccidentsAndFatalitiesByDeviationController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-deviations/delete/{id}',                            [AccidentsAndFatalitiesByDeviationController::class, 'destroy']);
+
+
+
+
+// Accidents And Fatalities By Materials
+
+Route::get('/accidents-and-fatalities-by-materials',                                           [AccidentsAndFatalitiesByMaterialController::class, 'index']);
+Route::post('/accidents-and-fatalities-by-materials/store',                                    [AccidentsAndFatalitiesByMaterialController::class, 'store']);
+Route::put('/accidents-and-fatalities-by-materials/update/{id}',                               [AccidentsAndFatalitiesByMaterialController::class, 'update']);
+Route::delete('/accidents-and-fatalities-by-materials/delete/{id}',                            [AccidentsAndFatalitiesByMaterialController::class, 'destroy']);
