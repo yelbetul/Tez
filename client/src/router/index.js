@@ -207,6 +207,11 @@ const router = createRouter({
       name: 'admin_tables_special_activities_work_accidents',
       component: () => import('../views/panel/tables/WorkAccidentsBySpecialActivitiesView.vue'),
     },
+    {
+      path: '/admin/tables/deviations/work-accidents',
+      name: 'admin_tables_deviations_work_accidents',
+      component: () => import('../views/panel/tables/WorkAccidentsByDeviationsView.vue'),
+    },
 
     {
       path: '/admin/developers',

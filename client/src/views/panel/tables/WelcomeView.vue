@@ -91,6 +91,11 @@
                 <i class="fas fa-chart-bar"></i>
                 <span>3.1.20 | Özel Faaliyete Göre İş Kazaları</span>
             </button>
+
+            <button @click.prevent="goToPage('/admin/tables/deviations/work-accidents')">
+                <i class="fas fa-chart-bar"></i>
+                <span>3.1.21 | Sapmalara Göre İş Kazaları</span>
+            </button>
         </div>
     </div>
 </template>

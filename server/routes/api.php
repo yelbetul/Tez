@@ -6,6 +6,7 @@ use App\Http\Controllers\AccidentsAndFatalitiesByOccupationController;
 use App\Http\Controllers\AccidentsAndFatalitiesByInjuryLocationController;
 use App\Http\Controllers\AccidentsAndFatalitiesByInjuryCauseController;
 use App\Http\Controllers\AccidentsAndFatalitiesByGeneralActivityController;
+use App\Http\Controllers\AccidentsAndFatalitiesByDeviationController;
 use App\Http\Controllers\AccidentsAndFatalitiesBySpecialActivityBeforeAccidentController;
 use App\Http\Controllers\AgeCodeController;
 use App\Http\Controllers\DeviationController;
@@ -183,7 +184,7 @@ Route::delete('/employee-employment-durations/delete/{id}',     [EmployeeEmploym
 // Work Accidents By Sector
 
 Route::get('/work-accidents-by-sector',                                         [WorkAccidentsBySectorController::class, 'index']);
-oute::post('/work-accidents-by-sector/store',                                  [WorkAccidentsBySectorController::class, 'store']);
+Route::post('/work-accidents-by-sector/store',                                  [WorkAccidentsBySectorController::class, 'store']);
 Route::post('/work-accidents-by-sector/import',                                 [WorkAccidentsBySectorController::class, 'import']);
 Route::put('/work-accidents-by-sector/update/{id}',                             [WorkAccidentsBySectorController::class, 'update']);
 Route::delete('/work-accidents-by-sector/delete/{id}',                          [WorkAccidentsBySectorController::class, 'destroy']);
@@ -339,3 +340,13 @@ Route::get('/accidents-and-fatalities-by-special-activities',                   
 Route::post('/accidents-and-fatalities-by-special-activities/store',                                    [AccidentsAndFatalitiesBySpecialActivityBeforeAccidentController::class, 'store']);
 Route::put('/accidents-and-fatalities-by-special-activities/update/{id}',                               [AccidentsAndFatalitiesBySpecialActivityBeforeAccidentController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-special-activities/delete/{id}',                            [AccidentsAndFatalitiesBySpecialActivityBeforeAccidentController::class, 'destroy']);
+
+
+
+
+// Accidents And Fatalities By Deviations
+
+Route::get('/accidents-and-fatalities-by-deviations',                                           [AccidentsAndFatalitiesByDeviationController::class, 'index']);
+Route::post('/accidents-and-fatalities-by-deviations/store',                                    [AccidentsAndFatalitiesByDeviationController::class, 'store']);
+Route::put('/accidents-and-fatalities-by-deviations/update/{id}',                               [AccidentsAndFatalitiesByDeviationController::class, 'update']);
+Route::delete('/accidents-and-fatalities-by-deviations/delete/{id}',                            [AccidentsAndFatalitiesByDeviationController::class, 'destroy']);
