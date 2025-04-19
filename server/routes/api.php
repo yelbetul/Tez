@@ -41,6 +41,7 @@ use App\Http\Controllers\WorkAccidentsByMonthController;
 use App\Http\Controllers\WorkAccidentsByProvinceController;
 use App\Http\Controllers\WorkAccidentsBySectorController;
 use App\Http\Controllers\WorkAccidentByWorkstationController;
+use App\Http\Controllers\WorkAccidentByHourController;
 use App\Http\Controllers\WorkEnvironmentController;
 use App\Http\Controllers\WorkstationTypeController;
 use App\Http\Controllers\AdminController;
@@ -386,3 +387,15 @@ Route::post('/work-accidents-by-work-stations/store',                           
 Route::post('/work-accidents-by-work-stations/import',                                 [WorkAccidentByWorkstationController::class, 'import']);
 Route::put('/work-accidents-by-work-stations/update/{id}',                             [WorkAccidentByWorkstationController::class, 'update']);
 Route::delete('/work-accidents-by-work-stations/delete/{id}',                          [WorkAccidentByWorkstationController::class, 'destroy']);
+
+
+
+
+
+// Work Accidents By Hours
+
+Route::get('/work-accidents-by-hours',                                         [WorkAccidentByHourController::class, 'index']);
+Route::post('/work-accidents-by-hours/store',                                  [WorkAccidentByHourController::class, 'store']);
+Route::post('/work-accidents-by-hours/import',                                 [WorkAccidentByHourController::class, 'import']);
+Route::put('/work-accidents-by-hours/update/{id}',                             [WorkAccidentByHourController::class, 'update']);
+Route::delete('/work-accidents-by-hours/delete/{id}',                          [WorkAccidentByHourController::class, 'destroy']);

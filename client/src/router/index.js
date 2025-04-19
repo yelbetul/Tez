@@ -237,6 +237,11 @@ const router = createRouter({
       name: 'admin_tables_work_stations_work_accidents',
       component: () => import('../views/panel/tables/WorkAccidentsByWorkStationsView.vue'),
     },
+    {
+      path: '/admin/tables/time-intervals/work-accidents',
+      name: 'admin_tables_time_intervals_work_accidents',
+      component: () => import('../views/panel/tables/WorkAccidentsByHoursView.vue'),
+    },
 
 
 
