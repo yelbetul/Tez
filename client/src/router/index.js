@@ -182,6 +182,11 @@ const router = createRouter({
       name: 'admin_tables_occupations_disease_fatalities',
       component: () => import('../views/panel/tables/OccDiseaseFatalitiesByOccupationsView.vue'),
     },
+    {
+      path: '/admin/tables/injury-types/work-accidents',
+      name: 'admin_tables_injury_types_work_accidents',
+      component: () => import('../views/panel/tables/WorkAccidentsByInjuryTypesView.vue'),
+    },
 
     {
       path: '/admin/developers',
