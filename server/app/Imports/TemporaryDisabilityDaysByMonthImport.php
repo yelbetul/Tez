@@ -17,7 +17,7 @@ class TemporaryDisabilityDaysByMonthImport implements ToCollection, WithHeadingR
         foreach ($rows as $index => $row) {
             $validator = Validator::make($row->toArray(), [
                 'year' => 'required',
-                'months' => 'required|integer|exists:months,id',
+                'month_id' => 'required|integer|exists:months,id',
                 'gender' => 'required|boolean',
                 'works_on_accident_day' => 'required|integer',
                 'unfit_on_accident_day' => 'required|integer',
