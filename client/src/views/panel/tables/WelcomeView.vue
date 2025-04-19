@@ -56,6 +56,16 @@
                 <i class="fas fa-chart-bar"></i>
                 <span>3.1.13 | Aylara Göre Ölümlü İş Kazaları</span>
             </button>
+
+            <button @click.prevent="goToPage('/admin/tables/occupations/work-accidents')">
+                <i class="fas fa-chart-bar"></i>
+                <span>3.1.14 | Mesleklere Göre İş Kazaları</span>
+            </button>
+
+            <button @click.prevent="goToPage('/admin/tables/occupations/disease-fatalities')">
+                <i class="fas fa-chart-bar"></i>
+                <span>3.1.15 | Mesleklere Göre Meslek Hastalığı</span>
+            </button>
         </div>
     </div>
 </template>

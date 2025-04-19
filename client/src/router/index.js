@@ -172,7 +172,16 @@ const router = createRouter({
       name: 'admin_tables_months_fatal_work_accidents',
       component: () => import('../views/panel/tables/FatalWorkAccidentsByMonthsView.vue'),
     },
-
+    {
+      path: '/admin/tables/occupations/work-accidents',
+      name: 'admin_tables_occupations_work_accidents',
+      component: () => import('../views/panel/tables/WorkAccidentsByOccupationsView.vue'),
+    },
+    {
+      path: '/admin/tables/occupations/disease-fatalities',
+      name: 'admin_tables_occupations_disease_fatalities',
+      component: () => import('../views/panel/tables/OccDiseaseFatalitiesByOccupationsView.vue'),
+    },
 
     {
       path: '/admin/developers',
