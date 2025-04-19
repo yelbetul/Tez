@@ -45,6 +45,11 @@ const router = createRouter({
       component: () => import('../views/panel/groups/MonthsView.vue'),
     },
     {
+      path: '/admin/groups/diagnosis',
+      name: 'admin_diagnosis',
+      component: () => import('../views/panel/groups/DiagnosisView.vue'),
+    },
+    {
       path: '/admin/groups/ages',
       name: 'admin_ages',
       component: () => import('../views/panel/groups/AgesView.vue'),

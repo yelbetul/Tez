@@ -7,6 +7,7 @@
             <button @click.prevent="goToPage('/admin/groups/province-codes')">İl Kodları</button>
             <button @click.prevent="goToPage('/admin/groups/months')">Aylar</button>
             <button @click.prevent="goToPage('/admin/groups/ages')">Yaşlar</button>
+            <button @click.prevent="goToPage('/admin/groups/diagnosis')">Tanılar</button>
             <button @click.prevent="goToPage('/admin/groups/injury-types')">Yara Türleri</button>
             <button @click.prevent="goToPage('/admin/groups/injury-locations')">Yaranın Vücuttaki Yeri</button>
             <button @click.prevent="goToPage('/admin/groups/injury-causes')">Yaralanma Nedenleri</button>
