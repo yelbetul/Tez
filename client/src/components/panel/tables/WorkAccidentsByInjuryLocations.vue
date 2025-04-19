@@ -4,7 +4,7 @@
             <div class="close" @click="closeModal">
                 <i class="fa-solid fa-xmark"></i>
             </div>
-            <h2>Yaranın Türüne Göre İş Kazası Verisi {{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</h2>
+            <h2>Yaranın Yerine Göre İş Kazası Verisi {{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</h2>
             <form class="form" @submit.prevent="submitForm">
                 <div v-if="error" class="form-error">
                     <span><i class="fa-solid fa-xmark"></i> {{ errorMessage }}</span>
@@ -22,11 +22,11 @@
                 </div>
 
                 <div class="form-element">
-                    <label for="occ_code">Yaranın Türü</label>
+                    <label for="occ_code">Yaranın Yeri</label>
                     <select id="occ_code" v-model="formData.group_id">
                         <option value="0">Seçiniz...</option>
-                        <option v-for="item in injury_types" :key="item.id" :value="item.id">
-                            {{ item.injury_code }}
+                        <option v-for="item in injury_locations" :key="item.id" :value="item.id">
+                            {{ item.injury_location_code }}
                         </option>
                     </select>
                 </div>
@@ -119,7 +119,7 @@ export default {
                 five_or_more_days_unfit: null,
                 fatalities: null
             },
-            injury_types: [],
+            injury_locations: [],
             error: false,
             errorMessage: null
         };
@@ -142,7 +142,7 @@ export default {
         },
         submitForm() {
             if (this.state == 'new') {
-                axios.post('https://iskazalarianaliz.com/api/accidents-and-fatalities-by-injury/store', this.formData)
+                axios.post('https://iskazalarianaliz.com/api/accidents-and-fatalities-by-injury-locations/store', this.formData)
                     .then(res => {
                         if (!res.data.success) {
                             this.error = true;
@@ -158,7 +158,7 @@ export default {
                         }
                     });
             } else {
-                axios.put('https://iskazalarianaliz.com/api/accidents-and-fatalities-by-injury/update/' + this.formData.id, this.formData)
+                axios.put('https://iskazalarianaliz.com/api/accidents-and-fatalities-by-injury-locations/update/' + this.formData.id, this.formData)
                     .then(res => {
                         if (!res.data.success) {
                             this.error = true;
@@ -177,9 +177,9 @@ export default {
         }
     },
     created() {
-        axios.get('https://iskazalarianaliz.com/api/injury-types')
+        axios.get('https://iskazalarianaliz.com/api/injury-locations')
             .then(res => {
-                this.injury_types = res.data.data
+                this.injury_locations = res.data.data
             })
     },
 }

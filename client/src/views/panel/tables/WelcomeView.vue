@@ -71,6 +71,11 @@
                 <i class="fas fa-chart-bar"></i>
                 <span>3.1.16 | Yaranın Türüne Göre İş Kazaları</span>
             </button>
+
+            <button @click.prevent="goToPage('/admin/tables/injury-locations/work-accidents')">
+                <i class="fas fa-chart-bar"></i>
+                <span>3.1.17 | Yaranın Vücuttaki Yerine Göre İş Kazaları</span>
+            </button>
         </div>
     </div>
 </template>
