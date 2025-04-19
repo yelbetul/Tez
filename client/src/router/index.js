@@ -222,6 +222,11 @@ const router = createRouter({
       name: 'admin_tables_materials_work_accidents',
       component: () => import('../views/panel/tables/WorkAccidentsByMaterialsView.vue'),
     },
+    {
+      path: '/admin/tables/environments/work-accidents',
+      name: 'admin_tables_environments_work_accidents',
+      component: () => import('../views/panel/tables/WorkAccidentsByEnvironmentsView.vue'),
+    },
 
     {
       path: '/admin/developers',

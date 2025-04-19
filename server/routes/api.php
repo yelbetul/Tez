@@ -8,6 +8,7 @@ use App\Http\Controllers\AccidentsAndFatalitiesByInjuryCauseController;
 use App\Http\Controllers\AccidentsAndFatalitiesByGeneralActivityController;
 use App\Http\Controllers\AccidentsAndFatalitiesByDeviationController;
 use App\Http\Controllers\AccidentsAndFatalitiesByMaterialController;
+use App\Http\Controllers\AccidentsAndFatalitiesByEnvironmentController;
 use App\Http\Controllers\AccidentsAndFatalitiesBySpecialActivityBeforeAccidentController;
 use App\Http\Controllers\AgeCodeController;
 use App\Http\Controllers\DeviationController;
@@ -361,3 +362,14 @@ Route::get('/accidents-and-fatalities-by-materials',                            
 Route::post('/accidents-and-fatalities-by-materials/store',                                    [AccidentsAndFatalitiesByMaterialController::class, 'store']);
 Route::put('/accidents-and-fatalities-by-materials/update/{id}',                               [AccidentsAndFatalitiesByMaterialController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-materials/delete/{id}',                            [AccidentsAndFatalitiesByMaterialController::class, 'destroy']);
+
+
+
+
+
+// Accidents And Fatalities By Environments
+
+Route::get('/accidents-and-fatalities-by-environments',                                           [AccidentsAndFatalitiesByEnvironmentController::class, 'index']);
+Route::post('/accidents-and-fatalities-by-environments/store',                                    [AccidentsAndFatalitiesByEnvironmentController::class, 'store']);
+Route::put('/accidents-and-fatalities-by-environments/update/{id}',                               [AccidentsAndFatalitiesByEnvironmentController::class, 'update']);
+Route::delete('/accidents-and-fatalities-by-environments/delete/{id}',                            [AccidentsAndFatalitiesByEnvironmentController::class, 'destroy']);
