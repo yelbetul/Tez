@@ -232,6 +232,13 @@ const router = createRouter({
       name: 'admin_tables_diagnosis_groups_occupational_diasese',
       component: () => import('../views/panel/tables/OccupationalDiseaseByDiagnosisView.vue'),
     },
+    {
+      path: '/admin/tables/work-stations/work-accidents',
+      name: 'admin_tables_work_stations_work_accidents',
+      component: () => import('../views/panel/tables/WorkAccidentsByWorkStationsView.vue'),
+    },
+
+
 
     {
       path: '/admin/developers',

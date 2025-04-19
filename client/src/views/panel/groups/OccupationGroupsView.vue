@@ -132,7 +132,7 @@ export default {
             this.occupation_groups.forEach((item) => {
                 worksheet.addRow({
                     code: item.code,
-                    occupation_code: item.occupation_code,
+                    occupation_code: item.id,
                     occupation_name: item.occupation_name,
                     group_code: item.group_code,
                     group_name: item.group_name,

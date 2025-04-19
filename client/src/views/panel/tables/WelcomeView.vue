@@ -111,6 +111,11 @@
                 <i class="fas fa-chart-bar"></i>
                 <span>3.1.23 | Çalışılan Çevreye Göre İş Kazaları</span>
             </button>
+
+            <button @click.prevent="goToPage('/admin/tables/work-stations/work-accidents')">
+                <i class="fas fa-chart-bar"></i>
+                <span>3.1.24 | Çalışılan Ortama Göre İş Kazaları</span>
+            </button>
         </div>
     </div>
 </template>
