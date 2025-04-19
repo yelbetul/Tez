@@ -3,17 +3,17 @@
         <PageNavbar title="Tablolar" />
         <div class="go-to-page-container">
             <button @click.prevent="goToPage('/admin/tables/sector-codes/work-accidents')">
-                <i class="fas fa-industry"></i>
+                <i class="fas fa-hard-hat"></i>
                 <span>3.1.1 | Sektörlere Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/sector-codes/fatal-work-accidents')">
-                <i class="fas fa-skull-crossbones"></i>
+                <i class="fas fa-cross"></i>
                 <span>3.1.2 | Sektörlere Göre Ölümlü İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/sector-codes/temporary-disability-days')">
-                <i class="fas fa-calendar-times"></i>
+                <i class="fas fa-wheelchair"></i>
                 <span>3.1.3 | Sektörlere Göre Geçici İş Göremezlik Süreleri</span>
             </button>
 
@@ -33,22 +33,22 @@
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/ages/work-accidents')">
-                <i class="fas fa-user-friends"></i>
+                <i class="fas fa-user-clock"></i>
                 <span>3.1.8 | Yaşlara Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/ages/fatal-work-accidents')">
-                <i class="fas fa-users-slash"></i>
+                <i class="fas fa-user-times"></i>
                 <span>3.1.9 | Yaşlara Göre Ölümlü İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/diagnosis-groups/occupational-diasese')">
-                <i class="fas fa-users-slash"></i>
+                <i class="fas fa-virus"></i>
                 <span>3.1.10 | Tanılara Göre Meslek Hastalığına Yakalananlar</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/months/work-accidents')">
-                <i class="fas fa-chart-line"></i>
+                <i class="fas fa-calendar-alt"></i>
                 <span>3.1.11 | Aylara Göre İş Kazaları</span>
             </button>
 
@@ -58,67 +58,67 @@
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/months/fatal-work-accidents')">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-calendar-times"></i>
                 <span>3.1.13 | Aylara Göre Ölümlü İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/occupations/work-accidents')">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-user-tie"></i>
                 <span>3.1.14 | Mesleklere Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/occupations/disease-fatalities')">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-lungs-virus"></i>
                 <span>3.1.15 | Mesleklere Göre Meslek Hastalığı</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/injury-types/work-accidents')">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-band-aid"></i>
                 <span>3.1.16 | Yaranın Türüne Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/injury-locations/work-accidents')">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-user-injured"></i>
                 <span>3.1.17 | Yaranın Vücuttaki Yerine Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/injury-causes/work-accidents')">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-exclamation-triangle"></i>
                 <span>3.1.18 | Yaralanmaya Sebep Olaya Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/general-activities/work-accidents')">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-tools"></i>
                 <span>3.1.19 | Genel Faaliyete Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/special-activities/work-accidents')">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-toolbox"></i>
                 <span>3.1.20 | Özel Faaliyete Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/deviations/work-accidents')">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-random"></i>
                 <span>3.1.21 | Sapmalara Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/materials/work-accidents')">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-boxes"></i>
                 <span>3.1.22 | Materyallere Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/environments/work-accidents')">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-tree"></i>
                 <span>3.1.23 | Çalışılan Çevreye Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/work-stations/work-accidents')">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-warehouse"></i>
                 <span>3.1.24 | Çalışılan Ortama Göre İş Kazaları</span>
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/time-intervals/work-accidents')">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-clock"></i>
                 <span>3.1.25 | Çalışma Saatlerine Göre İş Kazaları</span>
             </button>
         </div>
