@@ -6,6 +6,7 @@ use App\Http\Controllers\AccidentsAndFatalitiesByOccupationController;
 use App\Http\Controllers\AccidentsAndFatalitiesByInjuryLocationController;
 use App\Http\Controllers\AccidentsAndFatalitiesByInjuryCauseController;
 use App\Http\Controllers\AccidentsAndFatalitiesByGeneralActivityController;
+use App\Http\Controllers\AccidentsAndFatalitiesBySpecialActivityBeforeAccidentController;
 use App\Http\Controllers\AgeCodeController;
 use App\Http\Controllers\DeviationController;
 use App\Http\Controllers\DiagnosisGroupController;
@@ -182,13 +183,7 @@ Route::delete('/employee-employment-durations/delete/{id}',     [EmployeeEmploym
 // Work Accidents By Sector
 
 Route::get('/work-accidents-by-sector',                                         [WorkAccidentsBySectorController::class, 'index']);
-Route::get('/work-accidents-by-sector/year/{year}',                             [WorkAccidentsBySectorController::class, 'indexByYear']);
-Route::get('/work-accidents-by-sector/group/{groupId}',                         [WorkAccidentsBySectorController::class, 'indexByGroupId']);
-Route::get('/work-accidents-by-sector/sector-code/{sectorCode}',                [WorkAccidentsBySectorController::class, 'indexBySectorCode']);
-Route::get('/work-accidents-by-sector/group-code/{groupCode}',                  [WorkAccidentsBySectorController::class, 'indexByGroupCode']);
-Route::get('/work-accidents-by-sector/sub-group-code/{subGroupCode}',           [WorkAccidentsBySectorController::class, 'indexBySubGroupCode']);
-Route::get('/work-accidents-by-sector/pure-code/{pureCode}',                    [WorkAccidentsBySectorController::class, 'indexByPureCode']);
-Route::post('/work-accidents-by-sector/store',                                  [WorkAccidentsBySectorController::class, 'store']);
+oute::post('/work-accidents-by-sector/store',                                  [WorkAccidentsBySectorController::class, 'store']);
 Route::post('/work-accidents-by-sector/import',                                 [WorkAccidentsBySectorController::class, 'import']);
 Route::put('/work-accidents-by-sector/update/{id}',                             [WorkAccidentsBySectorController::class, 'update']);
 Route::delete('/work-accidents-by-sector/delete/{id}',                          [WorkAccidentsBySectorController::class, 'destroy']);
@@ -196,12 +191,6 @@ Route::delete('/work-accidents-by-sector/delete/{id}',                          
 // Fatal Work Accidents By Sector
 
 Route::get('/fatal-work-accidents-by-sector',                                   [FatalWorkAccidentsBySectorController::class, 'index']);
-Route::get('/fatal-work-accidents-by-sector/year/{year}',                       [FatalWorkAccidentsBySectorController::class, 'indexByYear']);
-Route::get('/fatal-work-accidents-by-sector/group/{groupId}',                   [FatalWorkAccidentsBySectorController::class, 'indexByGroupId']);
-Route::get('/fatal-work-accidents-by-sector/sector-code/{sectorCode}',          [FatalWorkAccidentsBySectorController::class, 'indexBySectorCode']);
-Route::get('/fatal-work-accidents-by-sector/group-code/{groupCode}',            [FatalWorkAccidentsBySectorController::class, 'indexByGroupCode']);
-Route::get('/fatal-work-accidents-by-sector/sub-group-code/{subGroupCode}',     [FatalWorkAccidentsBySectorController::class, 'indexBySubGroupCode']);
-Route::get('/fatal-work-accidents-by-sector/pure-code/{pureCode}',              [FatalWorkAccidentsBySectorController::class, 'indexByPureCode']);
 Route::post('/fatal-work-accidents-by-sector/store',                            [FatalWorkAccidentsBySectorController::class, 'store']);
 Route::post('/fatal-work-accidents-by-sector/import',                           [FatalWorkAccidentsBySectorController::class, 'import']);
 Route::put('/fatal-work-accidents-by-sector/update/{id}',                       [FatalWorkAccidentsBySectorController::class, 'update']);
@@ -210,12 +199,6 @@ Route::delete('/fatal-work-accidents-by-sector/delete/{id}',                    
 // Temporary Disability Day By Sector
 
 Route::get('/temporary-disability-day-by-sector',                               [TemporaryDisabilityDaysBySectorController::class, 'index']);
-Route::get('/temporary-disability-day-by-sector/year/{year}',                   [TemporaryDisabilityDaysBySectorController::class, 'indexByYear']);
-Route::get('/temporary-disability-day-by-sector/group/{groupId}',               [TemporaryDisabilityDaysBySectorController::class, 'indexByGroupId']);
-Route::get('/temporary-disability-day-by-sector/sector/{sectorCode}',           [TemporaryDisabilityDaysBySectorController::class, 'indexBySectorCode']);
-Route::get('/temporary-disability-day-by-sector/group-code/{groupCode}',        [TemporaryDisabilityDaysBySectorController::class, 'indexByGroupCode']);
-Route::get('/temporary-disability-day-by-sector/sub-group-code/{subGroupCode}', [TemporaryDisabilityDaysBySectorController::class, 'indexBySubGroupCode']);
-Route::get('/temporary-disability-day-by-sector/pure-code/{pureCode}',          [TemporaryDisabilityDaysBySectorController::class, 'indexByPureCode']);
 Route::post('/temporary-disability-day-by-sector/store',                        [TemporaryDisabilityDaysBySectorController::class, 'store']);
 Route::post('/temporary-disability-day-by-sector/import',                       [TemporaryDisabilityDaysBySectorController::class, 'import']);
 Route::put('/temporary-disability-day-by-sector/update/{id}',                   [TemporaryDisabilityDaysBySectorController::class, 'update']);
@@ -224,9 +207,6 @@ Route::delete('/temporary-disability-day-by-sector/delete/{id}',                
 // Work Accidents By Province
 
 Route::get('/work-accidents-by-province',                                       [WorkAccidentsByProvinceController::class, 'index']);
-Route::get('/work-accidents-by-province/year/{year}',                           [WorkAccidentsByProvinceController::class, 'indexByYear']);
-Route::get('/work-accidents-by-province/province-id/{provinceId}',              [WorkAccidentsByProvinceController::class, 'indexByProvinceId']);
-Route::get('/work-accidents-by-province/province-code/{provinceCode}',          [WorkAccidentsByProvinceController::class, 'indexByProvinceCode']);
 Route::post('/work-accidents-by-province/store',                                [WorkAccidentsByProvinceController::class, 'store']);
 Route::post('/work-accidents-by-province/import',                               [WorkAccidentsByProvinceController::class, 'import']);
 Route::put('/work-accidents-by-province/update/{id}',                           [WorkAccidentsByProvinceController::class, 'update']);
@@ -235,9 +215,6 @@ Route::delete('/work-accidents-by-province/delete/{id}',                        
 // Fatal Work Accidents By Province
 
 Route::get('/fatal-work-accidents-by-province',                                  [FatalWorkAccidentsByProvinceController::class, 'index']);
-Route::get('/fatal-work-accidents-by-province/year/{year}',                      [FatalWorkAccidentsByProvinceController::class, 'indexByYear']);
-Route::get('/fatal-work-accidents-by-province/province-id/{provinceId}',         [FatalWorkAccidentsByProvinceController::class, 'indexByProvinceId']);
-Route::get('/fatal-work-accidents-by-province/province-code/{provinceCode}',     [FatalWorkAccidentsByProvinceController::class, 'indexByProvinceCode']);
 Route::post('/fatal-work-accidents-by-province/store',                           [FatalWorkAccidentsByProvinceController::class, 'store']);
 Route::post('/fatal-work-accidents-by-province/import',                          [FatalWorkAccidentsByProvinceController::class, 'import']);
 Route::put('/fatal-work-accidents-by-province/update/{id}',                      [FatalWorkAccidentsByProvinceController::class, 'update']);
@@ -246,9 +223,6 @@ Route::delete('/fatal-work-accidents-by-province/delete/{id}',                  
 // Temporary Disability Day By Province
 
 Route::get('/temporary-disability-day-by-province',                                    [TemporaryDisabilityDaysByProvinceController::class, 'index']);
-Route::get('/temporary-disability-day-by-province/year/{year}',                        [TemporaryDisabilityDaysByProvinceController::class, 'indexByYear']);
-Route::get('/temporary-disability-day-by-province/province/{provinceId}',              [TemporaryDisabilityDaysByProvinceController::class, 'indexByProvinceId']);
-Route::get('/temporary-disability-day-by-province/province-code/{provinceCode}',       [TemporaryDisabilityDaysByProvinceController::class, 'indexByProvinceCode']);
 Route::post('/temporary-disability-day-by-province/store',                             [TemporaryDisabilityDaysByProvinceController::class, 'store']);
 Route::post('/temporary-disability-day-by-province/import',                            [TemporaryDisabilityDaysByProvinceController::class, 'import']);
 Route::put('/temporary-disability-day-by-province/update/{id}',                        [TemporaryDisabilityDaysByProvinceController::class, 'update']);
@@ -257,9 +231,6 @@ Route::delete('/temporary-disability-day-by-province/delete/{id}',              
 // Disability Days Occupational Diseases By Province
 
 Route::get('/disability-days-occ-dis-by-province',                                  [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'index']);
-Route::get('/disability-days-occ-dis-by-province/year/{year}',                      [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'indexByYear']);
-Route::get('/disability-days-occ-dis-by-province/province/{provinceId}',            [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'indexByProvinceId']);
-Route::get('/disability-days-occ-dis-by-province/province-code/{provinceCode}',     [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'indexByProvinceCode']);
 Route::post('/disability-days-occ-dis-by-province/store',                           [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'store']);
 Route::put('/disability-days-occ-dis-by-province/update/{id}',                      [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'update']);
 Route::delete('/disability-days-occ-dis-by-province/delete/{id}',                   [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'destroy']);
@@ -267,8 +238,6 @@ Route::delete('/disability-days-occ-dis-by-province/delete/{id}',               
 // Work Accidents By Age
 
 Route::get('/work-accidents-by-age',                            [WorkAccidentsByAgeController::class, 'index']);
-Route::get('/work-accidents-by-age/year/{year}',                [WorkAccidentsByAgeController::class, 'indexByYear']);
-Route::get('/work-accidents-by-age/age/{ageId}',                [WorkAccidentsByAgeController::class, 'indexByAge']);
 Route::post('/work-accidents-by-age/store',                     [WorkAccidentsByAgeController::class, 'store']);
 Route::post('/work-accidents-by-age/import',                    [WorkAccidentsByAgeController::class, 'import']);
 Route::put('/work-accidents-by-age/update/{id}',                [WorkAccidentsByAgeController::class, 'update']);
@@ -277,8 +246,6 @@ Route::delete('/work-accidents-by-age/delete/{id}',             [WorkAccidentsBy
 // Fatal Work Accidents By Age
 
 Route::get('/fatal-work-accidents-by-age',                      [FatalWorkAccidentsByAgeController::class, 'index']);
-Route::get('/fatal-work-accidents-by-age/year/{year}',          [FatalWorkAccidentsByAgeController::class, 'indexByYear']);
-Route::get('/fatal-work-accidents-by-age/age/{ageId}',          [FatalWorkAccidentsByAgeController::class, 'indexByAge']);
 Route::post('/fatal-work-accidents-by-age/store',               [FatalWorkAccidentsByAgeController::class, 'store']);
 Route::post('/fatal-work-accidents-by-age/import',              [FatalWorkAccidentsByAgeController::class, 'import']);
 Route::put('/fatal-work-accidents-by-age/update/{id}',          [FatalWorkAccidentsByAgeController::class, 'update']);
@@ -287,10 +254,6 @@ Route::delete('/fatal-work-accidents-by-age/delete/{id}',       [FatalWorkAccide
 // Occupational Disease By Diagnosis
 
 Route::get('/occupational-disease-by-diagnosis',                                [OccupationalDiseaseByDiagnosisController::class, 'index']);
-Route::get('/occupational-disease-by-diagnosis/year/{year}',                    [OccupationalDiseaseByDiagnosisController::class, 'indexByYear']);
-Route::get('/occupational-disease-by-diagnosis/gender/{gender}',                [OccupationalDiseaseByDiagnosisController::class, 'indexByGender']);
-Route::get('/occupational-disease-by-diagnosis/group-code/{groupCode}',         [OccupationalDiseaseByDiagnosisController::class, 'indexByGroupCode']);
-Route::get('/occupational-disease-by-diagnosis/sub-group-code/{subGroupCode}',  [OccupationalDiseaseByDiagnosisController::class, 'indexBySubGroupCode']);
 Route::post('/occupational-disease-by-diagnosis/store',                         [OccupationalDiseaseByDiagnosisController::class, 'store']);
 Route::put('/occupational-disease-by-diagnosis/update/{id}',                    [OccupationalDiseaseByDiagnosisController::class, 'update']);
 Route::delete('/occupational-disease-by-diagnosis/delete/{id}',                 [OccupationalDiseaseByDiagnosisController::class, 'destroy']);
@@ -298,9 +261,6 @@ Route::delete('/occupational-disease-by-diagnosis/delete/{id}',                 
 // Work Accidents By Month
 
 Route::get('/work-accidents-by-month',                      [WorkAccidentsByMonthController::class, 'index']);
-Route::get('/work-accidents-by-month/year/{year}',          [WorkAccidentsByMonthController::class, 'indexByYear']);
-Route::get('/work-accidents-by-month/gender/{gender}',      [WorkAccidentsByMonthController::class, 'indexByGender']);
-Route::get('/work-accidents-by-month/month/{monthId}',      [WorkAccidentsByMonthController::class, 'indexByMonth']);
 Route::post('/work-accidents-by-month/store',               [WorkAccidentsByMonthController::class, 'store']);
 Route::post('/work-accidents-by-month/import',              [WorkAccidentsByMonthController::class, 'import']);
 Route::put('/work-accidents-by-month/update/{id}',          [WorkAccidentsByMonthController::class, 'update']);
@@ -309,9 +269,6 @@ Route::delete('/work-accidents-by-month/delete/{id}',       [WorkAccidentsByMont
 // Temporary Disability Days By Month
 
 Route::get('/temporary-disability-days-by-month',                       [TemporaryDisabilityDaysByMonthController::class, 'index']);
-Route::get('/temporary-disability-days-by-month/year/{year}',           [TemporaryDisabilityDaysByMonthController::class, 'indexByYear']);
-Route::get('/temporary-disability-days-by-month/gender/{gender}',       [TemporaryDisabilityDaysByMonthController::class, 'indexByGender']);
-Route::get('/temporary-disability-days-by-month/month/{monthId}',       [TemporaryDisabilityDaysByMonthController::class, 'indexByMonth']);
 Route::post('/temporary-disability-days-by-month/store',                [TemporaryDisabilityDaysByMonthController::class, 'store']);
 Route::post('/temporary-disability-days-by-month/import',               [TemporaryDisabilityDaysByMonthController::class, 'import']);
 Route::put('/temporary-disability-days-by-month/update/{id}',           [TemporaryDisabilityDaysByMonthController::class, 'update']);
@@ -320,9 +277,6 @@ Route::delete('/temporary-disability-days-by-month/delete/{id}',        [Tempora
 // Fatal Work Accidents By Month
 
 Route::get('/fatal-work-accidents-by-month',                            [FatalWorkAccidentsByMonthController::class, 'index']);
-Route::get('/fatal-work-accidents-by-month/year/{year}',                [FatalWorkAccidentsByMonthController::class, 'indexByYear']);
-Route::get('/fatal-work-accidents-by-month/gender/{gender}',            [FatalWorkAccidentsByMonthController::class, 'indexByGender']);
-Route::get('/fatal-work-accidents-by-month/month/{monthId}',            [FatalWorkAccidentsByMonthController::class, 'indexByMonth']);
 Route::post('/fatal-work-accidents-by-month/store',                     [FatalWorkAccidentsByMonthController::class, 'store']);
 Route::post('/fatal-work-accidents-by-month/import',                    [FatalWorkAccidentsByMonthController::class, 'import']);
 Route::put('/fatal-work-accidents-by-month/update/{id}',                [FatalWorkAccidentsByMonthController::class, 'update']);
@@ -331,14 +285,6 @@ Route::delete('/fatal-work-accidents-by-month/delete/{id}',             [FatalWo
 // Accidents And Fatalities By Occupation Controller
 
 Route::get('/accidents-and-fatalities-by-occupation',                                       [AccidentsAndFatalitiesByOccupationController::class, 'index']);
-Route::get('/accidents-and-fatalities-by-occupation/year/{year}',                           [AccidentsAndFatalitiesByOccupationController::class, 'indexByYear']);
-Route::get('/accidents-and-fatalities-by-occupation/group-id/{groupId}',                    [AccidentsAndFatalitiesByOccupationController::class, 'indexByGroupId']);
-Route::get('/accidents-and-fatalities-by-occupation/gender/{gender}',                       [AccidentsAndFatalitiesByOccupationController::class, 'indexByGender']);
-Route::get('/accidents-and-fatalities-by-occupation/code/{code}',                           [AccidentsAndFatalitiesByOccupationController::class, 'indexByCode']);
-Route::get('/accidents-and-fatalities-by-occupation/occupation-code/{occupationCode}',      [AccidentsAndFatalitiesByOccupationController::class, 'indexByOccupationCode']);
-Route::get('/accidents-and-fatalities-by-occupation/group-code/{groupCode}',                [AccidentsAndFatalitiesByOccupationController::class, 'indexByGroupCode']);
-Route::get('/accidents-and-fatalities-by-occupation/sub-group-code/{subGroupCode}',         [AccidentsAndFatalitiesByOccupationController::class, 'indexBySubGroupCode']);
-Route::get('/accidents-and-fatalities-by-occupation/pure-code/{pureCode}',                  [AccidentsAndFatalitiesByOccupationController::class, 'indexByPureCode']);
 Route::post('/accidents-and-fatalities-by-occupation/store',                                [AccidentsAndFatalitiesByOccupationController::class, 'store']);
 Route::put('/accidents-and-fatalities-by-occupation/update/{id}',                           [AccidentsAndFatalitiesByOccupationController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-occupation/delete/{id}',                        [AccidentsAndFatalitiesByOccupationController::class, 'destroy']);
@@ -346,14 +292,6 @@ Route::delete('/accidents-and-fatalities-by-occupation/delete/{id}',            
 // Occ Disease Fatalities By Occupation
 
 Route::get('/occ-disease-fatalities-by-occupation',                                         [OccDiseaseFatalitiesByOccupationController::class, 'index']);
-Route::get('/occ-disease-fatalities-by-occupation/year/{year}',                             [OccDiseaseFatalitiesByOccupationController::class, 'indexByYear']);
-Route::get('/occ-disease-fatalities-by-occupation/group-id/{groupId}',                      [OccDiseaseFatalitiesByOccupationController::class, 'indexByGroupId']);
-Route::get('/occ-disease-fatalities-by-occupation/gender/{gender}',                         [OccDiseaseFatalitiesByOccupationController::class, 'indexByGender']);
-Route::get('/occ-disease-fatalities-by-occupation/code/{code}',                             [OccDiseaseFatalitiesByOccupationController::class, 'indexByCode']);
-Route::get('/occ-disease-fatalities-by-occupation/occupation-code/{occupationCode}',        [OccDiseaseFatalitiesByOccupationController::class, 'indexByOccupationCode']);
-Route::get('/occ-disease-fatalities-by-occupation/group-code/{groupCode}',                  [OccDiseaseFatalitiesByOccupationController::class, 'indexByGroupCode']);
-Route::get('/occ-disease-fatalities-by-occupation/sub-group-code/{subGroupCode}',           [OccDiseaseFatalitiesByOccupationController::class, 'indexBySubGroupCode']);
-Route::get('/occ-disease-fatalities-by-occupation/pure-code/{pureCode}',                    [OccDiseaseFatalitiesByOccupationController::class, 'indexByPureCode']);
 Route::post('/occ-disease-fatalities-by-occupation/store',                                  [OccDiseaseFatalitiesByOccupationController::class, 'store']);
 Route::put('/occ-disease-fatalities-by-occupation/update/{id}',                             [OccDiseaseFatalitiesByOccupationController::class, 'update']);
 Route::delete('/occ-disease-fatalities-by-occupation/delete/{id}',                          [OccDiseaseFatalitiesByOccupationController::class, 'destroy']);
@@ -361,12 +299,6 @@ Route::delete('/occ-disease-fatalities-by-occupation/delete/{id}',              
 // Accidents And Fatalities By Injury
 
 Route::get('/accidents-and-fatalities-by-injury',                                           [AccidentsAndFatalitiesByInjuryController::class, 'index']);
-Route::get('/accidents-and-fatalities-by-injury/year/{year}',                               [AccidentsAndFatalitiesByInjuryController::class, 'indexByYear']);
-Route::get('/accidents-and-fatalities-by-injury/group-id/{groupId}',                        [AccidentsAndFatalitiesByInjuryController::class, 'indexByGroupId']);
-Route::get('/accidents-and-fatalities-by-injury/gender/{gender}',                           [AccidentsAndFatalitiesByInjuryController::class, 'indexByGender']);
-Route::get('/accidents-and-fatalities-by-injury/injury-code/{injuryCode}',                  [AccidentsAndFatalitiesByInjuryController::class, 'indexByInjuryCode']);
-Route::get('/accidents-and-fatalities-by-injury/group-code/{groupCode}',                    [AccidentsAndFatalitiesByInjuryController::class, 'indexByGroupCode']);
-Route::get('/accidents-and-fatalities-by-injury/sub-group-code/{subGroupCode}',             [AccidentsAndFatalitiesByInjuryController::class, 'indexBySubGroupCode']);
 Route::post('/accidents-and-fatalities-by-injury/store',                                    [AccidentsAndFatalitiesByInjuryController::class, 'store']);
 Route::put('/accidents-and-fatalities-by-injury/update/{id}',                               [AccidentsAndFatalitiesByInjuryController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-injury/delete/{id}',                            [AccidentsAndFatalitiesByInjuryController::class, 'destroy']);
@@ -376,12 +308,6 @@ Route::delete('/accidents-and-fatalities-by-injury/delete/{id}',                
 // Accidents And Fatalities By Injury Locations
 
 Route::get('/accidents-and-fatalities-by-injury-locations',                                           [AccidentsAndFatalitiesByInjuryLocationController::class, 'index']);
-Route::get('/accidents-and-fatalities-by-injury-locations/year/{year}',                               [AccidentsAndFatalitiesByInjuryLocationController::class, 'indexByYear']);
-Route::get('/accidents-and-fatalities-by-injury-locations/group-id/{groupId}',                        [AccidentsAndFatalitiesByInjuryLocationController::class, 'indexByGroupId']);
-Route::get('/accidents-and-fatalities-by-injury-locations/gender/{gender}',                           [AccidentsAndFatalitiesByInjuryLocationController::class, 'indexByGender']);
-Route::get('/accidents-and-fatalities-by-injury-locations/injury-code/{injuryCode}',                  [AccidentsAndFatalitiesByInjuryLocationController::class, 'indexByInjuryCode']);
-Route::get('/accidents-and-fatalities-by-injury-locations/group-code/{groupCode}',                    [AccidentsAndFatalitiesByInjuryLocationController::class, 'indexByGroupCode']);
-Route::get('/accidents-and-fatalities-by-injury-locations/sub-group-code/{subGroupCode}',             [AccidentsAndFatalitiesByInjuryLocationController::class, 'indexBySubGroupCode']);
 Route::post('/accidents-and-fatalities-by-injury-locations/store',                                    [AccidentsAndFatalitiesByInjuryLocationController::class, 'store']);
 Route::put('/accidents-and-fatalities-by-injury-locations/update/{id}',                               [AccidentsAndFatalitiesByInjuryLocationController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-injury-locations/delete/{id}',                            [AccidentsAndFatalitiesByInjuryLocationController::class, 'destroy']);
@@ -392,27 +318,24 @@ Route::delete('/accidents-and-fatalities-by-injury-locations/delete/{id}',      
 // Accidents And Fatalities By Injury Causes
 
 Route::get('/accidents-and-fatalities-by-injury-causes',                                           [AccidentsAndFatalitiesByInjuryCauseController::class, 'index']);
-Route::get('/accidents-and-fatalities-by-injury-causes/year/{year}',                               [AccidentsAndFatalitiesByInjuryCauseController::class, 'indexByYear']);
-Route::get('/accidents-and-fatalities-by-injury-causes/group-id/{groupId}',                        [AccidentsAndFatalitiesByInjuryCauseController::class, 'indexByGroupId']);
-Route::get('/accidents-and-fatalities-by-injury-causes/gender/{gender}',                           [AccidentsAndFatalitiesByInjuryCauseController::class, 'indexByGender']);
-Route::get('/accidents-and-fatalities-by-injury-causes/injury-code/{injuryCode}',                  [AccidentsAndFatalitiesByInjuryCauseController::class, 'indexByInjuryCode']);
-Route::get('/accidents-and-fatalities-by-injury-causes/group-code/{groupCode}',                    [AccidentsAndFatalitiesByInjuryCauseController::class, 'indexByGroupCode']);
-Route::get('/accidents-and-fatalities-by-injury-causes/sub-group-code/{subGroupCode}',             [AccidentsAndFatalitiesByInjuryCauseController::class, 'indexBySubGroupCode']);
 Route::post('/accidents-and-fatalities-by-injury-causes/store',                                    [AccidentsAndFatalitiesByInjuryCauseController::class, 'store']);
 Route::put('/accidents-and-fatalities-by-injury-causes/update/{id}',                               [AccidentsAndFatalitiesByInjuryCauseController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-injury-causes/delete/{id}',                            [AccidentsAndFatalitiesByInjuryCauseController::class, 'destroy']);
 
 
 
-// Accidents And Fatalities By Injury Causes
+// Accidents And Fatalities By General Activities
 
 Route::get('/accidents-and-fatalities-by-general-activities',                                           [AccidentsAndFatalitiesByGeneralActivityController::class, 'index']);
-Route::get('/accidents-and-fatalities-by-general-activities/year/{year}',                               [AccidentsAndFatalitiesByGeneralActivityController::class, 'indexByYear']);
-Route::get('/accidents-and-fatalities-by-general-activities/group-id/{groupId}',                        [AccidentsAndFatalitiesByGeneralActivityController::class, 'indexByGroupId']);
-Route::get('/accidents-and-fatalities-by-general-activities/gender/{gender}',                           [AccidentsAndFatalitiesByGeneralActivityController::class, 'indexByGender']);
-Route::get('/accidents-and-fatalities-by-general-activities/injury-code/{injuryCode}',                  [AccidentsAndFatalitiesByGeneralActivityController::class, 'indexByInjuryCode']);
-Route::get('/accidents-and-fatalities-by-general-activities/group-code/{groupCode}',                    [AccidentsAndFatalitiesByGeneralActivityController::class, 'indexByGroupCode']);
-Route::get('/accidents-and-fatalities-by-general-activities/sub-group-code/{subGroupCode}',             [AccidentsAndFatalitiesByGeneralActivityController::class, 'indexBySubGroupCode']);
 Route::post('/accidents-and-fatalities-by-general-activities/store',                                    [AccidentsAndFatalitiesByGeneralActivityController::class, 'store']);
 Route::put('/accidents-and-fatalities-by-general-activities/update/{id}',                               [AccidentsAndFatalitiesByGeneralActivityController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-general-activities/delete/{id}',                            [AccidentsAndFatalitiesByGeneralActivityController::class, 'destroy']);
+
+
+
+// Accidents And Fatalities By Special Activities
+
+Route::get('/accidents-and-fatalities-by-special-activities',                                           [AccidentsAndFatalitiesBySpecialActivityBeforeAccidentController::class, 'index']);
+Route::post('/accidents-and-fatalities-by-special-activities/store',                                    [AccidentsAndFatalitiesBySpecialActivityBeforeAccidentController::class, 'store']);
+Route::put('/accidents-and-fatalities-by-special-activities/update/{id}',                               [AccidentsAndFatalitiesBySpecialActivityBeforeAccidentController::class, 'update']);
+Route::delete('/accidents-and-fatalities-by-special-activities/delete/{id}',                            [AccidentsAndFatalitiesBySpecialActivityBeforeAccidentController::class, 'destroy']);

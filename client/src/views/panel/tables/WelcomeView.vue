@@ -84,7 +84,12 @@
 
             <button @click.prevent="goToPage('/admin/tables/general-activities/work-accidents')">
                 <i class="fas fa-chart-bar"></i>
-                <span>3.1.19 | Genel Aktiviteye Göre İş Kazaları</span>
+                <span>3.1.19 | Genel Faaliyete Göre İş Kazaları</span>
+            </button>
+
+            <button @click.prevent="goToPage('/admin/tables/special-activities/work-accidents')">
+                <i class="fas fa-chart-bar"></i>
+                <span>3.1.20 | Özel Faaliyete Göre İş Kazaları</span>
             </button>
         </div>
     </div>
