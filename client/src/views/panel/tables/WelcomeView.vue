@@ -121,6 +121,11 @@
                 <i class="fas fa-clock"></i>
                 <span>3.1.25 | Çalışma Saatlerine Göre İş Kazaları</span>
             </button>
+
+            <button @click.prevent="goToPage('/admin/tables/employee/work-accidents')">
+                <i class="fas fa-users"></i>
+                <span>3.1.26 | Çalışan Sayısına Göre İş Kazaları</span>
+            </button>
         </div>
     </div>
 </template>

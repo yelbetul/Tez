@@ -9,6 +9,7 @@ use App\Http\Controllers\AccidentsAndFatalitiesByGeneralActivityController;
 use App\Http\Controllers\AccidentsAndFatalitiesByDeviationController;
 use App\Http\Controllers\AccidentsAndFatalitiesByMaterialController;
 use App\Http\Controllers\AccidentsAndFatalitiesByEnvironmentController;
+use App\Http\Controllers\AccidentsAndFatalitiesByEmployeeController;
 use App\Http\Controllers\AccidentsAndFatalitiesBySpecialActivityBeforeAccidentController;
 use App\Http\Controllers\AgeCodeController;
 use App\Http\Controllers\DeviationController;
@@ -399,3 +400,15 @@ Route::post('/work-accidents-by-hours/store',                                  [
 Route::post('/work-accidents-by-hours/import',                                 [WorkAccidentByHourController::class, 'import']);
 Route::put('/work-accidents-by-hours/update/{id}',                             [WorkAccidentByHourController::class, 'update']);
 Route::delete('/work-accidents-by-hours/delete/{id}',                          [WorkAccidentByHourController::class, 'destroy']);
+
+
+
+
+
+// Work Accidents By Employee
+
+Route::get('/accidents-and-fatalities-by-employee',                                         [AccidentsAndFatalitiesByEmployeeController::class, 'index']);
+Route::post('/accidents-and-fatalities-by-employee/store',                                  [AccidentsAndFatalitiesByEmployeeController::class, 'store']);
+Route::post('/accidents-and-fatalities-by-employee/import',                                 [AccidentsAndFatalitiesByEmployeeController::class, 'import']);
+Route::put('/accidents-and-fatalities-by-employee/update/{id}',                             [AccidentsAndFatalitiesByEmployeeController::class, 'update']);
+Route::delete('/accidents-and-fatalities-by-employee/delete/{id}',                          [AccidentsAndFatalitiesByEmployeeController::class, 'destroy']);
