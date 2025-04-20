@@ -110,6 +110,7 @@ export default {
             const worksheet = workbook.addWorksheet('Çalışılan Çevre');
 
             worksheet.columns = [
+                { header: 'ID', key: 'id', width: 20 },
                 { header: 'Çalışılan Çevre Kodu', key: 'environment_code', width: 20 },
                 { header: 'Grup Kodu', key: 'group_code', width: 15 },
                 { header: 'Grup Adı', key: 'group_name', width: 25 },
@@ -119,6 +120,7 @@ export default {
 
             this.work_environments.forEach((item) => {
                 worksheet.addRow({
+                    id: item.id,
                     environment_code: item.environment_code,
                     group_code: item.group_code,
                     group_name: item.group_name,
