@@ -10,6 +10,7 @@ use App\Http\Controllers\AccidentsAndFatalitiesByDeviationController;
 use App\Http\Controllers\AccidentsAndFatalitiesByMaterialController;
 use App\Http\Controllers\AccidentsAndFatalitiesByEnvironmentController;
 use App\Http\Controllers\AccidentsAndFatalitiesByEmployeeController;
+use App\Http\Controllers\AccidentsAndFatalitiesByEmployerDurationController;
 use App\Http\Controllers\AccidentsAndFatalitiesBySpecialActivityBeforeAccidentController;
 use App\Http\Controllers\AgeCodeController;
 use App\Http\Controllers\DeviationController;
@@ -431,3 +432,12 @@ Route::get('/occ-disease-fatalities-by-employer-durations',                     
 Route::post('/occ-disease-fatalities-by-employer-durations/store',                                  [OccDiseaseFatalitiesByEmployerDurationController::class, 'store']);
 Route::put('/occ-disease-fatalities-by-employer-durations/update/{id}',                             [OccDiseaseFatalitiesByEmployerDurationController::class, 'update']);
 Route::delete('/occ-disease-fatalities-by-employer-durations/delete/{id}',                          [OccDiseaseFatalitiesByEmployerDurationController::class, 'destroy']);
+
+
+
+// Accidents And Fatalities By Employer Durations
+
+Route::get('/accidents-and-fatalities-by-employer-durations',                                           [AccidentsAndFatalitiesByEmployerDurationController::class, 'index']);
+Route::post('/accidents-and-fatalities-by-employer-durations/store',                                    [AccidentsAndFatalitiesByEmployerDurationController::class, 'store']);
+Route::put('/accidents-and-fatalities-by-employer-durations/update/{id}',                               [AccidentsAndFatalitiesByEmployerDurationController::class, 'update']);
+Route::delete('/accidents-and-fatalities-by-employer-durations/delete/{id}',                            [AccidentsAndFatalitiesByEmployerDurationController::class, 'destroy']);

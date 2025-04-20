@@ -133,9 +133,15 @@
             </button>
 
             <button @click.prevent="goToPage('/admin/tables/employer-durations/disease-fatalities')">
-                <i class="fas fa-users"></i>
+                <i class="far fa-clock"></i>
                 <span>3.1.28 | Çalışma Süresine Göre Meslek Hastalığı</span>
             </button>
+
+            <button @click.prevent="goToPage('/admin/tables/employer-durations/work-accidents')">
+                <i class="far fa-clock"></i>
+                <span>3.1.29 | Çalışma Süresine Göre İş Kazaları</span>
+            </button>
+
         </div>
     </div>
 </template>
