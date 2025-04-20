@@ -241,6 +241,7 @@ Route::delete('/temporary-disability-day-by-province/delete/{id}',              
 
 Route::get('/disability-days-occ-dis-by-province',                                  [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'index']);
 Route::post('/disability-days-occ-dis-by-province/store',                           [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'store']);
+Route::post('/disability-days-occ-dis-by-province/import',                          [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'import']);
 Route::put('/disability-days-occ-dis-by-province/update/{id}',                      [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'update']);
 Route::delete('/disability-days-occ-dis-by-province/delete/{id}',                   [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'destroy']);
 
@@ -318,6 +319,7 @@ Route::delete('/accidents-and-fatalities-by-injury/delete/{id}',                
 
 Route::get('/accidents-and-fatalities-by-injury-locations',                                           [AccidentsAndFatalitiesByInjuryLocationController::class, 'index']);
 Route::post('/accidents-and-fatalities-by-injury-locations/store',                                    [AccidentsAndFatalitiesByInjuryLocationController::class, 'store']);
+Route::post('/accidents-and-fatalities-by-injury-locations/import',                                    [AccidentsAndFatalitiesByInjuryLocationController::class, 'import']);
 Route::put('/accidents-and-fatalities-by-injury-locations/update/{id}',                               [AccidentsAndFatalitiesByInjuryLocationController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-injury-locations/delete/{id}',                            [AccidentsAndFatalitiesByInjuryLocationController::class, 'destroy']);
 
@@ -328,6 +330,7 @@ Route::delete('/accidents-and-fatalities-by-injury-locations/delete/{id}',      
 
 Route::get('/accidents-and-fatalities-by-injury-causes',                                           [AccidentsAndFatalitiesByInjuryCauseController::class, 'index']);
 Route::post('/accidents-and-fatalities-by-injury-causes/store',                                    [AccidentsAndFatalitiesByInjuryCauseController::class, 'store']);
+Route::post('/accidents-and-fatalities-by-injury-causes/import',                                    [AccidentsAndFatalitiesByInjuryCauseController::class, 'import']);
 Route::put('/accidents-and-fatalities-by-injury-causes/update/{id}',                               [AccidentsAndFatalitiesByInjuryCauseController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-injury-causes/delete/{id}',                            [AccidentsAndFatalitiesByInjuryCauseController::class, 'destroy']);
 
