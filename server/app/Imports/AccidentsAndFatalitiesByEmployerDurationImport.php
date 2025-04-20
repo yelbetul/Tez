@@ -2,13 +2,13 @@
 
 namespace App\Imports;
 
-use App\Models\AccidentsAndFatalitiesByMaterial;
+use App\Models\AccidentsAndFatalitiesByEmployerDuration;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Facades\Validator;
 
-class AccidentsAndFatalitiesByMaterialImport implements ToCollection, WithHeadingRow
+class AccidentsAndFatalitiesByEmployerDurationImport implements ToCollection, WithHeadingRow
 {
     public $failures = [];
 
@@ -19,7 +19,7 @@ class AccidentsAndFatalitiesByMaterialImport implements ToCollection, WithHeadin
         foreach ($rows as $index => $row) {
             $validator = Validator::make($row->toArray(), [
                 'year' => 'required',
-                'group_id' => 'required|integer|exists:materials,id',
+                'group_id' => 'required|integer|exists:employee_employment_durations,id',
                 'gender' => 'required|boolean',
                 'works_on_accident_day' => 'required|integer',
                 'unfit_on_accident_day' => 'required|integer',
@@ -55,7 +55,7 @@ class AccidentsAndFatalitiesByMaterialImport implements ToCollection, WithHeadin
 
         // Eğer hiç hata yoksa topluca veritabanına yaz
         if (empty($this->failures)) {
-            AccidentsAndFatalitiesByMaterial::insert($dataToInsert);
+            AccidentsAndFatalitiesByEmployerDuration::insert($dataToInsert);
         }
     }
 

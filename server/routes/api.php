@@ -361,6 +361,7 @@ Route::delete('/accidents-and-fatalities-by-special-activities/delete/{id}',    
 
 Route::get('/accidents-and-fatalities-by-deviations',                                           [AccidentsAndFatalitiesByDeviationController::class, 'index']);
 Route::post('/accidents-and-fatalities-by-deviations/store',                                    [AccidentsAndFatalitiesByDeviationController::class, 'store']);
+Route::post('/accidents-and-fatalities-by-deviations/import',                                   [AccidentsAndFatalitiesByDeviationController::class, 'import']);
 Route::put('/accidents-and-fatalities-by-deviations/update/{id}',                               [AccidentsAndFatalitiesByDeviationController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-deviations/delete/{id}',                            [AccidentsAndFatalitiesByDeviationController::class, 'destroy']);
 
@@ -371,6 +372,7 @@ Route::delete('/accidents-and-fatalities-by-deviations/delete/{id}',            
 
 Route::get('/accidents-and-fatalities-by-materials',                                           [AccidentsAndFatalitiesByMaterialController::class, 'index']);
 Route::post('/accidents-and-fatalities-by-materials/store',                                    [AccidentsAndFatalitiesByMaterialController::class, 'store']);
+Route::post('/accidents-and-fatalities-by-materials/import',                                   [AccidentsAndFatalitiesByMaterialController::class, 'import']);
 Route::put('/accidents-and-fatalities-by-materials/update/{id}',                               [AccidentsAndFatalitiesByMaterialController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-materials/delete/{id}',                            [AccidentsAndFatalitiesByMaterialController::class, 'destroy']);
 
@@ -382,6 +384,7 @@ Route::delete('/accidents-and-fatalities-by-materials/delete/{id}',             
 
 Route::get('/accidents-and-fatalities-by-environments',                                           [AccidentsAndFatalitiesByEnvironmentController::class, 'index']);
 Route::post('/accidents-and-fatalities-by-environments/store',                                    [AccidentsAndFatalitiesByEnvironmentController::class, 'store']);
+Route::post('/accidents-and-fatalities-by-environments/import',                                   [AccidentsAndFatalitiesByEnvironmentController::class, 'import']);
 Route::put('/accidents-and-fatalities-by-environments/update/{id}',                               [AccidentsAndFatalitiesByEnvironmentController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-environments/delete/{id}',                            [AccidentsAndFatalitiesByEnvironmentController::class, 'destroy']);
 
@@ -426,6 +429,7 @@ Route::delete('/accidents-and-fatalities-by-employee/delete/{id}',              
 
 Route::get('/occ-disease-fatalities-by-employee',                                         [OccDiseaseFatalitiesByEmployeeController::class, 'index']);
 Route::post('/occ-disease-fatalities-by-employee/store',                                  [OccDiseaseFatalitiesByEmployeeController::class, 'store']);
+Route::post('/occ-disease-fatalities-by-employee/import',                                 [OccDiseaseFatalitiesByEmployeeController::class, 'import']);
 Route::put('/occ-disease-fatalities-by-employee/update/{id}',                             [OccDiseaseFatalitiesByEmployeeController::class, 'update']);
 Route::delete('/occ-disease-fatalities-by-employee/delete/{id}',                          [OccDiseaseFatalitiesByEmployeeController::class, 'destroy']);
 
@@ -435,6 +439,7 @@ Route::delete('/occ-disease-fatalities-by-employee/delete/{id}',                
 
 Route::get('/occ-disease-fatalities-by-employer-durations',                                         [OccDiseaseFatalitiesByEmployerDurationController::class, 'index']);
 Route::post('/occ-disease-fatalities-by-employer-durations/store',                                  [OccDiseaseFatalitiesByEmployerDurationController::class, 'store']);
+Route::post('/occ-disease-fatalities-by-employer-durations/import',                                 [OccDiseaseFatalitiesByEmployerDurationController::class, 'import']);
 Route::put('/occ-disease-fatalities-by-employer-durations/update/{id}',                             [OccDiseaseFatalitiesByEmployerDurationController::class, 'update']);
 Route::delete('/occ-disease-fatalities-by-employer-durations/delete/{id}',                          [OccDiseaseFatalitiesByEmployerDurationController::class, 'destroy']);
 

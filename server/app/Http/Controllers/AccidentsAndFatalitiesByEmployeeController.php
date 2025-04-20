@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\AccidentsAndFatalitiesByEmployee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Imports\AccidentsAndFatalitiesByEmployeeImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
+
 
 class AccidentsAndFatalitiesByEmployeeController extends Controller
 {
@@ -201,4 +205,38 @@ class AccidentsAndFatalitiesByEmployeeController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Kayıt başarıyla silindi.']);
     }
+
+
+public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv,xls',
+        ]);
+
+        try {
+            $import = new AccidentsAndFatalitiesByEmployeeImport;
+            Excel::import($import, $request->file('file'));
+
+            if (!empty($import->failures())) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bazı satırlar hatalı!',
+                    'failures' => $import->failures(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Veriler başarıyla yüklendi.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bir hata oluştu',
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
 }
