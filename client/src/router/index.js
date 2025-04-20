@@ -247,7 +247,11 @@ const router = createRouter({
       name: 'admin_tables_employee_work_accidents',
       component: () => import('../views/panel/tables/WorkAccidentsByEmployeesView.vue'),
     },
-
+    {
+      path: '/admin/tables/employee/disease-fatalities',
+      name: 'admin_tables_employees_disease_fatalities',
+      component: () => import('../views/panel/tables/OccDiseaseFatalitiesByEmployeesView.vue'),
+    },
 
 
     {

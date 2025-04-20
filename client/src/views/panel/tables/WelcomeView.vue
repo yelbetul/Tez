@@ -126,6 +126,11 @@
                 <i class="fas fa-users"></i>
                 <span>3.1.26 | Çalışan Sayısına Göre İş Kazaları</span>
             </button>
+
+            <button @click.prevent="goToPage('/admin/tables/employee/disease-fatalities')">
+                <i class="fas fa-users"></i>
+                <span>3.1.27 | Çalışan Sayısına Göre Meslek Hastalığı</span>
+            </button>
         </div>
     </div>
 </template>
