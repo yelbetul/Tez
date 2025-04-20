@@ -131,6 +131,11 @@
                 <i class="fas fa-users"></i>
                 <span>3.1.27 | Çalışan Sayısına Göre Meslek Hastalığı</span>
             </button>
+
+            <button @click.prevent="goToPage('/admin/tables/employer-durations/disease-fatalities')">
+                <i class="fas fa-users"></i>
+                <span>3.1.28 | Çalışma Süresine Göre Meslek Hastalığı</span>
+            </button>
         </div>
     </div>
 </template>

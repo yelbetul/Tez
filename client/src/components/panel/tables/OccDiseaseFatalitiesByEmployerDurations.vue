@@ -4,7 +4,7 @@
             <div class="close" @click="closeModal">
                 <i class="fa-solid fa-xmark"></i>
             </div>
-            <h2>Çalışan Sayısına Göre Meslek Hastalığı Verisi {{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</h2>
+            <h2>Çalışma Süresine Göre Meslek Hastalığı Verisi {{ state === 'new' ? 'Oluştur' : 'Güncelle' }}</h2>
             <form class="form" @submit.prevent="submitForm">
                 <div v-if="error" class="form-error">
                     <span><i class="fa-solid fa-xmark"></i> {{ errorMessage }}</span>
@@ -22,11 +22,11 @@
                 </div>
 
                 <div class="form-element">
-                    <label for="employee">Çalışan Sayısı</label>
-                    <select id="employee" v-model="formData.group_id">
+                    <label for="employer-duration">Çalışma Süresi</label>
+                    <select id="employer-duration" v-model="formData.group_id">
                         <option value="0">Seçiniz...</option>
-                        <option v-for="item in employees" :key="item.id" :value="item.id">
-                            {{ item.employee_count }}
+                        <option v-for="item in employer_durations" :key="item.id" :value="item.id">
+                            {{ item.employment_duration }}
                         </option>
                     </select>
                 </div>
@@ -112,7 +112,7 @@ export default {
         },
         submitForm() {
             if (this.state == 'new') {
-                axios.post('https://iskazalarianaliz.com/api/occ-disease-fatalities-by-employee/store', this.formData)
+                axios.post('https://iskazalarianaliz.com/api/occ-disease-fatalities-by-employer-durations/store', this.formData)
                     .then(res => {
                         if (!res.data.success) {
                             this.error = true;
@@ -128,7 +128,7 @@ export default {
                         }
                     });
             } else {
-                axios.put('https://iskazalarianaliz.com/api/occ-disease-fatalities-by-employee/update/' + this.formData.id, this.formData)
+                axios.put('https://iskazalarianaliz.com/api/occ-disease-fatalities-by-employer-durations/update/' + this.formData.id, this.formData)
                     .then(res => {
                         if (!res.data.success) {
                             this.error = true;
@@ -147,9 +147,9 @@ export default {
         }
     },
     created() {
-        axios.get('https://iskazalarianaliz.com/api/employee-groups')
+        axios.get('https://iskazalarianaliz.com/api/employee-employment-durations')
             .then(res => {
-                this.employees = res.data.data
+                this.employer_durations = res.data.data
             })
     },
 }

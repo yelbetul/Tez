@@ -30,7 +30,7 @@
             <table>
                 <thead>
                     <td>Yıl</td>
-                    <td>Çalışan Sayısı</td>
+                    <td>Çalışma Süresi</td>
                     <td>Cinsiyet</td>
                     <td>Yakalanan <br> <span>Meslek Hastalığına</span></td>
                     <td>Ölen <br> <span>Meslek Hastalığı Sonucu</span></td>
@@ -39,7 +39,7 @@
                 <tbody>
                     <tr v-for="item in filteredData" :key="item.id">
                         <td>{{ item.year }}</td>
-                        <td>{{ item.employee_group.employee_count }}</td>
+                        <td>{{ item.employee_employment_duration.employment_duration }}</td>
                         <td>{{ item.gender === 1 ? 'Kadın' : 'Erkek' }}</td>
                         <td>{{ item.occ_disease_cases }}</td>
                         <td>{{ item.occ_disease_fatalities }}</td>
@@ -52,7 +52,7 @@
             </table>
         </div>
     </div>
-    <OccDiseaseFatalitiesByEmployees v-if="modal_visible" :visible="modal_visible" :data="selected_code"
+    <OccDiseaseFatalitiesByEmployerDurations v-if="modal_visible" :visible="modal_visible" :data="selected_code"
         :state="state" @close="closeModal" />
     <ImportData v-if="import_visible" :visible="import_visible" @close="closeModal" />
 </template>
@@ -63,12 +63,12 @@ import { useAuthStore } from '@/stores/AuthStore';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import ExcelJS from 'exceljs';
-import OccDiseaseFatalitiesByEmployees from '@/components/panel/tables/OccDiseaseFatalitiesByEmployees.vue';
-import ImportData from '@/components/panel/tables/import/OccDiseaseFatalitiesByEmployees.vue';
+import OccDiseaseFatalitiesByEmployerDurations from '@/components/panel/tables/OccDiseaseFatalitiesByEmployerDurations.vue';
+import ImportData from '@/components/panel/tables/import/OccDiseaseFatalitiesByEmployerDurations.vue';
 export default {
     components: {
         PageNavbar,
-        OccDiseaseFatalitiesByEmployees,
+        OccDiseaseFatalitiesByEmployerDurations,
         ImportData
     },
     setup() {
@@ -78,7 +78,7 @@ export default {
     data() {
         return {
             navbarData: {
-                title: 'Çalışan Sayısına Göre Meslek Hastalığı',
+                title: 'Çalışma Süresine Göre Meslek Hastalığı',
                 backRoute: '/admin/tables',
             },
             state: null,
@@ -131,7 +131,7 @@ export default {
                 cancelButtonText: 'Hayır, iptal et',
             }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.delete('https://iskazalarianaliz.com/api/occ-disease-fatalities-by-employee/delete/' + item.id)
+                    axios.delete('https://iskazalarianaliz.com/api/occ-disease-fatalities-by-employer-durations/delete/' + item.id)
                         .then(res => {
                             if (res.data.success) {
                                 this.initializeAuth()
@@ -151,7 +151,7 @@ export default {
 
             worksheet.columns = [
                 { header: 'Yıl', key: 'year', width: 10 },
-                { header: 'Çalışan Sayısına', key: 'employee', width: 15 },
+                { header: 'Çalışma Süresi', key: 'employment_durations', width: 15 },
                 { header: 'Cinsiyet', key: 'gender', width: 10 },
                 { header: 'Meslek Hastalığına Yakalanan', key: 'occ_disease_cases', width: 15 },
                 { header: 'Meslek Hastalığı Sonucu Ölen', key: 'unfit_on_accident_day', width: 20 },
@@ -161,7 +161,7 @@ export default {
             this.data.forEach((item) => {
                 worksheet.addRow({
                     year: item.year,
-                    employee: item.employee_group.employee_count,  // Meslek Kodu
+                    employment_durations: item.employee_employment_duration.employment_duration,  // Meslek Kodu
                     gender: item.gender === 1 ? 'Kadın' : 'Erkek',  // Cinsiyet
                     occ_disease_cases: item.occ_disease_cases,
                     occ_disease_fatalities: item.occ_disease_fatalities,
@@ -194,7 +194,7 @@ export default {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'Calisan_Sayisina_Gore_Meslek_Hastaligi.xlsx';
+                a.download = 'Calisma_Suresine_Gore_Meslek_Hastaligi.xlsx';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -206,7 +206,7 @@ export default {
             this.error = null
             try {
                 await this.authStore.fetchAuthData()
-                const response = await axios.get('https://iskazalarianaliz.com/api/occ-disease-fatalities-by-employee')
+                const response = await axios.get('https://iskazalarianaliz.com/api/occ-disease-fatalities-by-employer-durations')
                 this.data = response.data
             } catch (err) {
                 this.error = 'Veriler yüklenirken bir hata oluştu: ' + (err.response?.data?.message || err.message)

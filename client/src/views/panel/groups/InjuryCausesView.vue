@@ -110,6 +110,7 @@ export default {
             const worksheet = workbook.addWorksheet('Yaralanma Nedenleri');
 
             worksheet.columns = [
+                { header: 'ID', key: 'id', width: 20 },
                 { header: 'Yaralanma Nedeni', key: 'injury_cause_code', width: 20 },
                 { header: 'Grup Kodu', key: 'group_code', width: 15 },
                 { header: 'Grup Adı', key: 'group_name', width: 25 },
@@ -119,6 +120,7 @@ export default {
 
             this.injury_causes.forEach((item) => {
                 worksheet.addRow({
+                    id: item.id,
                     injury_cause_code: item.injury_cause_code,
                     group_code: item.group_code,
                     group_name: item.group_name,

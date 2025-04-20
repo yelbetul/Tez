@@ -110,6 +110,7 @@ export default {
             const worksheet = workbook.addWorksheet('Yaranın Vücuttaki Yeri');
 
             worksheet.columns = [
+                { header: 'ID', key: 'id', width: 20 },
                 { header: 'Yaranın Vücuttaki Yeri', key: 'injury_location_code', width: 20 },
                 { header: 'Grup Kodu', key: 'group_code', width: 15 },
                 { header: 'Grup Adı', key: 'group_name', width: 25 },
@@ -119,6 +120,7 @@ export default {
 
             this.injury_locations.forEach((item) => {
                 worksheet.addRow({
+                    id: item.id,
                     injury_location_code: item.injury_location_code,
                     group_code: item.group_code,
                     group_name: item.group_name,
