@@ -110,6 +110,7 @@ export default {
             const worksheet = workbook.addWorksheet('Materyaller');
 
             worksheet.columns = [
+                { header: 'ID', key: 'id', width: 20 },
                 { header: 'Materyal Kodu', key: 'material_code', width: 20 },
                 { header: 'Grup Kodu', key: 'group_code', width: 15 },
                 { header: 'Grup Adı', key: 'group_name', width: 25 },
@@ -119,6 +120,7 @@ export default {
 
             this.materials.forEach((item) => {
                 worksheet.addRow({
+                    id: item.id,
                     material_code: item.material_code,
                     group_code: item.group_code,
                     group_name: item.group_name,
