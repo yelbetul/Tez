@@ -11,12 +11,8 @@ class DisabilityDaysOccupationalDiseasesByProvince extends Model
         'year',
         'province_id',
         'gender',
-        'is_outpatient',
-        'one_day_unfit',
-        'two_days_unfit',
-        'three_days_unfit',
-        'four_days_unfit',
-        'five_or_more_days_unfit',
+        'outpatient',
+        'inpatient',
     ];
 
     /**

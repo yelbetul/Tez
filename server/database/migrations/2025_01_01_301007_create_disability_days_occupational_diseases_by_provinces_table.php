@@ -16,12 +16,8 @@ return new class extends Migration
             $table->string('year'); // Yıl
             $table->unsignedBigInteger('province_id'); // İlgili Şehir
             $table->boolean('gender'); // Cinsiyet
-            $table->boolean('is_outpatient'); // Ayakta
-            $table->integer('one_day_unfit'); // 1 gün iş göremez
-            $table->integer('two_days_unfit'); // 2 gün iş göremez
-            $table->integer('three_days_unfit'); // 3 gün iş göremez
-            $table->integer('four_days_unfit'); // 4 gün iş göremez
-            $table->integer('five_or_more_days_unfit'); // 5 gün iş göremez
+            $table->integer('outpatient'); // Ayakta
+            $table->integer('inpatient'); // Yatarak
             $table->timestamps();
 
             $table->foreign('province_id', 'province_id_fk')->references('id')->on('province_codes')->onDelete('cascade');

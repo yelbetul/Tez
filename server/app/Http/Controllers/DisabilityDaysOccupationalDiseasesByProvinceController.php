@@ -23,24 +23,16 @@ class DisabilityDaysOccupationalDiseasesByProvinceController extends Controller
                 'year' => 'required|string|max:4',
                 'province_id' => 'required|exists:province_codes,id',
                 'gender' => 'required|boolean',
-                'is_outpatient' => 'required|boolean',
-                'one_day_unfit' => 'required|integer|min:0',
-                'two_days_unfit' => 'required|integer|min:0',
-                'three_days_unfit' => 'required|integer|min:0',
-                'four_days_unfit' => 'required|integer|min:0',
-                'five_or_more_days_unfit' => 'required|integer|min:0',
+                'outpatient' => 'required|integer',
+                'inpatient' => 'required|integer',
             ];
         } elseif ($type === 'update') {
             $rules = [
                 'year' => 'sometimes|string|max:4',
                 'province_id' => 'sometimes|exists:province_codes,id',
                 'gender' => 'sometimes|boolean',
-                'is_outpatient' => 'sometimes|boolean',
-                'one_day_unfit' => 'sometimes|integer|min:0',
-                'two_days_unfit' => 'sometimes|integer|min:0',
-                'three_days_unfit' => 'sometimes|integer|min:0',
-                'four_days_unfit' => 'sometimes|integer|min:0',
-                'five_or_more_days_unfit' => 'sometimes|integer|min:0',
+                'outpatient' => 'sometimes|integer',
+                'inpatient' => 'sometimes|integer',
             ];
         }
 
@@ -58,7 +50,7 @@ class DisabilityDaysOccupationalDiseasesByProvinceController extends Controller
      */
     public function index()
     {
-        $data = DisabilityDaysOccupationalDiseasesByProvince::all();
+        $data = DisabilityDaysOccupationalDiseasesByProvince::with('province')->get();
         return response()->json($data);
     }
 
@@ -105,12 +97,8 @@ class DisabilityDaysOccupationalDiseasesByProvinceController extends Controller
         $disabilityRecord->year                      = $request->year;
         $disabilityRecord->province_id               = $request->province_id;
         $disabilityRecord->gender                    = $request->gender;
-        $disabilityRecord->is_outpatient             = $request->is_outpatient;
-        $disabilityRecord->one_day_unfit             = $request->one_day_unfit;
-        $disabilityRecord->two_days_unfit            = $request->two_days_unfit;
-        $disabilityRecord->three_days_unfit          = $request->three_days_unfit;
-        $disabilityRecord->four_days_unfit           = $request->four_days_unfit;
-        $disabilityRecord->five_or_more_days_unfit   = $request->five_or_more_days_unfit;
+        $disabilityRecord->outpatient                = $request->outpatient;
+        $disabilityRecord->inpatient                 = $request->inpatient;
 
         $result = $disabilityRecord->save();
 
@@ -140,12 +128,8 @@ class DisabilityDaysOccupationalDiseasesByProvinceController extends Controller
         $disabilityRecord->year                      = $request->year ?? $disabilityRecord->year;
         $disabilityRecord->province_id               = $request->province_id ?? $disabilityRecord->province_id;
         $disabilityRecord->gender                    = $request->gender ?? $disabilityRecord->gender;
-        $disabilityRecord->is_outpatient             = $request->is_outpatient ?? $disabilityRecord->is_outpatient;
-        $disabilityRecord->one_day_unfit             = $request->one_day_unfit ?? $disabilityRecord->one_day_unfit;
-        $disabilityRecord->two_days_unfit            = $request->two_days_unfit ?? $disabilityRecord->two_days_unfit;
-        $disabilityRecord->three_days_unfit          = $request->three_days_unfit ?? $disabilityRecord->three_days_unfit;
-        $disabilityRecord->four_days_unfit           = $request->four_days_unfit ?? $disabilityRecord->four_days_unfit;
-        $disabilityRecord->five_or_more_days_unfit   = $request->five_or_more_days_unfit ?? $disabilityRecord->five_or_more_days_unfit;
+        $disabilityRecord->outpatient                = $request->outpatient ?? $disabilityRecord->outpatient;
+        $disabilityRecord->inpatient                 = $request->inpatient ?? $disabilityRecord->inpatient;
 
         $result = $disabilityRecord->save();
 

@@ -32,6 +32,11 @@
                 <span>3.1.6 | İllere Göre Geçici İş Göremezlik Süreleri</span>
             </button>
 
+            <button @click.prevent="goToPage('/admin/tables/provinces/disability-days')">
+                <i class="fas fa-procedures"></i>
+                <span>3.1.7 | İllere Göre Meslek Hastalığına Yakalananların Geçici İş Göremezlik Süreleri</span>
+            </button>
+
             <button @click.prevent="goToPage('/admin/tables/ages/work-accidents')">
                 <i class="fas fa-user-clock"></i>
                 <span>3.1.8 | Yaşlara Göre İş Kazaları</span>

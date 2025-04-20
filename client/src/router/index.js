@@ -153,6 +153,11 @@ const router = createRouter({
       component: () => import('../views/panel/tables/TemporaryDisabilityDaysByProvincesView.vue'),
     },
     {
+      path: '/admin/tables/provinces/disability-days',
+      name: 'admin_tables_provinces_disability_days',
+      component: () => import('../views/panel/tables/DisabilityDaysOccupationalDiseasesByProvinceView.vue'),
+    },
+    {
       path: '/admin/tables/ages/work-accidents',
       name: 'admin_tables_ages_work_accidents',
       component: () => import('../views/panel/tables/WorkAccidentsByAgesView.vue'),
