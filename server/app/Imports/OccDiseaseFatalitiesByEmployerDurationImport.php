@@ -2,13 +2,13 @@
 
 namespace App\Imports;
 
-use App\Models\DisabilityDaysOccupationalDiseasesByProvince;
+use App\Models\OccDiseaseFatalitiesByEmployerDuration;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Facades\Validator;
 
-class DisabilityDaysOccupationalDiseasesByProvinceImport implements ToCollection, WithHeadingRow
+class OccDiseaseFatalitiesByEmployerDurationImport implements ToCollection, WithHeadingRow
 {
     public $failures = [];
 
@@ -19,10 +19,10 @@ class DisabilityDaysOccupationalDiseasesByProvinceImport implements ToCollection
         foreach ($rows as $index => $row) {
             $validator = Validator::make($row->toArray(), [
                 'year' => 'required',
-                'province_id' => 'required|integer|exists:province_codes,id',
+                'group_id' => 'required|integer|exists:employee_employment_durations,id',
                 'gender' => 'required|boolean',
-                'outpatient' => 'required|integer',
-                'inpatient' => 'required|integer',
+                'occ_disease_cases' => 'required|integer',
+                'occ_disease_fatalities' => 'required|integer',
             ]);
 
             if ($validator->fails()) {
@@ -33,10 +33,10 @@ class DisabilityDaysOccupationalDiseasesByProvinceImport implements ToCollection
             } else {
                 $dataToInsert[] = [
                     'year' => $row['year'],
-                    'province_id' => $row['province_id'],
+                    'group_id' => $row['group_id'],
                     'gender' => $row['gender'],
-                    'outpatient' => $row['outpatient'],
-                    'inpatient' => $row['inpatient'],
+                    'occ_disease_cases' => $row['occ_disease_cases'],
+                    'occ_disease_fatalities' => $row['occ_disease_fatalities'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -45,7 +45,7 @@ class DisabilityDaysOccupationalDiseasesByProvinceImport implements ToCollection
 
         // Eğer hiç hata yoksa topluca veritabanına yaz
         if (empty($this->failures)) {
-            DisabilityDaysOccupationalDiseasesByProvince::insert($dataToInsert);
+            OccDiseaseFatalitiesByEmployerDuration::insert($dataToInsert);
         }
     }
 

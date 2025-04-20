@@ -2,13 +2,13 @@
 
 namespace App\Imports;
 
-use App\Models\DisabilityDaysOccupationalDiseasesByProvince;
+use App\Models\WorkAccidentByHour;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Facades\Validator;
 
-class DisabilityDaysOccupationalDiseasesByProvinceImport implements ToCollection, WithHeadingRow
+class WorkAccidentByHourImport implements ToCollection, WithHeadingRow
 {
     public $failures = [];
 
@@ -19,10 +19,14 @@ class DisabilityDaysOccupationalDiseasesByProvinceImport implements ToCollection
         foreach ($rows as $index => $row) {
             $validator = Validator::make($row->toArray(), [
                 'year' => 'required',
-                'province_id' => 'required|integer|exists:province_codes,id',
+                'group_id' => 'required|integer|exists:time_intervals,id',
                 'gender' => 'required|boolean',
-                'outpatient' => 'required|integer',
-                'inpatient' => 'required|integer',
+                'works_on_accident_day' => 'required|integer',
+                'unfit_on_accident_day' => 'required|integer',
+                'two_days_unfit' => 'required|integer',
+                'three_days_unfit' => 'required|integer',
+                'four_days_unfit' => 'required|integer',
+                'five_or_more_days_unfit' => 'required|integer',
             ]);
 
             if ($validator->fails()) {
@@ -33,10 +37,14 @@ class DisabilityDaysOccupationalDiseasesByProvinceImport implements ToCollection
             } else {
                 $dataToInsert[] = [
                     'year' => $row['year'],
-                    'province_id' => $row['province_id'],
+                    'group_id' => $row['group_id'],
                     'gender' => $row['gender'],
-                    'outpatient' => $row['outpatient'],
-                    'inpatient' => $row['inpatient'],
+                    'works_on_accident_day' => $row['works_on_accident_day'],
+                    'unfit_on_accident_day' => $row['unfit_on_accident_day'],
+                    'two_days_unfit' => $row['two_days_unfit'],
+                    'three_days_unfit' => $row['three_days_unfit'],
+                    'four_days_unfit' => $row['four_days_unfit'],
+                    'five_or_more_days_unfit' => $row['five_or_more_days_unfit'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -45,7 +53,7 @@ class DisabilityDaysOccupationalDiseasesByProvinceImport implements ToCollection
 
         // Eğer hiç hata yoksa topluca veritabanına yaz
         if (empty($this->failures)) {
-            DisabilityDaysOccupationalDiseasesByProvince::insert($dataToInsert);
+            WorkAccidentByHour::insert($dataToInsert);
         }
     }
 

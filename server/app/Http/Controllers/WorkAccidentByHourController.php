@@ -6,6 +6,10 @@ use App\Models\WorkAccidentByHour;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
+use App\Imports\WorkAccidentByHourImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
+
 
 class WorkAccidentByHourController extends Controller
 {
@@ -204,4 +208,35 @@ class WorkAccidentByHourController extends Controller
         }
     }
 
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv,xls',
+        ]);
+
+        try {
+            $import = new WorkAccidentByHourImport;
+            Excel::import($import, $request->file('file'));
+
+            if (!empty($import->failures())) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bazı satırlar hatalı!',
+                    'failures' => $import->failures(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Veriler başarıyla yüklendi.'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bir hata oluştu',
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
 }
