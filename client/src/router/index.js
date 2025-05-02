@@ -273,6 +273,14 @@ const router = createRouter({
       name: 'admin_developers',
       component: () => import('../views/panel/DevelopersView.vue'),
     },
+
+
+
+    {
+      path: '/analysis/3.1.1',
+      name: 'sector_accidents',
+      component: () => import('../views/user/SectorAccidents.vue'),
+    },
   ],
 })
 
