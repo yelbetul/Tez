@@ -301,6 +301,11 @@ const router = createRouter({
       name: 'province_fatal_accidents',
       component: () => import('../views/user/ProvinceFatalAccidents.vue'),
     },
+    {
+      path: '/analysis/3.1.6',
+      name: 'province_temporary_disability',
+      component: () => import('../views/user/ProvinceTemporaryDisability.vue'),
+    },
   ],
 })
 

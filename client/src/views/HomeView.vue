@@ -91,6 +91,7 @@ const categories = ref([
   { id: 3, title: '3.1.3 | Sektörlere Göre Geçici İş Göremezlik', description: 'Sektörel iş göremezlik süreleri', icon: 'fas fa-calendar-alt', route: '/analysis/3.1.3' },
   { id: 4, title: '3.1.4 | İllere Göre İş Kazaları', description: 'Bölgesel dağılım analizi', icon: 'fas fa-map-marked-alt', route: '/analysis/3.1.4' },
   { id: 5, title: '3.1.5 | İllere Göre Ölümlü İş Kazaları', description: 'Bölgesel ölümlü kaza analizi', icon: 'fas fa-map-marked', route: '/analysis/3.1.5' },
+  { id: 5, title: '3.1.6 | İllere Göre Geçici İş Göremezlik', description: 'Bölgesel iş göremezlik süreleri', icon: 'fas fa-map-marked', route: '/analysis/3.1.6' },
 ])
 
 // Formatlama fonksiyonu

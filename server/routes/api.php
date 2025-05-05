@@ -241,6 +241,7 @@ Route::delete('/fatal-work-accidents-by-province/delete/{id}',                  
 // Temporary Disability Day By Province
 
 Route::get('/temporary-disability-day-by-province',                                    [TemporaryDisabilityDaysByProvinceController::class, 'index']);
+Route::get('/temporary-disability-day-by-province-user',                                    [TemporaryDisabilityDaysByProvinceController::class, 'indexUser']);
 Route::post('/temporary-disability-day-by-province/store',                             [TemporaryDisabilityDaysByProvinceController::class, 'store']);
 Route::post('/temporary-disability-day-by-province/import',                            [TemporaryDisabilityDaysByProvinceController::class, 'import']);
 Route::put('/temporary-disability-day-by-province/update/{id}',                        [TemporaryDisabilityDaysByProvinceController::class, 'update']);

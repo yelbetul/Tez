@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Imports\TemporaryDisabilityDaysByProvinceImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
-
+use App\Helpers\AnalysisHelperTemporaryDisabilityByProvince;
+use OpenAI\Laravel\Facades\OpenAI;
+use Illuminate\Support\Facades\DB;
 class TemporaryDisabilityDaysByProvinceController extends Controller
 {
     /**
@@ -64,7 +66,88 @@ class TemporaryDisabilityDaysByProvinceController extends Controller
         $data = TemporaryDisabilityDaysByProvince::with('province')->get();
         return response()->json($data);
     }
+    public function indexUser(Request $request)
+    {
+        // 1. Data query
+        $query = DB::table('temporary_disability_days_by_provinces')
+            ->join('province_codes', 'temporary_disability_days_by_provinces.province_id', '=', 'province_codes.id')
+            ->select(
+                'temporary_disability_days_by_provinces.year',
+                'province_codes.province_code',
+                'province_codes.province_name',
+                'temporary_disability_days_by_provinces.is_outpatient',
+                DB::raw('CAST(SUM(one_day_unfit) AS UNSIGNED) as one_day_unfit'),
+                DB::raw('CAST(SUM(two_days_unfit) AS UNSIGNED) as two_days_unfit'),
+                DB::raw('CAST(SUM(three_days_unfit) AS UNSIGNED) as three_days_unfit'),
+                DB::raw('CAST(SUM(four_days_unfit) AS UNSIGNED) as four_days_unfit'),
+                DB::raw('CAST(SUM(five_or_more_days_unfit) AS UNSIGNED) as five_or_more_days_unfit'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 0 THEN (one_day_unfit + two_days_unfit + three_days_unfit + four_days_unfit + five_or_more_days_unfit) ELSE 0 END) AS UNSIGNED) as male_count'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 1 THEN (one_day_unfit + two_days_unfit + three_days_unfit + four_days_unfit + five_or_more_days_unfit) ELSE 0 END) AS UNSIGNED) as female_count')
+            )
+            ->groupBy(
+                'temporary_disability_days_by_provinces.year',
+                'province_codes.province_code',
+                'province_codes.province_name',
+                'temporary_disability_days_by_provinces.is_outpatient'
+            );
 
+        // Filter parameters
+        if ($request->has('year') && $request->year !== 'all') {
+            $query->where('temporary_disability_days_by_provinces.year', $request->year);
+        }
+
+        if ($request->has('province_code') && $request->province_code !== 'all') {
+            $query->where('province_codes.province_code', $request->province_code);
+        }
+
+        if ($request->has('is_outpatient') && $request->is_outpatient !== 'all') {
+            $query->where('temporary_disability_days_by_provinces.is_outpatient', $request->is_outpatient);
+        }
+
+        $data = $query->get();
+
+        // 2. Create data summary
+        $summary = [
+            'total_cases' => $data->sum(function($item) {
+                return $item->one_day_unfit + $item->two_days_unfit 
+                    + $item->three_days_unfit + $item->four_days_unfit 
+                    + $item->five_or_more_days_unfit;
+            }),
+            'total_days_unfit' => $data->sum(function($item) {
+                return ($item->one_day_unfit * 1) 
+                    + ($item->two_days_unfit * 2) 
+                    + ($item->three_days_unfit * 3) 
+                    + ($item->four_days_unfit * 4) 
+                    + ($item->five_or_more_days_unfit * 5); // Assuming minimum 5 days for this category
+            }),
+            'male_count' => $data->sum('male_count'),
+            'female_count' => $data->sum('female_count'),
+            'outpatient_cases' => $data->where('is_outpatient', true)->sum(function($item) {
+                return $item->one_day_unfit + $item->two_days_unfit 
+                    + $item->three_days_unfit + $item->four_days_unfit 
+                    + $item->five_or_more_days_unfit;
+            }),
+            'inpatient_cases' => $data->where('is_outpatient', false)->sum(function($item) {
+                return $item->one_day_unfit + $item->two_days_unfit 
+                    + $item->three_days_unfit + $item->four_days_unfit 
+                    + $item->five_or_more_days_unfit;
+            })
+        ];
+
+        $totalGender = $summary['male_count'] + $summary['female_count'];
+        $summary['male_percentage'] = $totalGender > 0 ? round(($summary['male_count'] / $totalGender) * 100, 2) : 0;
+        $summary['female_percentage'] = $totalGender > 0 ? round(($summary['female_count'] / $totalGender) * 100, 2) : 0;
+
+        // 3. Generate AI analysis
+        $prompt = AnalysisHelperTemporaryDisabilityByProvince::buildAIPrompt($request, $summary);
+        $analysis = AnalysisHelperTemporaryDisabilityByProvince::getAICommentary($prompt);
+
+        return response()->json([
+            'data' => $data,
+            'summary' => $summary,
+            'analysis' => $analysis
+        ]);
+    }
     /**
      * Yıla göre verileri listele.
      */
