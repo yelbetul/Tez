@@ -250,6 +250,7 @@ Route::delete('/temporary-disability-day-by-province/delete/{id}',              
 // Disability Days Occupational Diseases By Province
 
 Route::get('/disability-days-occ-dis-by-province',                                  [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'index']);
+Route::get('/disability-days-occ-dis-by-province-user',                                  [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'indexUser']);
 Route::post('/disability-days-occ-dis-by-province/store',                           [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'store']);
 Route::post('/disability-days-occ-dis-by-province/import',                          [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'import']);
 Route::put('/disability-days-occ-dis-by-province/update/{id}',                      [DisabilityDaysOccupationalDiseasesByProvinceController::class, 'update']);
