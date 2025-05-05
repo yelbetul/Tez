@@ -232,6 +232,7 @@ Route::delete('/work-accidents-by-province/delete/{id}',                        
 // Fatal Work Accidents By Province
 
 Route::get('/fatal-work-accidents-by-province',                                  [FatalWorkAccidentsByProvinceController::class, 'index']);
+Route::get('/fatal-work-accidents-by-province-user',                                  [FatalWorkAccidentsByProvinceController::class, 'indexUser']);
 Route::post('/fatal-work-accidents-by-province/store',                           [FatalWorkAccidentsByProvinceController::class, 'store']);
 Route::post('/fatal-work-accidents-by-province/import',                          [FatalWorkAccidentsByProvinceController::class, 'import']);
 Route::put('/fatal-work-accidents-by-province/update/{id}',                      [FatalWorkAccidentsByProvinceController::class, 'update']);

@@ -296,6 +296,11 @@ const router = createRouter({
       name: 'province_accidents',
       component: () => import('../views/user/ProvinceAccidents.vue'),
     },
+    {
+      path: '/analysis/3.1.5',
+      name: 'province_fatal_accidents',
+      component: () => import('../views/user/ProvinceFatalAccidents.vue'),
+    },
   ],
 })
 

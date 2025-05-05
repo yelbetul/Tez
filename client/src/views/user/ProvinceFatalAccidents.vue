@@ -1,18 +1,18 @@
 <template>
-    <div class="sector-analysis-container">
+    <div class="province-analysis-container">
         <div class="page-header">
-            <h1>Sektörlere Göre Ölümlü İş Kazaları Analizi</h1>
-            <p class="subtitle">2019-2023 yılları arası sektörel ölümlü iş kazası verileri</p>
+            <h1>İllere Göre Ölümlü İş Kazaları Analizi</h1>
+            <p class="subtitle">2019-2023 yılları arası il bazlı ölümlü iş kazası verileri</p>
         </div>
 
         <div class="filters">
-            <!-- Sektör Seçimi -->
+            <!-- Şehir Seçimi -->
             <div class="filter-group">
-                <label for="sector">Sektör:</label>
-                <select id="sector" v-model="selectedSector" @change="updateGroups">
-                    <option value="all">Tüm Sektörler</option>
-                    <option v-for="sector in uniqueSectors" :key="sector.sector_code" :value="sector">
-                        {{ sector.sector_code }} - {{ sector.sector_name }}
+                <label for="province">İl:</label>
+                <select id="province" v-model="selectedProvince" @change="fetchData">
+                    <option value="all">Tüm İller</option>
+                    <option v-for="province in provinces" :key="province.province_code" :value="province">
+                        {{ province.province_code }} - {{ province.province_name }}
                     </option>
                 </select>
             </div>
@@ -25,7 +25,7 @@
                 </select>
             </div>
 
-            <div v-if="selectedSector !== 'all'" class="filter-group">
+            <div v-if="selectedProvince !== 'all'" class="filter-group">
                 <label for="metric">Gösterge:</label>
                 <select id="metric" v-model="selectedMetric" @change="updateCharts">
                     <option value="total">Toplam Ölüm</option>
@@ -36,20 +36,20 @@
         </div>
 
         <!-- Ana Grafik -->
-        <div class="chart-container" v-if="selectedSector === 'all' && !loading">
-            <h2>Sektörel Ölüm Karşılaştırması</h2>
+        <div class="chart-container" v-if="selectedProvince === 'all' && !loading">
+            <h2>İl Bazlı Ölüm Karşılaştırması</h2>
             <apexchart type="bar" height="500" :options="mainChartOptions" :series="mainSeries"></apexchart>
         </div>
 
-        <!-- Detay Grafikler -->
-        <div class="detail-charts" v-if="selectedSector !== 'all' && !loading">
+        <!-- Detay Grafik (Tek il seçildiğinde) -->
+        <div class="detail-charts" v-if="selectedProvince !== 'all' && !loading">
             <div class="chart-container">
-                <h2>{{ selectedSectorName }} - Yıllara Göre Ölüm Dağılımı</h2>
+                <h2>{{ selectedProvinceName }} - Yıllara Göre Ölüm Dağılımı</h2>
                 <apexchart type="line" height="350" :options="yearlyChartOptions" :series="yearlySeries"></apexchart>
             </div>
 
             <div class="chart-container">
-                <h2>{{ selectedSectorName }} - Cinsiyet Dağılımı</h2>
+                <h2>{{ selectedProvinceName }} - Cinsiyet Dağılımı</h2>
                 <div class="gender-charts">
                     <div class="gender-chart">
                         <h3>Erkek</h3>
@@ -65,9 +65,8 @@
             </div>
         </div>
 
-        <!-- Analiz Bölümü -->
         <div class="analysis-container" v-if="analysisComment && !loading">
-            <h2>Analiz ve Yorumlar</h2>
+            <h2>Risk Analizi ve Öneriler</h2>
             <p><em>Bu analiz ISO 45001 standartlarına uygun olarak yapay zeka tarafından oluşturulmuştur.</em></p>
             <div class="analysis-comment">
                 <div v-html="formatAnalysis(analysisComment)"></div>
@@ -80,8 +79,8 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Sektör Kodu</th>
-                        <th>Sektör Adı</th>
+                        <th>İl Kodu</th>
+                        <th>İl Adı</th>
                         <th>Yıl</th>
                         <th>Toplam Ölüm</th>
                         <th>İş Kazası Kaynaklı</th>
@@ -91,9 +90,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in tableData" :key="`${item.sector_code}-${item.year}`">
-                        <td>{{ item.sector_code }}</td>
-                        <td>{{ getFullSectorName(item.sector_code) }}</td>
+                    <tr v-for="item in tableData" :key="`${item.province_code}-${item.year}`">
+                        <td>{{ item.province_code }}</td>
+                        <td>{{ item.province_name }}</td>
                         <td>{{ item.year }}</td>
                         <td>{{ calculateTotal(item) }}</td>
                         <td>{{ item.work_accident_fatalities || 0 }}</td>
@@ -124,11 +123,11 @@ export default {
     setup() {
         const loading = ref(true)
         const tableData = ref([])
-        const sectors = ref([])
+        const provinces = ref([])
         const analysisComment = ref([])
         const availableYears = ref(['2019', '2020', '2021', '2022', '2023'])
         const selectedYear = ref('all')
-        const selectedSector = ref('all')
+        const selectedProvince = ref('all')
         const selectedMetric = ref('total')
 
         // Grafik verileri
@@ -137,24 +136,8 @@ export default {
         const maleSeries = ref([0])
         const femaleSeries = ref([0])
 
-        // Sektör hiyerarşisi
-        const uniqueSectors = computed(() => {
-            const sectorsMap = {}
-            sectors.value.forEach(item => {
-                if (!sectorsMap[item.sector_code]) {
-                    sectorsMap[item.sector_code] = {
-                        sector_code: item.sector_code,
-                        sector_name: item.pure_name
-                    }
-                }
-            })
-            return Object.values(sectorsMap)
-        })
-
-        const selectedSectorName = computed(() => {
-            if (selectedSector.value === 'all') return 'Tüm Sektörler'
-            const sector = sectors.value.find(s => s.sector_code === selectedSector.value.sector_code)
-            return sector ? `${sector.group_name} > ${sector.sub_group_name} > ${sector.pure_name}` : ''
+        const selectedProvinceName = computed(() => {
+            return selectedProvince.value === 'all' ? 'Tüm İller' : selectedProvince.value.province_name
         })
 
         // Grafik ayarları
@@ -183,8 +166,8 @@ export default {
             yaxis: {
                 labels: {
                     formatter: function (value) {
-                        const sector = sectors.value.find(s => s.sector_code === value)
-                        return sector ? sector.pure_name : value
+                        const province = provinces.value.find(p => p.province_code === value)
+                        return province ? province.province_name : value
                     }
                 }
             },
@@ -192,10 +175,9 @@ export default {
             tooltip: {
                 y: {
                     formatter: function (value, { seriesIndex, dataPointIndex, w }) {
-                        const sectorCode = w.config.series[seriesIndex].data[dataPointIndex].x
-                        const sector = sectors.value.find(s => s.sector_code === sectorCode)
-                        const sectorName = sector ? `${sector.group_name} > ${sector.sub_group_name} > ${sector.pure_name}` : sectorCode
-                        return `${sectorName}: ${value} ölüm`
+                        const provinceCode = w.config.series[seriesIndex].data[dataPointIndex].x
+                        const province = provinces.value.find(p => p.province_code === provinceCode)
+                        return `${province?.province_name || provinceCode}: ${value} ölüm`
                     }
                 }
             }
@@ -266,10 +248,10 @@ export default {
             try {
                 const params = {
                     year: selectedYear.value !== 'all' ? selectedYear.value : undefined,
-                    sector_code: selectedSector.value !== 'all' ? selectedSector.value.sector_code : undefined
+                    province_code: selectedProvince.value !== 'all' ? selectedProvince.value.province_code : undefined
                 }
 
-                const response = await axios.get('/api/fatal-work-accidents-by-sector-user', { params })
+                const response = await axios.get('/api/fatal-work-accidents-by-province-user', { params })
                 tableData.value = response.data.data
                 analysisComment.value = response.data.analysis
                 updateCharts()
@@ -280,18 +262,18 @@ export default {
             }
         }
 
-        const fetchSectors = async () => {
+        const fetchProvinces = async () => {
             try {
-                const response = await axios.get('/api/sectors-user')
-                sectors.value = response.data
+                const response = await axios.get('/api/provinces-user')
+                provinces.value = response.data
             } catch (error) {
-                console.error('Sektör verileri alınırken hata:', error)
+                console.error('İl verileri alınırken hata:', error)
             }
         }
 
         // Grafik güncelleme fonksiyonları
         const updateCharts = () => {
-            if (selectedSector.value === 'all') {
+            if (selectedProvince.value === 'all') {
                 updateMainChart()
             } else {
                 updateDetailCharts()
@@ -299,12 +281,12 @@ export default {
         }
 
         const updateMainChart = () => {
-            const sectorData = {}
+            const provinceData = {}
 
             tableData.value.forEach(item => {
-                if (!sectorData[item.sector_code]) {
-                    sectorData[item.sector_code] = {
-                        name: item.pure_name,
+                if (!provinceData[item.province_code]) {
+                    provinceData[item.province_code] = {
+                        name: item.province_name,
                         total: 0,
                         accident: 0,
                         disease: 0,
@@ -314,25 +296,27 @@ export default {
                 }
 
                 const total = calculateTotal(item)
-                sectorData[item.sector_code].total += total
-                sectorData[item.sector_code].accident += item.work_accident_fatalities || 0
-                sectorData[item.sector_code].disease += item.occupational_disease_fatalities || 0
-                sectorData[item.sector_code].male_count += item.male_count || 0
-                sectorData[item.sector_code].female_count += item.female_count || 0
+                provinceData[item.province_code].total += total
+                provinceData[item.province_code].accident += item.work_accident_fatalities || 0
+                provinceData[item.province_code].disease += item.occupational_disease_fatalities || 0
+                provinceData[item.province_code].male_count += item.male_count || 0
+                provinceData[item.province_code].female_count += item.female_count || 0
             })
 
-            // Sıralama ve en iyi 20 sektör
-            const sortedSectors = Object.entries(sectorData)
+            // Sıralama ve en fazla 20 il
+            const sortedProvinces = Object.entries(provinceData)
                 .sort((a, b) => b[1][selectedMetric.value] - a[1][selectedMetric.value])
                 .slice(0, 20)
 
             // Grafik verilerini güncelle
             mainSeries.value = [{
                 name: getMetricTitle(),
-                data: sortedSectors.map(([code, data]) => ({
+                data: sortedProvinces.map(([code, data]) => ({
                     x: data.name,
-                    y: data[selectedMetric.value],
-                    sector_code: code
+                    y: selectedMetric.value === 'total' ? data.total :
+                        selectedMetric.value === 'accident' ? data.accident :
+                            data.disease,
+                    province_code: code
                 }))
             }]
 
@@ -386,30 +370,21 @@ export default {
             }
         }
 
-        const getFullSectorName = (sectorCode) => {
-            const sector = sectors.value.find(s => s.sector_code === sectorCode)
-            return sector ? `${sector.group_name} > ${sector.sub_group_name} > ${sector.pure_name}` : sectorCode
-        }
-
-        const updateGroups = () => {
-            fetchData()
-        }
-
         // Sayfa yüklendiğinde verileri çek
         onMounted(async () => {
-            await fetchSectors()
+            await fetchProvinces()
             await fetchData()
         })
 
         return {
             loading,
             tableData,
+            provinces,
             availableYears,
             selectedYear,
-            selectedSector,
+            selectedProvince,
             selectedMetric,
-            uniqueSectors,
-            selectedSectorName,
+            selectedProvinceName,
             mainChartOptions,
             mainSeries,
             yearlyChartOptions,
@@ -419,9 +394,7 @@ export default {
             femaleSeries,
             analysisComment,
             fetchData,
-            updateGroups,
             calculateTotal,
-            getFullSectorName,
             updateCharts,
             formatAnalysis
         }
@@ -430,7 +403,7 @@ export default {
 </script>
 
 <style scoped>
-.sector-analysis-container {
+.province-analysis-container {
     max-width: 90%;
     margin: 0 auto;
     padding: 20px;
@@ -598,7 +571,112 @@ th,
 td {
     padding: 8px 12px;
 }
+.analysis-table-container {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
 
+.analysis-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.analysis-table th,
+.analysis-table td {
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+.analysis-table th {
+    background-color: #f8fafc;
+    font-weight: 600;
+}
+
+.analysis-heading {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: #2d3748;
+}
+
+.analysis-heading-1 {
+    font-size: 1.8rem;
+}
+
+.analysis-heading-2 {
+    font-size: 1.5rem;
+}
+
+.analysis-heading-3 {
+    font-size: 1.3rem;
+}
+
+.analysis-heading-4 {
+    font-size: 1.1rem;
+}
+
+.analysis-heading-5 {
+    font-size: 1rem;
+}
+
+.analysis-heading-6 {
+    font-size: 0.9rem;
+}
+
+.analysis-list {
+    margin: 1rem 0;
+    padding-left: 2rem;
+    line-height: 1.6;
+}
+
+.analysis-list-item {
+    margin-bottom: 0.5rem;
+}
+
+.analysis-paragraph {
+    margin: 1rem 0;
+    line-height: 1.6;
+}
+
+.analysis-code {
+    background-color: #f3f4f6;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.85em;
+}
+
+.analysis-pre {
+    background-color: #f3f4f6;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: monospace;
+    margin: 1rem 0;
+}
+
+.analysis-strong {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.analysis-em {
+    font-style: italic;
+}
+
+.analysis-link {
+    color: #3b82f6;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.analysis-link:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
 @media (max-width: 768px) {
     .filters {
         flex-direction: column;
@@ -632,7 +710,7 @@ td {
     }
 }
 
-.sector-analysis-container {
+.province-analysis-container {
     max-width: 90%;
     margin: 0 auto;
     padding: 20px;

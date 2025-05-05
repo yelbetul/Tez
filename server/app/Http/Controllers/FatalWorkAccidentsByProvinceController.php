@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Imports\FatalWorkAccidentsByProvinceImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
-
+use App\Helpers\AnalysisHelperFatalWorkAccidentsByProvince;
+use OpenAI\Laravel\Facades\OpenAI;
+use Illuminate\Support\Facades\DB;
 class FatalWorkAccidentsByProvinceController extends Controller
 {
     /**
@@ -52,7 +54,61 @@ class FatalWorkAccidentsByProvinceController extends Controller
         $data = FatalWorkAccidentsByProvince::with('province')->get();
         return response()->json($data);
     }
+    public function indexUser(Request $request)
+    {
+        // 1. Veri çekme sorgusu
+        $query = DB::table('fatal_work_accidents_by_provinces')
+            ->join('province_codes', 'fatal_work_accidents_by_provinces.province_id', '=', 'province_codes.id')
+            ->select(
+                'fatal_work_accidents_by_provinces.year',
+                'province_codes.province_code',
+                'province_codes.province_name',
+                DB::raw('CAST(SUM(work_accident_fatalities) AS UNSIGNED) as work_accident_fatalities'),
+                DB::raw('CAST(SUM(occupational_disease_fatalities) AS UNSIGNED) as occupational_disease_fatalities'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 0 THEN (work_accident_fatalities + occupational_disease_fatalities) ELSE 0 END) AS UNSIGNED) as male_count'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 1 THEN (work_accident_fatalities + occupational_disease_fatalities) ELSE 0 END) AS UNSIGNED) as female_count')
+            )
+            ->groupBy(
+                'fatal_work_accidents_by_provinces.year',
+                'province_codes.province_code',
+                'province_codes.province_name'
+            );
 
+        // Filtreleme parametreleri
+        if ($request->has('year') && $request->year !== 'all') {
+            $query->where('fatal_work_accidents_by_provinces.year', $request->year);
+        }
+
+        if ($request->has('province_code') && $request->province_code !== 'all') {
+            $query->where('province_codes.province_code', $request->province_code);
+        }
+
+        $data = $query->get();
+
+        // 2. Veri özetini oluşturma
+        $summary = [
+            'total_fatalities' => $data->sum(function($item) {
+                return $item->work_accident_fatalities + $item->occupational_disease_fatalities;
+            }),
+            'total_accident_fatalities' => $data->sum('work_accident_fatalities'),
+            'total_disease_fatalities' => $data->sum('occupational_disease_fatalities'),
+            'male_count' => $data->sum('male_count'),
+            'female_count' => $data->sum('female_count')
+        ];
+
+        $totalGender = $summary['male_count'] + $summary['female_count'];
+        $summary['male_percentage'] = $totalGender > 0 ? round(($summary['male_count'] / $totalGender) * 100, 2) : 0;
+        $summary['female_percentage'] = $totalGender > 0 ? round(($summary['female_count'] / $totalGender) * 100, 2) : 0;
+
+        $prompt = AnalysisHelperFatalWorkAccidentsByProvince::buildAIPrompt($request, $summary);
+        $analysis = AnalysisHelperFatalWorkAccidentsByProvince::getAICommentary($prompt);
+
+        return response()->json([
+            'data' => $data,
+            'summary' => $summary,
+            'analysis' => $analysis
+        ]);
+    }
     /**
      * Yıla göre verileri listele.
      */

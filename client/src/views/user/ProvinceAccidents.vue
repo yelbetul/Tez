@@ -67,7 +67,7 @@
 
         <div class="analysis-container" v-if="analysisComment && !loading">
             <h2>Analiz ve Yorum</h2>
-            <p><em>Bu analiz yapay zeka tarafından yapılmıştır.</em></p>
+            <p><em>Bu analiz ISO 45001 standartlarına uygun olarak yapay zeka tarafından oluşturulmuştur.</em></p>
             <div class="analysis-comment">
                 <div v-html="formatAnalysis(analysisComment)"></div>
             </div>
@@ -217,9 +217,30 @@ export default {
             labels: [gender]
         })
 
-        const formatAnalysis = (text) => {
-            return text.replace(/\n/g, '<br>')
+        function textToHtml(text) {
+            // Convert numbered headings
+            text = text.replace(/^(\d+\.\s+.+)$/gm, '<h2>$1</h2>');
+
+            // Convert bullet points
+            text = text.replace(/^- (.+)$/gm, '<li>$1</li>');
+            text = text.replace(/(<li>.*<\/li>)+/gs, '<ul>$&</ul>');
+
+            // Convert line breaks
+            text = text.replace(/\n/g, '<br>');
+
+            return text;
         }
+
+        const formatAnalysis = (text) => {
+            // First convert plain text to HTML
+            text = textToHtml(text);
+
+            // Then apply your existing formatting
+            text = text.replace(/<h2>(.*?)<\/h2>/g, '<h2 class="analysis-heading">$1</h2>');
+            // ... rest of your existing formatAnalysis logic
+
+            return text;
+        };
 
         // Veri çekme fonksiyonları
         const fetchData = async () => {
