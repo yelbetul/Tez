@@ -74,6 +74,7 @@ Route::delete('/sector-codes/delete/{id}',             [SectorCodeController::cl
 // Province Codes
 
 Route::get('/province-codes',                            [ProvinceCodeController::class, 'index']);
+Route::get('/provinces-user',                            [ProvinceCodeController::class, 'indexUser']);
 Route::post('/province-codes/store',                     [ProvinceCodeController::class, 'store']);
 Route::put('/province-codes/update/{id}',                [ProvinceCodeController::class, 'update']);
 Route::delete('/province-codes/delete/{id}',             [ProvinceCodeController::class, 'destroy']);
@@ -222,6 +223,7 @@ Route::delete('/temporary-disability-day-by-sector/delete/{id}',                
 // Work Accidents By Province
 
 Route::get('/work-accidents-by-province',                                       [WorkAccidentsByProvinceController::class, 'index']);
+Route::get('/work-accidents-by-province-user',                                       [WorkAccidentsByProvinceController::class, 'indexUser']);
 Route::post('/work-accidents-by-province/store',                                [WorkAccidentsByProvinceController::class, 'store']);
 Route::post('/work-accidents-by-province/import',                               [WorkAccidentsByProvinceController::class, 'import']);
 Route::put('/work-accidents-by-province/update/{id}',                           [WorkAccidentsByProvinceController::class, 'update']);

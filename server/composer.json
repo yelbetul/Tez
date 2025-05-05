@@ -29,7 +29,8 @@
         "files": [
         	"app/Helpers/AnalysisHelper.php",
         	"app/Helpers/AnalysisHelperFatalWorkAccidents.php",
-        	"app/Helpers/AnalysisHelperTemporaryDisability.php"
+        	"app/Helpers/AnalysisHelperTemporaryDisability.php",
+        	"app/Helpers/AnalysisHelperWorkAccidentByProvince.php"
     	]
     },
     "autoload-dev": {

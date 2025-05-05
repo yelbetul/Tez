@@ -7,6 +7,7 @@ use App\Models\ProvinceCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class ProvinceCodeController extends Controller
 {
@@ -68,7 +69,23 @@ class ProvinceCodeController extends Controller
 
         return response()->json(['success' => true, 'data' => $provinceCodes]);
     }
-
+    
+    public function indexUser()
+    {
+       return DB::table('province_codes')
+        ->select(
+            'province_code',
+            'province_name'
+        )
+        ->orderBy('province_code')
+        ->get()
+        ->map(function ($item) {
+            return [
+                'province_code' => $item->province_code,
+                'province_name' => $item->province_name,
+            ];
+        });
+    }
     public function store(Request $request)
     {
         $auth = $this->authenticate($request);
@@ -89,6 +106,7 @@ class ProvinceCodeController extends Controller
 
         return response()->json(['success' => false, 'message' => 'Şehir oluşturulamadı.']);
     }
+
 
     public function update(Request $request, $id)
     {
