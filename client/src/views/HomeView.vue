@@ -93,6 +93,7 @@ const categories = ref([
   { id: 5, title: '3.1.5 | İllere Göre Ölümlü İş Kazaları', description: 'Bölgesel ölümlü kaza analizi', icon: 'fas fa-map-marked', route: '/analysis/3.1.5' },
   { id: 5, title: '3.1.6 | İllere Göre Geçici İş Göremezlik', description: 'Bölgesel iş göremezlik süreleri', icon: 'fas fa-map-marked', route: '/analysis/3.1.6' },
   { id: 5, title: '3.1.7 | İllere Göre Meslek Hastalığı İş Göremezlik', description: 'Bölgesel iş göremezlik süreleri', icon: 'fas fa-map-marked', route: '/analysis/3.1.7' },
+  { id: 5, title: '3.1.8 | Yaşlara Göre İş Kazaları', description: 'Yaşlara göre iş kazası analizleri', icon: 'fas fa-map-marked', route: '/analysis/3.1.8' },
 ])
 
 // Formatlama fonksiyonu

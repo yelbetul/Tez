@@ -82,6 +82,7 @@ Route::delete('/province-codes/delete/{id}',             [ProvinceCodeController
 // Age Codes
 
 Route::get('/age-codes',                            [AgeCodeController::class, 'index']);
+Route::get('/ages-user',                            [AgeCodeController::class, 'indexUser']);
 Route::post('/age-codes/store',                     [AgeCodeController::class, 'store']);
 Route::put('/age-codes/update/{id}',                [AgeCodeController::class, 'update']);
 Route::delete('/age-codes/delete/{id}',             [AgeCodeController::class, 'destroy']);
@@ -259,6 +260,7 @@ Route::delete('/disability-days-occ-dis-by-province/delete/{id}',               
 // Work Accidents By Age
 
 Route::get('/work-accidents-by-age',                            [WorkAccidentsByAgeController::class, 'index']);
+Route::get('/work-accidents-by-age-user',                       [WorkAccidentsByAgeController::class, 'indexUser']);
 Route::post('/work-accidents-by-age/store',                     [WorkAccidentsByAgeController::class, 'store']);
 Route::post('/work-accidents-by-age/import',                    [WorkAccidentsByAgeController::class, 'import']);
 Route::put('/work-accidents-by-age/update/{id}',                [WorkAccidentsByAgeController::class, 'update']);

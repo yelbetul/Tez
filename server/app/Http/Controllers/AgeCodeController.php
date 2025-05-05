@@ -7,6 +7,7 @@ use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class AgeCodeController extends Controller
 {
@@ -85,6 +86,21 @@ class AgeCodeController extends Controller
             'success' => true,
             'data' => $ageCodes
         ]);
+    }
+
+    public function indexUser()
+    {
+       return DB::table('province_codes')
+        ->select(
+            'age'
+        )
+        ->orderBy('age')
+        ->get()
+        ->map(function ($item) {
+            return [
+                'age' => $item->age,
+            ];
+        });
     }
 
     /**

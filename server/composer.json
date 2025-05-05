@@ -33,7 +33,8 @@
         	"app/Helpers/AnalysisHelperWorkAccidentByProvince.php",
         	"app/Helpers/AnalysisHelperFatalWorkAccidentsByProvince.php",
         	"app/Helpers/AnalysisHelperTemporaryDisabilityByProvince.php",
-        	"app/Helpers/AnalysisHelperDisabilityOccupationalDiseaseByProvince.php"
+        	"app/Helpers/AnalysisHelperDisabilityOccupationalDiseaseByProvince.php",
+        	"app/Helpers/AnalysisHelperWorkAccidentsByAge.php"
     	]
     },
     "autoload-dev": {

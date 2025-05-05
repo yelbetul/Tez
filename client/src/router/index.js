@@ -311,6 +311,11 @@ const router = createRouter({
       name: 'province_disability_days',
       component: () => import('../views/user/ProvinceDisabilityDays.vue'),
     },
+    {
+      path: '/analysis/3.1.8',
+      name: 'age_accidents',
+      component: () => import('../views/user/AgeAccidents.vue'),
+    },
   ],
 })
 
