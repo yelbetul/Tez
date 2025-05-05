@@ -27,7 +27,9 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-        	"app/Helpers/AnalysisHelper.php"
+        	"app/Helpers/AnalysisHelper.php",
+        	"app/Helpers/AnalysisHelperFatalWorkAccidents.php",
+        	"app/Helpers/AnalysisHelperTemporaryDisability.php"
     	]
     },
     "autoload-dev": {

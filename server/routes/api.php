@@ -196,8 +196,6 @@ Route::delete('/employee-employment-durations/delete/{id}',     [EmployeeEmploym
 
 Route::get('/work-accidents-by-sector',                                         [WorkAccidentsBySectorController::class, 'index']);
 Route::get('/work-accidents-by-sector-user',                                    [WorkAccidentsBySectorController::class, 'indexUser']);
-
-
 Route::post('/work-accidents-by-sector/store',                                  [WorkAccidentsBySectorController::class, 'store']);
 Route::post('/work-accidents-by-sector/import',                                 [WorkAccidentsBySectorController::class, 'import']);
 Route::put('/work-accidents-by-sector/update/{id}',                             [WorkAccidentsBySectorController::class, 'update']);
@@ -206,6 +204,7 @@ Route::delete('/work-accidents-by-sector/delete/{id}',                          
 // Fatal Work Accidents By Sector
 
 Route::get('/fatal-work-accidents-by-sector',                                   [FatalWorkAccidentsBySectorController::class, 'index']);
+Route::get('/fatal-work-accidents-by-sector-user',                                   [FatalWorkAccidentsBySectorController::class, 'indexUser']);
 Route::post('/fatal-work-accidents-by-sector/store',                            [FatalWorkAccidentsBySectorController::class, 'store']);
 Route::post('/fatal-work-accidents-by-sector/import',                           [FatalWorkAccidentsBySectorController::class, 'import']);
 Route::put('/fatal-work-accidents-by-sector/update/{id}',                       [FatalWorkAccidentsBySectorController::class, 'update']);
@@ -214,6 +213,7 @@ Route::delete('/fatal-work-accidents-by-sector/delete/{id}',                    
 // Temporary Disability Day By Sector
 
 Route::get('/temporary-disability-day-by-sector',                               [TemporaryDisabilityDaysBySectorController::class, 'index']);
+Route::get('/temporary-disability-day-by-sector-user',                               [TemporaryDisabilityDaysBySectorController::class, 'indexUser']);
 Route::post('/temporary-disability-day-by-sector/store',                        [TemporaryDisabilityDaysBySectorController::class, 'store']);
 Route::post('/temporary-disability-day-by-sector/import',                       [TemporaryDisabilityDaysBySectorController::class, 'import']);
 Route::put('/temporary-disability-day-by-sector/update/{id}',                   [TemporaryDisabilityDaysBySectorController::class, 'update']);

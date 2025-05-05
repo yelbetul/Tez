@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Imports\TemporaryDisabilityDaysBySectorImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Validation\ValidationException;
-
+use App\Helpers\AnalysisHelperTemporaryDisability;
+use OpenAI\Laravel\Facades\OpenAI;
+use Illuminate\Support\Facades\DB;
 class TemporaryDisabilityDaysBySectorController extends Controller
 {
     public function validateRequest($request, $type = 'store')
@@ -63,6 +65,90 @@ class TemporaryDisabilityDaysBySectorController extends Controller
     {
         $data = TemporaryDisabilityDaysBySector::with('sector')->get();
         return response()->json($data);
+    }
+
+    public function indexUser(Request $request)
+    {
+        // Veri çekme sorgusu
+        $query = DB::table('temporary_disability_days_by_sectors')
+            ->join('sector_codes', 'temporary_disability_days_by_sectors.group_id', '=', 'sector_codes.id')
+            ->select(
+                'temporary_disability_days_by_sectors.year',
+                'sector_codes.sector_code',
+                'sector_codes.group_code',
+                'sector_codes.group_name',
+                'sector_codes.sub_group_code',
+                'sector_codes.sub_group_name',
+                'sector_codes.pure_code',
+                'sector_codes.pure_name',
+                DB::raw('CAST(SUM(one_day_unfit) AS UNSIGNED) as one_day_unfit'),
+                DB::raw('CAST(SUM(two_days_unfit) AS UNSIGNED) as two_days_unfit'),
+                DB::raw('CAST(SUM(three_days_unfit) AS UNSIGNED) as three_days_unfit'),
+                DB::raw('CAST(SUM(four_days_unfit) AS UNSIGNED) as four_days_unfit'),
+                DB::raw('CAST(SUM(five_or_more_days_unfit) AS UNSIGNED) as five_or_more_days_unfit'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 0 THEN (one_day_unfit + two_days_unfit + three_days_unfit + four_days_unfit + five_or_more_days_unfit) ELSE 0 END) AS UNSIGNED) as male_count'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 1 THEN (one_day_unfit + two_days_unfit + three_days_unfit + four_days_unfit + five_or_more_days_unfit) ELSE 0 END) AS UNSIGNED) as female_count'),
+                DB::raw('CAST(SUM(CASE WHEN is_outpatient = 1 THEN (one_day_unfit + two_days_unfit + three_days_unfit + four_days_unfit + five_or_more_days_unfit) ELSE 0 END) AS UNSIGNED) as outpatient_count'),
+                DB::raw('CAST(SUM(CASE WHEN is_outpatient = 0 THEN (one_day_unfit + two_days_unfit + three_days_unfit + four_days_unfit + five_or_more_days_unfit) ELSE 0 END) AS UNSIGNED) as inpatient_count')
+            )
+            ->groupBy(
+                'temporary_disability_days_by_sectors.year',
+                'sector_codes.sector_code',
+                'sector_codes.group_code',
+                'sector_codes.group_name',
+                'sector_codes.sub_group_code',
+                'sector_codes.sub_group_name',
+                'sector_codes.pure_code',
+                'sector_codes.pure_name'
+            );
+
+        // Filtreleme parametreleri
+        if ($request->has('year') && $request->year !== 'all') {
+            $query->where('temporary_disability_days_by_sectors.year', $request->year);
+        }
+
+        if ($request->has('sector_code') && $request->sector_code !== 'all') {
+            $query->where('sector_codes.sector_code', $request->sector_code);
+        }
+
+        $data = $query->get();
+
+        // Veri özetini oluşturma
+        $summary = [
+            'total_cases' => $data->sum(function($item) {
+                return $item->one_day_unfit + $item->two_days_unfit + $item->three_days_unfit + 
+                    $item->four_days_unfit + $item->five_or_more_days_unfit;
+            }),
+            'one_day_cases' => $data->sum('one_day_unfit'),
+            'two_days_cases' => $data->sum('two_days_unfit'),
+            'three_days_cases' => $data->sum('three_days_unfit'),
+            'four_days_cases' => $data->sum('four_days_unfit'),
+            'five_or_more_days_cases' => $data->sum('five_or_more_days_unfit'),
+            'male_count' => $data->sum('male_count'),
+            'female_count' => $data->sum('female_count'),
+            'outpatient_count' => $data->sum('outpatient_count'),
+            'inpatient_count' => $data->sum('inpatient_count')
+        ];
+
+        // Cinsiyet dağılımı yüzdeleri
+        $totalGender = $summary['male_count'] + $summary['female_count'];
+        $summary['male_percentage'] = $totalGender > 0 ? round(($summary['male_count'] / $totalGender) * 100, 2) : 0;
+        $summary['female_percentage'] = $totalGender > 0 ? round(($summary['female_count'] / $totalGender) * 100, 2) : 0;
+
+        // Tedavi türü dağılımı
+        $totalTreatment = $summary['outpatient_count'] + $summary['inpatient_count'];
+        $summary['outpatient_percentage'] = $totalTreatment > 0 ? round(($summary['outpatient_count'] / $totalTreatment) * 100, 2) : 0;
+        $summary['inpatient_percentage'] = $totalTreatment > 0 ? round(($summary['inpatient_count'] / $totalTreatment) * 100, 2) : 0;
+
+        // AI analizi için prompt oluşturma
+        $prompt = AnalysisHelperTemporaryDisability::buildAIPrompt($request, $summary);
+        $analysis = AnalysisHelperTemporaryDisability::getAICommentary($prompt);
+
+        return response()->json([
+            'data' => $data,
+            'summary' => $summary,
+            'analysis' => $analysis
+        ]);
     }
 
     /**

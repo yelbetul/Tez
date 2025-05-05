@@ -1,12 +1,12 @@
 <template>
     <div class="sector-analysis-container">
         <div class="page-header">
-            <h1>Sektörlere Göre İş Kazaları Analizi</h1>
-            <p class="subtitle">2019-2023 yılları arası sektörel iş kazası verileri</p>
+            <h1>Sektörlere Göre Ölümlü İş Kazaları Analizi</h1>
+            <p class="subtitle">2019-2023 yılları arası sektörel ölümlü iş kazası verileri</p>
         </div>
 
         <div class="filters">
-            <!-- Sektör Seçimi (En Üst Seviye) -->
+            <!-- Sektör Seçimi -->
             <div class="filter-group">
                 <label for="sector">Sektör:</label>
                 <select id="sector" v-model="selectedSector" @change="updateGroups">
@@ -16,7 +16,7 @@
                     </option>
                 </select>
             </div>
-            <!-- Diğer filtreler aynı kalacak -->
+
             <div class="filter-group">
                 <label for="year">Yıl:</label>
                 <select id="year" v-model="selectedYear" @change="fetchData">
@@ -28,24 +28,23 @@
             <div v-if="selectedSector !== 'all'" class="filter-group">
                 <label for="metric">Gösterge:</label>
                 <select id="metric" v-model="selectedMetric" @change="updateCharts">
-                    <option value="total">Toplam Kaza Sayısı</option>
-                    <option value="unfit">İş Göremezlik</option>
-                    <option value="disease">Meslek Hastalığı</option>
+                    <option value="total">Toplam Ölüm</option>
+                    <option value="accident">İş Kazası Kaynaklı</option>
+                    <option value="disease">Meslek Hastalığı Kaynaklı</option>
                 </select>
             </div>
         </div>
 
         <!-- Ana Grafik -->
         <div class="chart-container" v-if="selectedSector === 'all' && !loading">
-            <h2>Sektör Karşılaştırması</h2>
-            <p v-if="selectedGroup !== 'all'">{{ selectedGroup.group_name }} sektörleri karşılaştırması</p>
+            <h2>Sektörel Ölüm Karşılaştırması</h2>
             <apexchart type="bar" height="500" :options="mainChartOptions" :series="mainSeries"></apexchart>
         </div>
 
-        <!-- Detay Grafik (Tek sektör seçildiğinde) -->
+        <!-- Detay Grafikler -->
         <div class="detail-charts" v-if="selectedSector !== 'all' && !loading">
             <div class="chart-container">
-                <h2>{{ selectedSectorName }} - Yıllara Göre Dağılım</h2>
+                <h2>{{ selectedSectorName }} - Yıllara Göre Ölüm Dağılımı</h2>
                 <apexchart type="line" height="350" :options="yearlyChartOptions" :series="yearlySeries"></apexchart>
             </div>
 
@@ -65,25 +64,28 @@
                 </div>
             </div>
         </div>
+
+        <!-- Analiz Bölümü -->
         <div class="analysis-container" v-if="analysisComment && !loading">
-            <h2>Analiz ve Yorum</h2>
-            <p><em>Bu analiz yapay zeka tarafından yapılmıştır.</em></p>
+            <h2>Risk Analizi ve Öneriler</h2>
+            <p><em>Bu analiz ISO 45001 standartlarına uygun olarak yapay zeka tarafından oluşturulmuştur.</em></p>
             <div class="analysis-comment">
                 <div v-html="formatAnalysis(analysisComment)"></div>
             </div>
         </div>
+
         <!-- Veri Tablosu -->
         <div class="data-table" v-if="tableData.length > 0 && !loading">
-            <h2>Detaylı Veri Tablosu</h2>
+            <h2>Detaylı Ölüm İstatistikleri</h2>
             <table>
                 <thead>
                     <tr>
                         <th>Sektör Kodu</th>
-                        <th>Tam Sektör Adı</th>
+                        <th>Sektör Adı</th>
                         <th>Yıl</th>
-                        <th>Toplam Kaza</th>
-                        <th>İş Göremezlik</th>
-                        <th>Meslek Hastalığı</th>
+                        <th>Toplam Ölüm</th>
+                        <th>İş Kazası Kaynaklı</th>
+                        <th>Meslek Hastalığı Kaynaklı</th>
                         <th>Erkek</th>
                         <th>Kadın</th>
                     </tr>
@@ -94,8 +96,8 @@
                         <td>{{ getFullSectorName(item.sector_code) }}</td>
                         <td>{{ item.year }}</td>
                         <td>{{ calculateTotal(item) }}</td>
-                        <td>{{ calculateUnfit(item) }}</td>
-                        <td>{{ item.occupational_disease_cases }}</td>
+                        <td>{{ item.work_accident_fatalities || 0 }}</td>
+                        <td>{{ item.occupational_disease_fatalities || 0 }}</td>
                         <td>{{ item.male_count || 0 }}</td>
                         <td>{{ item.female_count || 0 }}</td>
                     </tr>
@@ -105,7 +107,7 @@
 
         <div class="loading" v-if="loading">
             <div class="spinner"></div>
-            <p>Analiz ve veriler yükleniyor. Lütfen Bekleyiniz...</p>
+            <p>Veriler ve analiz yükleniyor...</p>
         </div>
     </div>
 </template>
@@ -127,17 +129,15 @@ export default {
         const availableYears = ref(['2019', '2020', '2021', '2022', '2023'])
         const selectedYear = ref('all')
         const selectedSector = ref('all')
-        const selectedGroup = ref('all')
-        const selectedSubGroup = ref('all')
         const selectedMetric = ref('total')
 
         // Grafik verileri
-        const mainSeries = ref([{ name: 'Kaza Sayısı', data: [] }])
-        const yearlySeries = ref([{ name: 'Kaza Sayısı', data: [] }])
+        const mainSeries = ref([{ name: 'Ölüm Sayısı', data: [] }])
+        const yearlySeries = ref([{ name: 'Ölüm Sayısı', data: [] }])
         const maleSeries = ref([0])
         const femaleSeries = ref([0])
 
-        // Sektör hiyerarşisi için computed özellikler
+        // Sektör hiyerarşisi
         const uniqueSectors = computed(() => {
             const sectorsMap = {}
             sectors.value.forEach(item => {
@@ -151,23 +151,9 @@ export default {
             return Object.values(sectorsMap)
         })
 
-        const filteredGroups = computed(() => {
-            if (selectedSector.value === 'all') return []
-            const groupsMap = {}
-            sectors.value.forEach(item => {
-                if (item.sector_code === selectedSector.value.sector_code && !groupsMap[item.group_code]) {
-                    groupsMap[item.group_code] = {
-                        group_code: item.group_code,
-                        group_name: item.group_name
-                    }
-                }
-            })
-            return Object.values(groupsMap)
-        })
-
         const selectedSectorName = computed(() => {
             if (selectedSector.value === 'all') return 'Tüm Sektörler'
-            const sector = sectors.value.find(s => s.sector_code === selectedSector.value)
+            const sector = sectors.value.find(s => s.sector_code === selectedSector.value.sector_code)
             return sector ? `${sector.group_name} > ${sector.sub_group_name} > ${sector.pure_name}` : ''
         })
 
@@ -176,8 +162,7 @@ export default {
             chart: {
                 type: 'bar',
                 height: 500,
-                toolbar: { show: true },
-                animations: { enabled: false }
+                toolbar: { show: true }
             },
             plotOptions: {
                 bar: {
@@ -186,28 +171,31 @@ export default {
                     dataLabels: { position: 'top' }
                 }
             },
-            dataLabels: { enabled: true, style: { fontSize: '10px' } },
-            xaxis: { categories: [], title: { text: 'Kaza Sayısı' } },
+            dataLabels: { enabled: true },
+            xaxis: {
+                title: { text: 'Ölüm Sayısı' },
+                labels: {
+                    formatter: function (val) {
+                        return Math.round(val).toLocaleString()
+                    }
+                }
+            },
             yaxis: {
                 labels: {
-                    show: true,
-                    style: { fontSize: '10px' },
                     formatter: function (value) {
                         const sector = sectors.value.find(s => s.sector_code === value)
                         return sector ? sector.pure_name : value
                     }
                 }
             },
-            colors: ['#3b82f6'],
+            colors: ['#e53e3e'],
             tooltip: {
-                shared: true,
-                intersect: false,
                 y: {
                     formatter: function (value, { seriesIndex, dataPointIndex, w }) {
                         const sectorCode = w.config.series[seriesIndex].data[dataPointIndex].x
                         const sector = sectors.value.find(s => s.sector_code === sectorCode)
                         const sectorName = sector ? `${sector.group_name} > ${sector.sub_group_name} > ${sector.pure_name}` : sectorCode
-                        return `${sectorName}: ${value}`
+                        return `${sectorName}: ${value} ölüm`
                     }
                 }
             }
@@ -218,9 +206,15 @@ export default {
             stroke: { curve: 'smooth', width: 3 },
             markers: { size: 5 },
             xaxis: { categories: availableYears.value },
-            yaxis: { title: { text: 'Kaza Sayısı' } },
-            colors: ['#3b82f6'],
-            tooltip: { shared: true }
+            yaxis: { title: { text: 'Ölüm Sayısı' } },
+            colors: ['#e53e3e'],
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return val + ' ölüm'
+                    }
+                }
+            }
         })
 
         const genderChartOptions = (gender) => ({
@@ -231,46 +225,32 @@ export default {
                     endAngle: 135,
                     hollow: { margin: 0, size: '70%' },
                     dataLabels: {
-                        name: { fontSize: '16px', color: gender === 'Erkek' ? '#3b82f6' : '#ec4899' },
+                        name: { fontSize: '16px', color: gender === 'Erkek' ? '#3182ce' : '#d53f8c' },
                         value: { fontSize: '24px', formatter: (val) => val + '%' }
                     }
                 }
             },
             fill: { type: 'gradient', gradient: { shade: 'dark', shadeIntensity: 0.15 } },
-            colors: [gender === 'Erkek' ? '#3b82f6' : '#ec4899'],
+            colors: [gender === 'Erkek' ? '#3182ce' : '#d53f8c'],
             labels: [gender]
         })
 
         const formatAnalysis = (text) => {
-            // Madde işaretlerini ve paragrafları düzgün göstermek için
-            return text.replace(/\n/g, '<br>');
-        };
-        // Filtre değişiklikleri
-        // Filtre Değişiklik Fonksiyonları
-        const updateGroups = () => {
-            selectedGroup.value = 'all'
-            selectedSubGroup.value = 'all'
-            fetchData()
+            return text.replace(/\n/g, '<br>')
         }
 
-        const updateSubGroups = () => {
-            selectedSubGroup.value = 'all'
-            fetchData()
-        }
-        // Veri çekme
+        // Veri çekme fonksiyonları
         const fetchData = async () => {
             loading.value = true
             try {
                 const params = {
                     year: selectedYear.value !== 'all' ? selectedYear.value : undefined,
-                    sector_code: selectedSector.value !== 'all' ? selectedSector.value : undefined,
-                    group_code: selectedGroup.value !== 'all' ? selectedGroup.value.group_code : undefined,
-                    sub_group_code: selectedSubGroup.value !== 'all' ? selectedSubGroup.value.sub_group_code : undefined
+                    sector_code: selectedSector.value !== 'all' ? selectedSector.value.sector_code : undefined
                 }
 
-                const response = await axios.get('https://iskazalarianaliz.com/api/work-accidents-by-sector-user', { params })
+                const response = await axios.get('/api/fatal-work-accidents-by-sector-user', { params })
                 tableData.value = response.data.data
-                analysisComment.value = response.data.analysis;
+                analysisComment.value = response.data.analysis
                 updateCharts()
             } catch (error) {
                 console.error('Veri alınırken hata:', error)
@@ -279,17 +259,16 @@ export default {
             }
         }
 
-        // Sektör verilerini yükle
         const fetchSectors = async () => {
             try {
-                const response = await axios.get('https://iskazalarianaliz.com/api/sectors-user')
+                const response = await axios.get('/api/sectors-user')
                 sectors.value = response.data
             } catch (error) {
                 console.error('Sektör verileri alınırken hata:', error)
             }
         }
 
-        // Grafikleri güncelle
+        // Grafik güncelleme fonksiyonları
         const updateCharts = () => {
             if (selectedSector.value === 'all') {
                 updateMainChart()
@@ -298,203 +277,75 @@ export default {
             }
         }
 
-        // Ana grafiği güncelle (tüm sektörler)
         const updateMainChart = () => {
-            const sectorData = {};
-            const sectorCodeToData = {}; // Sektör koduna göre veri erişimi için
+            const sectorData = {}
 
             tableData.value.forEach(item => {
                 if (!sectorData[item.sector_code]) {
                     sectorData[item.sector_code] = {
                         name: item.pure_name,
                         total: 0,
-                        works_on_accident_day: 0,
-                        unfit_on_accident_day: 0,
-                        two_days_unfit: 0,
-                        three_days_unfit: 0,
-                        four_days_unfit: 0,
-                        five_or_more_days_unfit: 0,
+                        accident: 0,
                         disease: 0,
                         male_count: 0,
                         female_count: 0
-                    };
-                    sectorCodeToData[item.sector_code] = sectorData[item.sector_code]; // Eşleme ekle
-
+                    }
                 }
 
-                // Toplamları güncelle
-                const total = calculateTotal(item);
-                sectorData[item.sector_code].total += total;
-                sectorData[item.sector_code].works_on_accident_day += item.works_on_accident_day || 0;
-                sectorData[item.sector_code].unfit_on_accident_day += item.unfit_on_accident_day || 0;
-                sectorData[item.sector_code].two_days_unfit += item.two_days_unfit || 0;
-                sectorData[item.sector_code].three_days_unfit += item.three_days_unfit || 0;
-                sectorData[item.sector_code].four_days_unfit += item.four_days_unfit || 0;
-                sectorData[item.sector_code].five_or_more_days_unfit += item.five_or_more_days_unfit || 0;
-                sectorData[item.sector_code].disease += item.occupational_disease_cases || 0;
-                sectorData[item.sector_code].male_count += item.male_count || 0;
-                sectorData[item.sector_code].female_count += item.female_count || 0;
-            });
+                const total = calculateTotal(item)
+                sectorData[item.sector_code].total += total
+                sectorData[item.sector_code].accident += item.work_accident_fatalities || 0
+                sectorData[item.sector_code].disease += item.occupational_disease_fatalities || 0
+                sectorData[item.sector_code].male_count += item.male_count || 0
+                sectorData[item.sector_code].female_count += item.female_count || 0
+            })
 
-            // Sıralama ve en iyi 20 sektörü seçme
+            // Sıralama ve en iyi 20 sektör
             const sortedSectors = Object.entries(sectorData)
                 .sort((a, b) => b[1][selectedMetric.value] - a[1][selectedMetric.value])
-                .slice(0, 20);
+                .slice(0, 20)
 
-            // Grafik seçeneklerini güncelleme
-            mainChartOptions.value = {
-                ...mainChartOptions.value,
-                chart: {
-                    ...mainChartOptions.value.chart,
-                    animations: {
-                        enabled: true,
-                        easing: 'easeinout',
-                        speed: 800
-                    }
-                },
-                xaxis: {
-                    ...mainChartOptions.value.xaxis,
-                    title: {
-                        text: getMetricTitle(),
-                        style: {
-                            fontSize: '14px',
-                            fontWeight: 'bold',
-                            color: '#333'
-                        }
-                    },
-                    labels: {
-                        style: {
-                            fontSize: '12px',
-                            colors: '#666'
-                        },
-                        formatter: function (value) {
-                            return value.toLocaleString();
-                        }
-                    }
-                },
-                yaxis: {
-                    ...mainChartOptions.value.yaxis,
-                    labels: {
-                        show: true, // Bu mutlaka true olmalı
-                        style: {
-                            fontSize: '12px',
-                            colors: '#333'
-                        },
-                        formatter: function (value) {
-                            // Sektör adını doğrudan döndür
-                            return value;
-                        }
-                    },
-                    title: {
-                        text: 'Sektörler',
-                        style: {
-                            fontSize: '14px',
-                            fontWeight: 'bold',
-                            color: '#333'
-                        }
-                    }
-                },
-                tooltip: {
-                    ...mainChartOptions.value.tooltip,
-                    enabled: true,
-                    shared: true,
-                    intersect: false,
-                    custom: ({ seriesIndex, dataPointIndex, w }) => {
-                        try {
-                            // Veri noktasını doğru şekilde al
-                            const dataPoint = w.config.series[seriesIndex].data[dataPointIndex];
-                            const sectorCode = dataPoint.sector_code || dataPoint.x; // Geriye dönük uyumluluk
-                            const sector = sectorCodeToData[sectorCode] || sectorData[sectorCode];
-
-                            if (!sector) {
-                                console.error('Sector data not found for code:', sectorCode);
-                                return '<div class="tooltip-error">Veri yükleniyor...</div>';
-                            }
-
-                            return `
-                        <div class="apexcharts-tooltip-custom">
-                            <div class="tooltip-title">${sector.name || 'Bilinmeyen Sektör'}</div>
-                            <div class="tooltip-row"><span>Toplam Kaza:</span> ${(sector.total || 0).toLocaleString()}</div>
-                            <div class="tooltip-section-title">İş Göremezlik:</div>
-                            <div class="tooltip-row"><span>Aynı Gün:</span> ${(sector.unfit_on_accident_day || 0).toLocaleString()}</div>
-                            <div class="tooltip-row"><span>2 Gün:</span> ${(sector.two_days_unfit || 0).toLocaleString()}</div>
-                            <div class="tooltip-row"><span>3 Gün:</span> ${(sector.three_days_unfit || 0).toLocaleString()}</div>
-                            <div class="tooltip-row"><span>4 Gün:</span> ${(sector.four_days_unfit || 0).toLocaleString()}</div>
-                            <div class="tooltip-row"><span>5+ Gün:</span> ${(sector.five_or_more_days_unfit || 0).toLocaleString()}</div>
-                        </div>
-                    `;
-                        } catch (error) {
-                            console.error('Tooltip rendering error:', error);
-                            return '<div class="tooltip-error">Veri gösterilemiyor</div>';
-                        }
-                    }
-                },
-                dataLabels: {
-                    enabled: true,
-                    formatter: function (val) {
-                        return val.toLocaleString();
-                    },
-                    style: {
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        colors: ['#fff']
-                    },
-                    background: {
-                        enabled: true,
-                        foreColor: '#333',
-                        borderRadius: 4,
-                        opacity: 0.8
-                    }
-                }
-            };
-
-            // Grafik serisini güncelleme
+            // Grafik verilerini güncelle
             mainSeries.value = [{
                 name: getMetricTitle(),
                 data: sortedSectors.map(([code, data]) => ({
-                    x: data.name, // Sektör adını x ekseninde kullan
-                    y: selectedMetric.value === 'total' ? data.total :
-                        selectedMetric.value === 'unfit' ? (data.unfit_on_accident_day + data.two_days_unfit +
-                            data.three_days_unfit + data.four_days_unfit +
-                            data.five_or_more_days_unfit) :
-                            data.disease,
-                    sector_code: code // Sektör kodunu meta olarak sakla
+                    x: data.name,
+                    y: data[selectedMetric.value],
+                    sector_code: code
                 }))
-            }];
-        };
+            }]
 
-        // Detay grafikleri güncelle (tek sektör)
+            // Eksen etiketlerini güncelle
+            mainChartOptions.value.xaxis.title.text = getMetricTitle()
+        }
+
         const updateDetailCharts = () => {
-            // Yıllara göre veri
             const yearlyData = {}
             availableYears.value.forEach(year => {
                 yearlyData[year] = 0
             })
 
-            // Cinsiyet dağılımı
             let maleTotal = 0
             let femaleTotal = 0
 
             tableData.value.forEach(item => {
                 if (selectedMetric.value === 'total') {
                     yearlyData[item.year] += calculateTotal(item)
-                } else if (selectedMetric.value === 'unfit') {
-                    yearlyData[item.year] += calculateUnfit(item)
+                } else if (selectedMetric.value === 'accident') {
+                    yearlyData[item.year] += item.work_accident_fatalities || 0
                 } else {
-                    yearlyData[item.year] += item.occupational_disease_cases || 0
+                    yearlyData[item.year] += item.occupational_disease_fatalities || 0
                 }
 
                 maleTotal += item.male_count || 0
                 femaleTotal += item.female_count || 0
             })
 
-            // Yıllık grafik
             yearlySeries.value = [{
                 name: getMetricTitle(),
                 data: availableYears.value.map(year => yearlyData[year])
             }]
 
-            // Cinsiyet grafikleri
             const total = maleTotal + femaleTotal
             maleSeries.value = [total > 0 ? Math.round((maleTotal / total) * 100) : 0]
             femaleSeries.value = [total > 0 ? Math.round((femaleTotal / total) * 100) : 0]
@@ -502,34 +353,25 @@ export default {
 
         // Yardımcı fonksiyonlar
         const calculateTotal = (item) => {
-            return (item.works_on_accident_day || 0) +
-                (item.unfit_on_accident_day || 0) +
-                (item.two_days_unfit || 0) +
-                (item.three_days_unfit || 0) +
-                (item.four_days_unfit || 0) +
-                (item.five_or_more_days_unfit || 0)
-        }
-
-        const calculateUnfit = (item) => {
-            return (item.unfit_on_accident_day || 0) +
-                (item.two_days_unfit || 0) +
-                (item.three_days_unfit || 0) +
-                (item.four_days_unfit || 0) +
-                (item.five_or_more_days_unfit || 0)
+            return (item.work_accident_fatalities || 0) + (item.occupational_disease_fatalities || 0)
         }
 
         const getMetricTitle = () => {
             switch (selectedMetric.value) {
-                case 'total': return 'Toplam Kaza Sayısı'
-                case 'unfit': return 'İş Göremezlik Vakaları'
-                case 'disease': return 'Meslek Hastalığı Vakaları'
-                default: return 'Kaza Sayısı'
+                case 'total': return 'Toplam Ölüm Sayısı'
+                case 'accident': return 'İş Kazası Kaynaklı Ölümler'
+                case 'disease': return 'Meslek Hastalığı Kaynaklı Ölümler'
+                default: return 'Ölüm Sayısı'
             }
         }
 
         const getFullSectorName = (sectorCode) => {
             const sector = sectors.value.find(s => s.sector_code === sectorCode)
             return sector ? `${sector.group_name} > ${sector.sub_group_name} > ${sector.pure_name}` : sectorCode
+        }
+
+        const updateGroups = () => {
+            fetchData()
         }
 
         // Sayfa yüklendiğinde verileri çek
@@ -543,12 +385,9 @@ export default {
             tableData,
             availableYears,
             selectedYear,
-            selectedGroup,
-            selectedSubGroup,
             selectedSector,
             selectedMetric,
             uniqueSectors,
-            filteredGroups,
             selectedSectorName,
             mainChartOptions,
             mainSeries,
@@ -557,15 +396,13 @@ export default {
             genderChartOptions,
             maleSeries,
             femaleSeries,
+            analysisComment,
             fetchData,
-            updateSubGroups,
             updateGroups,
             calculateTotal,
-            calculateUnfit,
             getFullSectorName,
             updateCharts,
-            formatAnalysis,
-            analysisComment
+            formatAnalysis
         }
     }
 }

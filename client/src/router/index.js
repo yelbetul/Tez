@@ -281,6 +281,16 @@ const router = createRouter({
       name: 'sector_accidents',
       component: () => import('../views/user/SectorAccidents.vue'),
     },
+    {
+      path: '/analysis/3.1.2',
+      name: 'sector_fatal_accidents',
+      component: () => import('../views/user/SectorFatalAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.3',
+      name: 'sector_temporary_disability',
+      component: () => import('../views/user/SectorTemporaryDisability.vue'),
+    },
   ],
 })
 

@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Imports\FatalWorkAccidentsBySectorImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\AnalysisHelperFatalWorkAccidents;
+use OpenAI\Laravel\Facades\OpenAI;
+use Illuminate\Support\Facades\DB;
 
 class FatalWorkAccidentsBySectorController extends Controller
 {
@@ -52,6 +55,71 @@ class FatalWorkAccidentsBySectorController extends Controller
     {
         $data = FatalWorkAccidentsBySector::with('sector')->get();
         return response()->json($data);
+    }
+
+    public function indexUser(Request $request){
+        // 1. Önce mevcut veri çekme işlemini yapın
+        $query = DB::table('fatal_work_accidents_by_sectors')
+            ->join('sector_codes', 'fatal_work_accidents_by_sectors.group_id', '=', 'sector_codes.id')
+            ->select(
+                'fatal_work_accidents_by_sectors.year',
+                'sector_codes.sector_code',
+                'sector_codes.group_code',
+                'sector_codes.group_name',
+                'sector_codes.sub_group_code',
+                'sector_codes.sub_group_name',
+                'sector_codes.pure_code',
+                'sector_codes.pure_name',
+                DB::raw('CAST(SUM(work_accident_fatalities) AS UNSIGNED) as work_accident_fatalities'),
+                DB::raw('CAST(SUM(occupational_disease_fatalities) AS UNSIGNED) as occupational_disease_fatalities'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 0 THEN (work_accident_fatalities + occupational_disease_fatalities) ELSE 0 END) AS UNSIGNED) as male_count'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 1 THEN (work_accident_fatalities + occupational_disease_fatalities) ELSE 0 END) AS UNSIGNED) as female_count')
+            )
+            ->groupBy(
+                'fatal_work_accidents_by_sectors.year',
+                'sector_codes.sector_code',
+                'sector_codes.group_code',
+                'sector_codes.group_name',
+                'sector_codes.sub_group_code',
+                'sector_codes.sub_group_name',
+                'sector_codes.pure_code',
+                'sector_codes.pure_name'
+            );
+
+        // Filtreleme parametreleri
+        if ($request->has('year') && $request->year !== 'all') {
+            $query->where('fatal_work_accidents_by_sectors.year', $request->year);
+        }
+
+        if ($request->has('sector_code') && $request->sector_code !== 'all') {
+            $query->where('sector_codes.sector_code', $request->sector_code);
+        }
+
+        $data = $query->get();
+
+        // 2. Veri özetini oluşturun
+        $summary = [
+            'total_fatalities' => $data->sum(function($item) {
+                return $item->work_accident_fatalities + $item->occupational_disease_fatalities;
+            }),
+            'total_accident_fatalities' => $data->sum('work_accident_fatalities'),
+            'total_disease_fatalities' => $data->sum('occupational_disease_fatalities'),
+            'male_count' => $data->sum('male_count'),
+            'female_count' => $data->sum('female_count')
+        ];
+
+        $totalGender = $summary['male_count'] + $summary['female_count'];
+        $summary['male_percentage'] = $totalGender > 0 ? round(($summary['male_count'] / $totalGender) * 100, 2) : 0;
+        $summary['female_percentage'] = $totalGender > 0 ? round(($summary['female_count'] / $totalGender) * 100, 2) : 0;
+
+        $prompt = AnalysisHelperFatalWorkAccidents::buildAIPrompt($request, $summary);
+        $analysis = AnalysisHelperFatalWorkAccidents::getAICommentary($prompt);
+
+        return response()->json([
+            'data' => $data,
+            'summary' => $summary,
+            'analysis' => $analysis
+        ]);
     }
 
     /**
