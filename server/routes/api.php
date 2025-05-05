@@ -51,6 +51,8 @@ use App\Http\Controllers\WorkstationTypeController;
 use App\Http\Controllers\AdminController;
  
 
+
+
 // Admins
 
 Route::get('/admin',             [AdminController::class, 'index']);
@@ -64,6 +66,7 @@ Route::post('/admin/login',     [AdminController::class, 'login']);
 // Sector Codes
 
 Route::get('/sector-codes',                            [SectorCodeController::class, 'index']);
+Route::get('/sectors-user',                            [SectorCodeController::class, 'indexUser']);
 Route::post('/sector-codes/store',                     [SectorCodeController::class, 'store']);
 Route::put('/sector-codes/update/{id}',                [SectorCodeController::class, 'update']);
 Route::delete('/sector-codes/delete/{id}',             [SectorCodeController::class, 'destroy']);
@@ -192,6 +195,9 @@ Route::delete('/employee-employment-durations/delete/{id}',     [EmployeeEmploym
 // Work Accidents By Sector
 
 Route::get('/work-accidents-by-sector',                                         [WorkAccidentsBySectorController::class, 'index']);
+Route::get('/work-accidents-by-sector-user',                                    [WorkAccidentsBySectorController::class, 'indexUser']);
+
+
 Route::post('/work-accidents-by-sector/store',                                  [WorkAccidentsBySectorController::class, 'store']);
 Route::post('/work-accidents-by-sector/import',                                 [WorkAccidentsBySectorController::class, 'import']);
 Route::put('/work-accidents-by-sector/update/{id}',                             [WorkAccidentsBySectorController::class, 'update']);
@@ -449,5 +455,11 @@ Route::delete('/occ-disease-fatalities-by-employer-durations/delete/{id}',      
 
 Route::get('/accidents-and-fatalities-by-employer-durations',                                           [AccidentsAndFatalitiesByEmployerDurationController::class, 'index']);
 Route::post('/accidents-and-fatalities-by-employer-durations/store',                                    [AccidentsAndFatalitiesByEmployerDurationController::class, 'store']);
+Route::post('/accidents-and-fatalities-by-employer-durations/import',                                   [AccidentsAndFatalitiesByEmployerDurationController::class, 'import']);
 Route::put('/accidents-and-fatalities-by-employer-durations/update/{id}',                               [AccidentsAndFatalitiesByEmployerDurationController::class, 'update']);
 Route::delete('/accidents-and-fatalities-by-employer-durations/delete/{id}',                            [AccidentsAndFatalitiesByEmployerDurationController::class, 'destroy']);
+
+
+
+
+
