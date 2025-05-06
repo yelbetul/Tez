@@ -90,6 +90,7 @@ Route::delete('/age-codes/delete/{id}',             [AgeCodeController::class, '
 // Diagnosis Groups
 
 Route::get('/diagnosis-groups',                           [DiagnosisGroupController::class, 'index']);
+Route::get('/diagnosis-user',                             [DiagnosisGroupController::class, 'indexUser']);
 Route::post('/diagnosis-groups/store',                    [DiagnosisGroupController::class, 'store']);
 Route::put('/diagnosis-groups/update/{id}',               [DiagnosisGroupController::class, 'update']);
 Route::delete('/diagnosis-groups/delete/{id}',            [DiagnosisGroupController::class, 'destroy']);
@@ -269,6 +270,7 @@ Route::delete('/work-accidents-by-age/delete/{id}',             [WorkAccidentsBy
 // Fatal Work Accidents By Age
 
 Route::get('/fatal-work-accidents-by-age',                      [FatalWorkAccidentsByAgeController::class, 'index']);
+Route::get('/fatal-work-accidents-by-age-user',                 [FatalWorkAccidentsByAgeController::class, 'indexUser']);
 Route::post('/fatal-work-accidents-by-age/store',               [FatalWorkAccidentsByAgeController::class, 'store']);
 Route::post('/fatal-work-accidents-by-age/import',              [FatalWorkAccidentsByAgeController::class, 'import']);
 Route::put('/fatal-work-accidents-by-age/update/{id}',          [FatalWorkAccidentsByAgeController::class, 'update']);
@@ -277,6 +279,7 @@ Route::delete('/fatal-work-accidents-by-age/delete/{id}',       [FatalWorkAccide
 // Occupational Disease By Diagnosis
 
 Route::get('/occupational-disease-by-diagnosis',                                [OccupationalDiseaseByDiagnosisController::class, 'index']);
+Route::get('/occupational-disease-by-diagnosis-user',                                [OccupationalDiseaseByDiagnosisController::class, 'indexUser']);
 Route::post('/occupational-disease-by-diagnosis/store',                         [OccupationalDiseaseByDiagnosisController::class, 'store']);
 Route::put('/occupational-disease-by-diagnosis/update/{id}',                    [OccupationalDiseaseByDiagnosisController::class, 'update']);
 Route::delete('/occupational-disease-by-diagnosis/delete/{id}',                 [OccupationalDiseaseByDiagnosisController::class, 'destroy']);

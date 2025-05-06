@@ -316,6 +316,16 @@ const router = createRouter({
       name: 'age_accidents',
       component: () => import('../views/user/AgeAccidents.vue'),
     },
+    {
+      path: '/analysis/3.1.9',
+      name: 'age_fatal_accidents',
+      component: () => import('../views/user/AgeFatalAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.10',
+      name: 'occupational_disease',
+      component: () => import('../views/user/OccupationalDisease.vue'),
+    },
   ],
 })
 
