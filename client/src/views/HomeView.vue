@@ -170,6 +170,20 @@ const categories = ref([
     icon: 'fas fa-calendar-week',
     route: '/analysis/3.1.12'
   },
+  {
+    id: 13,
+    title: '3.1.13 | Aylara Göre Ölümlü İş Kazaları',
+    description: 'Aylara göre ölümlü iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-map-marked',
+    route: '/analysis/3.1.13'
+  },
+  {
+    id: 14,
+    title: '3.1.14 | Mesleklere Göre İş Kazaları',
+    description: 'Mesleklere göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-map-marked',
+    route: '/analysis/3.1.14'
+  },
 ]);
 
 // Formatlama fonksiyonu
