@@ -174,42 +174,42 @@ const categories = ref([
     id: 13,
     title: '3.1.13 | Aylara Göre Ölümlü İş Kazaları',
     description: 'Aylara göre ölümlü iş kazalarının yoğunluk analizi',
-    icon: 'fas fa-map-marked',
+    icon: 'fas fa-calendar-times', // Takvim ve çarpı işareti (ölüm vurgusu)
     route: '/analysis/3.1.13'
   },
   {
     id: 14,
     title: '3.1.14 | Mesleklere Göre İş Kazaları',
     description: 'Mesleklere göre iş kazalarının yoğunluk analizi',
-    icon: 'fas fa-map-marked',
+    icon: 'fas fa-hard-hat', // İşçi bareti
     route: '/analysis/3.1.14'
   },
   {
     id: 15,
     title: '3.1.15 | Mesleklere Göre Meslek Hastalığı Sonucu Ölümler',
     description: 'Mesleklere göre meslek hastalığı sonucu ölümlerin analizi',
-    icon: 'fas fa-map-marked',
+    icon: 'fas fa-virus', // Virüs (hastalık temsili)
     route: '/analysis/3.1.15'
   },
   {
     id: 16,
     title: '3.1.16 | Yaralanma Türlerine Göre İş Kazaları',
     description: 'Yaralanma türlerine göre iş kazalarının yoğunluk analizi',
-    icon: 'fas fa-map-marked',
+    icon: 'fas fa-lungs-virus', // Kırık kemik
     route: '/analysis/3.1.16'
   },
   {
     id: 17,
     title: '3.1.17 | Yaranın Vücuttaki Yerine Göre İş Kazaları',
     description: 'Yaranın vücuttaki yerine göre iş kazalarının yoğunluk analizi',
-    icon: 'fas fa-map-marked',
+    icon: 'fas fa-user-injured', // Yaralı insan silüeti
     route: '/analysis/3.1.17'
   },
   {
     id: 18,
     title: '3.1.18 | Yaralanma Nedenlerine Göre İş Kazaları',
     description: 'Yaralanma nedenlerine göre iş kazalarının yoğunluk analizi',
-    icon: 'fas fa-map-marked',
+    icon: 'fas fa-search-plus', // Büyüteç (neden analizi)
     route: '/analysis/3.1.18'
   },
 ]);
