@@ -323,6 +323,7 @@ Route::delete('/accidents-and-fatalities-by-occupation/delete/{id}',            
 // Occ Disease Fatalities By Occupation
 
 Route::get('/occ-disease-fatalities-by-occupation',                                         [OccDiseaseFatalitiesByOccupationController::class, 'index']);
+Route::get('/occ-disease-fatalities-by-occupation-user',                                    [OccDiseaseFatalitiesByOccupationController::class, 'indexUser']);
 Route::post('/occ-disease-fatalities-by-occupation/store',                                  [OccDiseaseFatalitiesByOccupationController::class, 'store']);
 Route::put('/occ-disease-fatalities-by-occupation/update/{id}',                             [OccDiseaseFatalitiesByOccupationController::class, 'update']);
 Route::delete('/occ-disease-fatalities-by-occupation/delete/{id}',                          [OccDiseaseFatalitiesByOccupationController::class, 'destroy']);

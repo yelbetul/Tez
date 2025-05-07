@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Imports\OccDiseaseFatalitiesByOccupationImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
-
+use App\Helpers\AnalysisHelperOccDiseaseFatalities;
+use OpenAI\Laravel\Facades\OpenAI;
+use Illuminate\Support\Facades\DB;
 
 class OccDiseaseFatalitiesByOccupationController extends Controller
 {
@@ -53,6 +55,83 @@ class OccDiseaseFatalitiesByOccupationController extends Controller
     {
         $data = OccDiseaseFatalitiesByOccupation::with('occupationGroup')->get();
         return response()->json($data);
+    }
+
+    public function indexUser(Request $request)
+    {
+        // 1. Data query with proper type casting
+        $query = DB::table('occ_disease_fatalities_by_occupations')
+            ->join('occupation_groups', 'occ_disease_fatalities_by_occupations.group_id', '=', 'occupation_groups.id')
+            ->select(
+                'occ_disease_fatalities_by_occupations.year',
+                'occupation_groups.group_code',
+                'occupation_groups.group_name',
+                'occupation_groups.sub_group_code',
+                'occupation_groups.sub_group_name',
+                'occupation_groups.pure_code',
+                'occupation_groups.pure_name',
+                DB::raw('CAST(SUM(occ_disease_cases) AS UNSIGNED) as occ_disease_cases'),
+                DB::raw('CAST(SUM(occ_disease_fatalities) AS UNSIGNED) as occ_disease_fatalities'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 0 THEN (occ_disease_cases + occ_disease_fatalities) ELSE 0 END) AS UNSIGNED) as male_count'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 1 THEN (occ_disease_cases + occ_disease_fatalities) ELSE 0 END) AS UNSIGNED) as female_count')
+            )
+            ->groupBy(
+                'occ_disease_fatalities_by_occupations.year',
+                'occupation_groups.group_code',
+                'occupation_groups.group_name',
+                'occupation_groups.sub_group_code',
+                'occupation_groups.sub_group_name',
+                'occupation_groups.pure_code',
+                'occupation_groups.pure_name'
+            );
+
+        // Filter parameters
+        if ($request->has('year') && $request->year !== 'all') {
+            $query->where('occ_disease_fatalities_by_occupations.year', $request->year);
+        }
+
+        if ($request->has('group_code') && $request->group_code !== 'all') {
+            $query->where('occupation_groups.group_code', $request->group_code);
+        }
+
+        if ($request->has('sub_group_code') && $request->sub_group_code !== 'all') {
+            $query->where('occupation_groups.sub_group_code', $request->sub_group_code);
+        }
+
+        if ($request->has('pure_code') && $request->pure_code !== 'all') {
+            $query->where('occupation_groups.pure_code', $request->pure_code);
+        }
+
+        if ($request->has('gender') && $request->gender !== 'all') {
+            $query->where('occ_disease_fatalities_by_occupations.gender', $request->gender);
+        }
+
+        $data = $query->get();
+
+        // 2. Create data summary
+        $summary = [
+            'total_disease_cases' => $data->sum('occ_disease_cases'),
+            'total_fatalities' => $data->sum('occ_disease_fatalities'),
+            'fatality_rate' => $data->sum('occ_disease_cases') > 0
+                ? round(($data->sum('occ_disease_fatalities') / $data->sum('occ_disease_cases')) * 100, 2)
+                : 0,
+            'male_count' => $data->sum('male_count'),
+            'female_count' => $data->sum('female_count')
+        ];
+
+        $totalGender = $summary['male_count'] + $summary['female_count'];
+        $summary['male_percentage'] = $totalGender > 0 ? round(($summary['male_count'] / $totalGender) * 100, 2) : 0;
+        $summary['female_percentage'] = $totalGender > 0 ? round(($summary['female_count'] / $totalGender) * 100, 2) : 0;
+
+        // 3. Generate AI analysis
+        $prompt = AnalysisHelperOccDiseaseFatalities::buildAIPrompt($request, $summary);
+        $analysis = AnalysisHelperOccDiseaseFatalities::getAICommentary($prompt);
+
+        return response()->json([
+            'data' => $data,
+            'summary' => $summary,
+            'analysis' => $analysis
+        ]);
     }
 
     /**

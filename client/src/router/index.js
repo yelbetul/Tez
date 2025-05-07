@@ -346,6 +346,11 @@ const router = createRouter({
       name: 'occupation_accidents',
       component: () => import('../views/user/OccupationAccidents.vue'),
     },
+    {
+      path: '/analysis/3.1.15',
+      name: 'occupation_disease_fatalities',
+      component: () => import('../views/user/OccupationDiseaseFatalities.vue'),
+    },
   ],
 })
 

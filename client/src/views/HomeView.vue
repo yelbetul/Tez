@@ -184,6 +184,13 @@ const categories = ref([
     icon: 'fas fa-map-marked',
     route: '/analysis/3.1.14'
   },
+  {
+    id: 14,
+    title: '3.1.15 | Mesleklere Göre Meslek Hastalığı Sonucu Ölümler',
+    description: 'Mesleklere göre meslek hastalığı sonucu ölümlerin analizi',
+    icon: 'fas fa-map-marked',
+    route: '/analysis/3.1.15'
+  },
 ]);
 
 // Formatlama fonksiyonu
