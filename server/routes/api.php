@@ -287,6 +287,7 @@ Route::delete('/occupational-disease-by-diagnosis/delete/{id}',                 
 // Work Accidents By Month
 
 Route::get('/work-accidents-by-month',                      [WorkAccidentsByMonthController::class, 'index']);
+Route::get('/work-accidents-by-month-user',                 [WorkAccidentsByMonthController::class, 'indexUser']);
 Route::post('/work-accidents-by-month/store',               [WorkAccidentsByMonthController::class, 'store']);
 Route::post('/work-accidents-by-month/import',              [WorkAccidentsByMonthController::class, 'import']);
 Route::put('/work-accidents-by-month/update/{id}',          [WorkAccidentsByMonthController::class, 'update']);
@@ -295,6 +296,7 @@ Route::delete('/work-accidents-by-month/delete/{id}',       [WorkAccidentsByMont
 // Temporary Disability Days By Month
 
 Route::get('/temporary-disability-days-by-month',                       [TemporaryDisabilityDaysByMonthController::class, 'index']);
+Route::get('/temporary-disability-days-by-month-user',                       [TemporaryDisabilityDaysByMonthController::class, 'indexUser']);
 Route::post('/temporary-disability-days-by-month/store',                [TemporaryDisabilityDaysByMonthController::class, 'store']);
 Route::post('/temporary-disability-days-by-month/import',               [TemporaryDisabilityDaysByMonthController::class, 'import']);
 Route::put('/temporary-disability-days-by-month/update/{id}',           [TemporaryDisabilityDaysByMonthController::class, 'update']);

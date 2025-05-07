@@ -36,7 +36,9 @@
         	"app/Helpers/AnalysisHelperDisabilityOccupationalDiseaseByProvince.php",
         	"app/Helpers/AnalysisHelperWorkAccidentsByAge.php",
         	"app/Helpers/AnalysisHelperFatalWorkAccidentsByAge.php",
-        	"app/Helpers/AnalysisHelperOccupationalDisease.php"
+        	"app/Helpers/AnalysisHelperOccupationalDisease.php",
+        	"app/Helpers/AnalysisHelperWorkAccidentsByMonth.php",
+        	"app/Helpers/AnalysisHelperTemporaryDisabilityDaysByMonth.php"
     	]
     },
     "autoload-dev": {
