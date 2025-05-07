@@ -6,6 +6,7 @@ use App\Models\InjuryType;
 use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class InjuryTypeController extends Controller
@@ -95,6 +96,31 @@ class InjuryTypeController extends Controller
             'success' => true,
             'data' => $injuryTypes
         ]);
+    }
+
+    public function indexUser()
+    {
+        return DB::table('injury_types')
+            ->select(
+                'injury_code',
+                'group_code',
+                'group_name',
+                'sub_group_code',
+                'sub_group_name'
+            )
+            ->orderBy('group_code')
+            ->orderBy('sub_group_code')
+            ->orderBy('injury_code')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'injury_code' => $item->injury_code,
+                    'group_code' => $item->group_code,
+                    'group_name' => $item->group_name,
+                    'sub_group_code' => $item->sub_group_code,
+                    'sub_group_name' => $item->sub_group_name
+                ];
+            });
     }
 
     public function store(Request $request)

@@ -115,8 +115,6 @@ const router = createRouter({
       component: () => import('../views/panel/groups/EmployeeTimesView.vue'),
     },
 
-
-
     {
       path: '/admin/tables',
       name: 'admin_tables',
@@ -155,7 +153,8 @@ const router = createRouter({
     {
       path: '/admin/tables/provinces/disability-days',
       name: 'admin_tables_provinces_disability_days',
-      component: () => import('../views/panel/tables/DisabilityDaysOccupationalDiseasesByProvinceView.vue'),
+      component: () =>
+        import('../views/panel/tables/DisabilityDaysOccupationalDiseasesByProvinceView.vue'),
     },
     {
       path: '/admin/tables/ages/work-accidents',
@@ -260,7 +259,8 @@ const router = createRouter({
     {
       path: '/admin/tables/employer-durations/disease-fatalities',
       name: 'admin_tables_employer_durations_disease_fatalities',
-      component: () => import('../views/panel/tables/OccDiseaseFatalitiesByEmployerDurationsView.vue'),
+      component: () =>
+        import('../views/panel/tables/OccDiseaseFatalitiesByEmployerDurationsView.vue'),
     },
     {
       path: '/admin/tables/employer-durations/work-accidents',
@@ -273,8 +273,6 @@ const router = createRouter({
       name: 'admin_developers',
       component: () => import('../views/panel/DevelopersView.vue'),
     },
-
-
 
     {
       path: '/analysis/3.1.1',
@@ -350,6 +348,21 @@ const router = createRouter({
       path: '/analysis/3.1.15',
       name: 'occupation_disease_fatalities',
       component: () => import('../views/user/OccupationDiseaseFatalities.vue'),
+    },
+    {
+      path: '/analysis/3.1.16',
+      name: 'injury_accidents',
+      component: () => import('../views/user/InjuryAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.17',
+      name: 'injury_locations_accidents',
+      component: () => import('../views/user/InjuryLocationAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.18',
+      name: 'injury_causes_accidents',
+      component: () => import('../views/user/InjuryCausesAccidents.vue'),
     },
   ],
 })

@@ -185,11 +185,32 @@ const categories = ref([
     route: '/analysis/3.1.14'
   },
   {
-    id: 14,
+    id: 15,
     title: '3.1.15 | Mesleklere Göre Meslek Hastalığı Sonucu Ölümler',
     description: 'Mesleklere göre meslek hastalığı sonucu ölümlerin analizi',
     icon: 'fas fa-map-marked',
     route: '/analysis/3.1.15'
+  },
+  {
+    id: 16,
+    title: '3.1.16 | Yaralanma Türlerine Göre İş Kazaları',
+    description: 'Yaralanma türlerine göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-map-marked',
+    route: '/analysis/3.1.16'
+  },
+  {
+    id: 17,
+    title: '3.1.17 | Yaranın Vücuttaki Yerine Göre İş Kazaları',
+    description: 'Yaranın vücuttaki yerine göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-map-marked',
+    route: '/analysis/3.1.17'
+  },
+  {
+    id: 18,
+    title: '3.1.18 | Yaralanma Nedenlerine Göre İş Kazaları',
+    description: 'Yaralanma nedenlerine göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-map-marked',
+    route: '/analysis/3.1.18'
   },
 ]);
 
