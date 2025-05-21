@@ -212,6 +212,27 @@ const categories = ref([
     icon: 'fas fa-search-plus', // Büyüteç (neden analizi)
     route: '/analysis/3.1.18'
   },
+  {
+    id: 19,
+    title: '3.1.19 | Genel Faaliyete Göre İş Kazaları',
+    description: 'Genel faaliyete göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-search-plus', // Büyüteç (neden analizi)
+    route: '/analysis/3.1.19'
+  },
+  {
+    id: 20,
+    title: '3.1.20 | Özel Faaliyete Göre İş Kazaları',
+    description: 'Kaza öncesi özel faaliyete göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-search-plus', // Büyüteç (neden analizi)
+    route: '/analysis/3.1.20'
+  },
+  {
+    id: 21,
+    title: '3.1.21 | Sapmalara Göre İş Kazaları',
+    description: 'Sapmalara göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-search-plus', // Büyüteç (neden analizi)
+    route: '/analysis/3.1.21'
+  },
 ]);
 
 // Formatlama fonksiyonu

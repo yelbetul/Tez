@@ -44,7 +44,10 @@
             "app/Helpers/AnalysisHelperOccDiseaseFatalities.php",
             "app/Helpers/AnalysisHelperAccidentsByInjuries.php",
             "app/Helpers/AnalysisHelperAccidentsByInjuryLocations.php",
-            "app/Helpers/AnalysisHelperAccidentsByInjuryCauses.php"
+            "app/Helpers/AnalysisHelperAccidentsByInjuryCauses.php",
+            "app/Helpers/AnalysisHelperAccidentsByGeneralActivities.php",
+            "app/Helpers/AnalysisHelperAccidentsBySpecialActivities.php",
+            "app/Helpers/AnalysisHelperAccidentsByDeviations.php"
     	]
     },
     "autoload-dev": {

@@ -364,6 +364,21 @@ const router = createRouter({
       name: 'injury_causes_accidents',
       component: () => import('../views/user/InjuryCausesAccidents.vue'),
     },
+    {
+      path: '/analysis/3.1.19',
+      name: 'general_activities_accidents',
+      component: () => import('../views/user/GeneralActivitiesAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.20',
+      name: 'special_activities_accidents',
+      component: () => import('../views/user/SpecialActivitiesAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.21',
+      name: 'deviations_accidents',
+      component: () => import('../views/user/DeviationAccidents.vue'),
+    },
   ],
 })
 
