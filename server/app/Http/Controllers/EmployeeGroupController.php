@@ -6,6 +6,7 @@ use App\Models\EmployeeGroup;
 use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class EmployeeGroupController extends Controller
@@ -84,6 +85,22 @@ class EmployeeGroupController extends Controller
             'success' => true,
             'data'    => $employeeGroups
         ]);
+    }
+    public function indexUser()
+    {
+        return DB::table('employee_groups')
+            ->select(
+                'code',
+                'employee_count'
+            )
+            ->orderBy('code')
+            ->get()
+            ->map(function($item){
+                return [
+                    'code' => $item->code,
+                    'employee_count' => $item->employee_count,
+                ];
+            });
     }
 
     /**

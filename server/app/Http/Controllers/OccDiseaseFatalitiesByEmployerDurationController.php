@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\OccDiseaseFatalitiesByEmployerDuration;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Imports\OccDiseaseFatalitiesByEmployerDurationImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
+use App\Helpers\AnalysisHelperOccDiseaseByEmployerDurations;
+use OpenAI\Laravel\Facades\OpenAI;
 
 
 class OccDiseaseFatalitiesByEmployerDurationController extends Controller
@@ -54,6 +57,63 @@ class OccDiseaseFatalitiesByEmployerDurationController extends Controller
         $data = OccDiseaseFatalitiesByEmployerDuration::with('employeeEmploymentDuration')->get();
         return response()->json($data);
     }
+    public function indexUser(Request $request)
+    {
+        $query = DB::table('occ_disease_fatalities_by_employer_durations')
+            ->join('employee_employment_durations', 'occ_disease_fatalities_by_employer_durations.group_id', '=', 'employee_employment_durations.id')
+            ->select(
+                'occ_disease_fatalities_by_employer_durations.year',
+                'employee_employment_durations.code',
+                'employee_employment_durations.employment_duration',
+                DB::raw('CAST(SUM(occ_disease_cases) AS UNSIGNED)           as occ_disease_cases'),
+                DB::raw('CAST(SUM(occ_disease_fatalities) AS UNSIGNED)      as occ_disease_fatalities'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 0 THEN (occ_disease_cases + occ_disease_fatalities) ELSE 0 END) AS UNSIGNED) as male_count'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 1 THEN (occ_disease_cases + occ_disease_fatalities) ELSE 0 END) AS UNSIGNED) as female_count')
+            )
+            ->groupBy(
+                'occ_disease_fatalities_by_employer_durations.year',
+                'employee_employment_durations.code',
+                'employee_employment_durations.employment_duration'
+            );
+
+        // Filtreleme
+        if ($request->has('year') && $request->year !== 'all') {
+            $query->where('occ_disease_fatalities_by_employer_durations.year', $request->year);
+        }
+
+        if ($request->has('employment_duration') && $request->employment_duration !== 'all') {
+            $query->where('employee_employment_durations.code', $request->employment_duration);
+        }
+
+        if ($request->has('gender') && $request->gender !== 'all') {
+            $query->where('occ_disease_fatalities_by_employer_durations.gender', $request->gender);
+        }
+
+        $data = $query->get();
+
+        // Özet veriler
+        $summary = [
+            'total_cases'       => $data->sum('occ_disease_cases'),
+            'total_fatalities'  => $data->sum('occ_disease_fatalities'),
+            'male_count'        => $data->sum('male_count'),
+            'female_count'      => $data->sum('female_count'),
+        ];
+
+        $totalGender = $summary['male_count'] + $summary['female_count'];
+        $summary['male_percentage']   = $totalGender > 0 ? round(($summary['male_count']   / $totalGender) * 100, 2) : 0;
+        $summary['female_percentage'] = $totalGender > 0 ? round(($summary['female_count'] / $totalGender) * 100, 2) : 0;
+
+        // AI analiz promptu oluştur
+        $prompt   = AnalysisHelperOccDiseaseByEmployerDurations::buildAIPrompt($request, $summary);
+        $analysis = AnalysisHelperOccDiseaseByEmployerDurations::getAICommentary($prompt);
+
+        return response()->json([
+                                    'data'     => $data,
+                                    'summary'  => $summary,
+                                    'analysis' => $analysis,
+                                ]);
+    }
+
 
     /**
      * Yıla göre verileri listele.

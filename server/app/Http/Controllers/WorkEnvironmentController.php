@@ -6,6 +6,7 @@ use App\Models\Admin;
 use App\Models\WorkEnvironment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class WorkEnvironmentController extends Controller
@@ -89,6 +90,30 @@ class WorkEnvironmentController extends Controller
             'success' => true,
             'data'    => $workEnvironments
         ]);
+    }
+    public function indexUser()
+    {
+        return DB::table('work_environments')
+            ->select(
+                'environment_code',
+                'group_code',
+                'group_name',
+                'sub_group_code',
+                'sub_group_name'
+            )
+            ->orderBy('group_code')
+            ->orderBy('sub_group_code')
+            ->orderBy('environment_code')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'environment_code' => $item->environment_code,
+                    'group_code' => $item->group_code,
+                    'group_name' => $item->group_name,
+                    'sub_group_code' => $item->sub_group_code,
+                    'sub_group_name' => $item->sub_group_name
+                ];
+            });
     }
 
     public function store(Request $request)

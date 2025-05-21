@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Imports\WorkAccidentByWorkstationImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
+use App\Helpers\AnalysisHelperAccidentsByWorkstations;
+use OpenAI\Laravel\Facades\OpenAI;
+use Illuminate\Support\Facades\DB;
 
 
 class WorkAccidentByWorkstationController extends Controller
@@ -59,6 +62,74 @@ class WorkAccidentByWorkstationController extends Controller
     {
         $data = WorkAccidentByWorkstation::with('workstationType')->get();
         return response()->json($data);
+    }
+    public function indexUser(Request $request)
+    {
+        $query = DB::table('work_accident_by_workstations')
+            ->join('workstation_types', 'work_accident_by_workstations.group_id', '=', 'workstation_types.id')
+            ->select(
+                'work_accident_by_workstations.year',
+                'workstation_types.workstation_code',
+                'workstation_types.workstation_name',
+                DB::raw('CAST(SUM(works_on_accident_day) AS UNSIGNED) as works_on_accident_day'),
+                DB::raw('CAST(SUM(unfit_on_accident_day) AS UNSIGNED) as unfit_on_accident_day'),
+                DB::raw('CAST(SUM(two_days_unfit) AS UNSIGNED) as two_days_unfit'),
+                DB::raw('CAST(SUM(three_days_unfit) AS UNSIGNED) as three_days_unfit'),
+                DB::raw('CAST(SUM(four_days_unfit) AS UNSIGNED) as four_days_unfit'),
+                DB::raw('CAST(SUM(five_or_more_days_unfit) AS UNSIGNED) as five_or_more_days_unfit'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 0 THEN (works_on_accident_day + unfit_on_accident_day + two_days_unfit + three_days_unfit + four_days_unfit + five_or_more_days_unfit) ELSE 0 END) AS UNSIGNED) as male_count'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 1 THEN (works_on_accident_day + unfit_on_accident_day + two_days_unfit + three_days_unfit + four_days_unfit + five_or_more_days_unfit) ELSE 0 END) AS UNSIGNED) as female_count')
+            )
+            ->groupBy(
+                'work_accident_by_workstations.year',
+                'workstation_types.workstation_code',
+                'workstation_types.workstation_name'
+            );
+
+        // Filtreleme
+        if ($request->has('year') && $request->year !== 'all') {
+            $query->where('work_accident_by_workstations.year', $request->year);
+        }
+
+        if ($request->has('workstation_code') && $request->workstation_code !== 'all') {
+            $query->where('workstation_types.workstation_code', $request->workstation_code);
+        }
+
+        if ($request->has('gender') && $request->gender !== 'all') {
+            $query->where('work_accident_by_workstations.gender', $request->gender);
+        }
+
+        $data = $query->get();
+
+        // Özet veriler
+        $summary = [
+            'total_cases' => $data->sum(function($item) {
+                return $item->works_on_accident_day + $item->unfit_on_accident_day
+                    + $item->two_days_unfit + $item->three_days_unfit
+                    + $item->four_days_unfit + $item->five_or_more_days_unfit;
+            }),
+            'total_unfit' => $data->sum(function($item) {
+                return $item->unfit_on_accident_day + $item->two_days_unfit
+                    + $item->three_days_unfit + $item->four_days_unfit
+                    + $item->five_or_more_days_unfit;
+            }),
+            'male_count' => $data->sum('male_count'),
+            'female_count' => $data->sum('female_count')
+        ];
+
+        $totalGender = $summary['male_count'] + $summary['female_count'];
+        $summary['male_percentage'] = $totalGender > 0 ? round(($summary['male_count'] / $totalGender) * 100, 2) : 0;
+        $summary['female_percentage'] = $totalGender > 0 ? round(($summary['female_count'] / $totalGender) * 100, 2) : 0;
+
+        // AI analiz promptu oluştur
+        $prompt = AnalysisHelperAccidentsByWorkstations::buildAIPrompt($request, $summary);
+        $analysis = AnalysisHelperAccidentsByWorkstations::getAICommentary($prompt);
+
+        return response()->json([
+                                    'data' => $data,
+                                    'summary' => $summary,
+                                    'analysis' => $analysis
+                                ]);
     }
 
     /**

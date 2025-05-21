@@ -6,6 +6,7 @@ use App\Models\Admin;
 use App\Models\WorkstationType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class WorkstationTypeController extends Controller
@@ -82,7 +83,22 @@ class WorkstationTypeController extends Controller
             'data'    => $workstationTypes
         ]);
     }
-
+    public function indexUser()
+    {
+        return DB::table('workstation_types')
+            ->select(
+                'workstation_code',
+                'workstation_name'
+            )
+            ->orderBy('workstation_code')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'workstation_code' => $item->workstation_code,
+                    'workstation_name' => $item->workstation_name
+                ];
+            });
+    }
     public function store(Request $request)
     {
         $auth = $this->authenticate($request);

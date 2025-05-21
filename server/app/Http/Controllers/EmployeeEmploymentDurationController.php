@@ -6,6 +6,7 @@ use App\Models\EmployeeEmploymentDuration;
 use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class EmployeeEmploymentDurationController extends Controller
@@ -85,6 +86,20 @@ class EmployeeEmploymentDurationController extends Controller
             'data'    => $durations
         ]);
     }
+    public function indexUser()
+    {
+        return DB::table('employee_employment_durations')
+            ->select('code', 'employment_duration')
+            ->orderBy('code')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'code'                => $item->code,
+                    'employment_duration' => $item->employment_duration,
+                ];
+            });
+    }
+
 
     /**
      * Yeni çalışan istihdam süresi kaydı oluştur.

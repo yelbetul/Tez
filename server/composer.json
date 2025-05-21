@@ -48,8 +48,15 @@
             "app/Helpers/AnalysisHelperAccidentsByGeneralActivities.php",
             "app/Helpers/AnalysisHelperAccidentsBySpecialActivities.php",
             "app/Helpers/AnalysisHelperAccidentsByDeviations.php",
-            "app/Helpers/AnalysisHelperAccidentsByMaterials.php"
-    	]
+            "app/Helpers/AnalysisHelperAccidentsByMaterials.php",
+            "app/Helpers/AnalysisHelperAccidentsByEnvironments.php",
+            "app/Helpers/AnalysisHelperAccidentsByWorkstations.php",
+            "app/Helpers/AnalysisHelperAccidentsByHours.php",
+            "app/Helpers/AnalysisHelperAccidentsByEmployees.php",
+            "app/Helpers/AnalysisHelperOccDiseaseByEmployees.php",
+            "app/Helpers/AnalysisHelperOccDiseaseByEmployerDurations.php",
+            "app/Helpers/AnalysisHelperAccidentsByEmployerDurations.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
