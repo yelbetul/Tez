@@ -1,5 +1,6 @@
 <template>
   <div class="deviation-analysis-container">
+    <HeaderApp />
     <div class="page-header">
       <h1>Sapmalara Göre İş Kazaları ve Ölümler Analizi</h1>
       <p class="subtitle">2019-2023 yılları arası sapma türlerine göre iş kazası ve ölüm verileri</p>
@@ -21,15 +22,6 @@
         <select id="subGroup" v-model="selectedSubGroup" @change="fetchData">
           <option value="all">Tüm Alt Gruplar</option>
           <option v-for="subGroup in filteredSubGroups" :key="subGroup.code" :value="subGroup.code">{{ subGroup.name }}</option>
-        </select>
-      </div>
-
-      <!-- Sapma Kodu Seçimi -->
-      <div class="filter-group" v-if="selectedSubGroup !== 'all'">
-        <label for="deviation">Sapma Kodu:</label>
-        <select id="deviation" v-model="selectedDeviation" @change="fetchData">
-          <option value="all">Tüm Sapma Kodları</option>
-          <option v-for="deviation in filteredDeviations" :key="deviation.code" :value="deviation.code">{{ deviation.code }} - {{ deviation.name }}</option>
         </select>
       </div>
 
@@ -61,20 +53,20 @@
     </div>
 
     <!-- Ana Grafik -->
-    <div class="chart-container" v-if="selectedDeviation === 'all' && !loading">
+    <div class="chart-container" v-if="selectedGroup === 'all' && !loading">
       <h2>Sapma Gruplarına Göre Dağılım</h2>
       <apexchart type="bar" height="500" :options="mainChartOptions" :series="mainSeries"></apexchart>
     </div>
 
     <!-- Detay Grafik (Tek sapma kodu seçildiğinde) -->
-    <div class="detail-charts" v-if="selectedDeviation !== 'all' && !loading">
+    <div class="detail-charts" v-if="selectedGroup !== 'all' && !loading">
       <div class="chart-container">
-        <h2>{{ selectedDeviationCode }} - Yıllara Göre Dağılım</h2>
+        <h2>Yıllara Göre Dağılım</h2>
         <apexchart type="line" height="350" :options="yearlyChartOptions" :series="yearlySeries"></apexchart>
       </div>
 
       <div class="chart-container">
-        <h2>{{ selectedDeviationCode }} - Cinsiyet Dağılımı</h2>
+        <h2>Cinsiyet Dağılımı</h2>
         <div class="gender-charts">
           <div class="gender-chart">
             <h3>Erkek</h3>
@@ -145,6 +137,7 @@
       <div class="spinner"></div>
       <p>Analiz ve veriler yükleniyor. Lütfen Bekleyiniz...</p>
     </div>
+    <FooterApp />
   </div>
 </template>
 
@@ -152,10 +145,14 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
+import HeaderApp from '@/components/user/HeaderApp.vue'
+import FooterApp from '@/components/user/FooterApp.vue'
 
 export default {
   components: {
-    apexchart: VueApexCharts
+    apexchart: VueApexCharts,
+    HeaderApp,
+    FooterApp
   },
   setup() {
     const loading = ref(true)
@@ -351,7 +348,7 @@ export default {
 
     // Grafik güncelleme fonksiyonları
     const updateCharts = () => {
-      if (selectedDeviation.value === 'all') {
+      if (selectedGroup.value === 'all') {
         updateMainChart()
       } else {
         updateDetailCharts()
@@ -375,12 +372,11 @@ export default {
           }
         }
 
-        const total = calculateTotal(item)
-        groupData[groupKey].total += total
+        groupData[groupKey].total += calculateTotal(item)
         groupData[groupKey].unfit += calculateUnfit(item)
-        groupData[groupKey].fatalities += item.fatalities || 0
-        groupData[groupKey].male_count += item.male_count || 0
-        groupData[groupKey].female_count += item.female_count || 0
+        groupData[groupKey].fatalities += (item.fatalities || 0)
+        groupData[groupKey].male_count += (item.male_count || 0)
+        groupData[groupKey].female_count += (item.female_count || 0)
       })
 
       // Grafik verilerini hazırla
@@ -389,12 +385,21 @@ export default {
 
       Object.keys(groupData).forEach(key => {
         categories.push(groupData[key].name)
-        seriesData.push({
-          x: groupData[key].name,
-          y: selectedMetric.value === 'total' ? groupData[key].total :
-            selectedMetric.value === 'unfit' ? groupData[key].unfit :
-              groupData[key].fatalities
-        })
+
+        let value = 0
+        switch (selectedMetric.value) {
+          case 'total':
+            value = groupData[key].total
+            break
+          case 'unfit':
+            value = groupData[key].unfit
+            break
+          case 'fatalities':
+            value = groupData[key].fatalities
+            break
+        }
+
+        seriesData.push(value)
       })
 
       // Grafik verilerini güncelle
@@ -404,40 +409,77 @@ export default {
       }]
 
       // Eksen etiketlerini güncelle
-      mainChartOptions.value.xaxis.categories = categories
-      mainChartOptions.value.yaxis.title.text = getMetricTitle()
+      mainChartOptions.value = {
+        ...mainChartOptions.value,
+        xaxis: {
+          ...mainChartOptions.value.xaxis,
+          categories: categories
+        },
+        yaxis: {
+          ...mainChartOptions.value.yaxis,
+          title: {
+            text: getMetricTitle()
+          }
+        }
+      }
     }
 
     const updateDetailCharts = () => {
+      // Yıllara göre verileri grupla
       const yearlyData = {}
       availableYears.value.forEach(year => {
-        yearlyData[year] = 0
+        yearlyData[year] = {
+          total: 0,
+          unfit: 0,
+          fatalities: 0,
+          male_count: 0,
+          female_count: 0
+        }
       })
 
       let maleTotal = 0
       let femaleTotal = 0
 
       tableData.value.forEach(item => {
-        if (selectedMetric.value === 'total') {
-          yearlyData[item.year] += calculateTotal(item)
-        } else if (selectedMetric.value === 'unfit') {
-          yearlyData[item.year] += calculateUnfit(item)
-        } else {
-          yearlyData[item.year] += item.fatalities || 0
+        if (!yearlyData[item.year]) {
+          yearlyData[item.year] = {
+            total: 0,
+            unfit: 0,
+            fatalities: 0,
+            male_count: 0,
+            female_count: 0
+          }
         }
 
-        maleTotal += item.male_count || 0
-        femaleTotal += item.female_count || 0
+        yearlyData[item.year].total += calculateTotal(item)
+        yearlyData[item.year].unfit += calculateUnfit(item)
+        yearlyData[item.year].fatalities += (item.fatalities || 0)
+        yearlyData[item.year].male_count += (item.male_count || 0)
+        yearlyData[item.year].female_count += (item.female_count || 0)
+
+        maleTotal += (item.male_count || 0)
+        femaleTotal += (item.female_count || 0)
+      })
+
+      // Yıllık trend grafiği için verileri hazırla
+      const yearlyChartData = availableYears.value.map(year => {
+        switch (selectedMetric.value) {
+          case 'total': return yearlyData[year].total
+          case 'unfit': return yearlyData[year].unfit
+          case 'fatalities': return yearlyData[year].fatalities
+          default: return 0
+        }
       })
 
       yearlySeries.value = [{
         name: getMetricTitle(),
-        data: availableYears.value.map(year => yearlyData[year])
+        data: yearlyChartData
       }]
 
-      const total = maleTotal + femaleTotal
-      maleSeries.value = [total > 0 ? Math.round((maleTotal / total) * 100) : 0]
-      femaleSeries.value = [total > 0 ? Math.round((femaleTotal / total) * 100) : 0]
+      // Cinsiyet dağılımı grafikleri için verileri hazırla
+      const totalGender = maleTotal + femaleTotal
+      maleSeries.value = [totalGender > 0 ? Math.round((maleTotal / totalGender) * 100) : 0]
+      femaleSeries.value = [totalGender > 0 ? Math.round((femaleTotal / totalGender) * 100) : 0]
     }
 
     // Yardımcı fonksiyonlar
@@ -473,6 +515,7 @@ export default {
       await loadDeviationTypes()
       await fetchData()
     })
+
 
     return {
       loading,

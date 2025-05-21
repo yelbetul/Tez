@@ -1,5 +1,6 @@
 <template>
     <div class="province-analysis-container">
+        <HeaderApp />
         <div class="page-header">
             <h1>İllere Göre Ölümlü İş Kazaları Analizi</h1>
             <p class="subtitle">2019-2023 yılları arası il bazlı ölümlü iş kazası verileri</p>
@@ -108,6 +109,7 @@
             <div class="spinner"></div>
             <p>Veriler ve analiz yükleniyor...</p>
         </div>
+        <FooterApp />
     </div>
 </template>
 
@@ -115,10 +117,14 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
+import HeaderApp from '@/components/user/HeaderApp.vue'
+import FooterApp from '@/components/user/FooterApp.vue'
 
 export default {
     components: {
-        apexchart: VueApexCharts
+        apexchart: VueApexCharts,
+        HeaderApp,
+        FooterApp
     },
     setup() {
         const loading = ref(true)

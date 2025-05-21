@@ -1,14 +1,15 @@
 <template>
-  <div class="activity-analysis-container">
+  <div class="material-analysis-container">
+    <HeaderApp />
     <div class="page-header">
-      <h1>Genel Faaliyetlere Göre İş Kazaları ve Ölümler Analizi</h1>
-      <p class="subtitle">2019-2023 yılları arası faaliyet türüne göre iş kazası ve ölüm verileri</p>
+      <h1>Materyallere Göre İş Kazaları ve Ölümler Analizi</h1>
+      <p class="subtitle">2019-2023 yılları arası materyal türüne göre iş kazası ve ölüm verileri</p>
     </div>
 
     <div class="filters">
-      <!-- Faaliyet Grubu Seçimi -->
+      <!-- Malzeme Grubu Seçimi -->
       <div class="filter-group">
-        <label for="group">Faaliyet Grubu:</label>
+        <label for="group">Materyal Grubu:</label>
         <select id="group" v-model="selectedGroup" @change="fetchData">
           <option value="all">Tüm Gruplar</option>
           <option v-for="group in availableGroups" :key="group.code" :value="group.code">{{ group.name }}</option>
@@ -21,15 +22,6 @@
         <select id="subGroup" v-model="selectedSubGroup" @change="fetchData">
           <option value="all">Tüm Alt Gruplar</option>
           <option v-for="subGroup in filteredSubGroups" :key="subGroup.code" :value="subGroup.code">{{ subGroup.name }}</option>
-        </select>
-      </div>
-
-      <!-- Faaliyet Türü Seçimi -->
-      <div class="filter-group" v-if="selectedSubGroup !== 'all'">
-        <label for="activity">Faaliyet Türü:</label>
-        <select id="activity" v-model="selectedActivity" @change="fetchData">
-          <option value="all">Tüm Faaliyet Türleri</option>
-          <option v-for="activity in filteredActivityTypes" :key="activity.code" :value="activity.code">{{ activity.code }} - {{ activity.name }}</option>
         </select>
       </div>
 
@@ -61,20 +53,20 @@
     </div>
 
     <!-- Ana Grafik -->
-    <div class="chart-container" v-if="selectedActivity === 'all' && !loading">
-      <h2>Faaliyet Gruplarına Göre Dağılım</h2>
+    <div class="chart-container" v-if="selectedGroup === 'all' && !loading">
+      <h2>Materyal Gruplarına Göre Dağılım</h2>
       <apexchart type="bar" height="500" :options="mainChartOptions" :series="mainSeries"></apexchart>
     </div>
 
-    <!-- Detay Grafik (Tek faaliyet türü seçildiğinde) -->
-    <div class="detail-charts" v-if="selectedActivity !== 'all' && !loading">
+    <!-- Detay Grafik (Tek malzeme seçildiğinde) -->
+    <div class="detail-charts" v-if="selectedGroup !== 'all' && !loading">
       <div class="chart-container">
-        <h2>{{ selectedActivityCode }} - Yıllara Göre Dağılım</h2>
+        <h2> Yıllara Göre Dağılım</h2>
         <apexchart type="line" height="350" :options="yearlyChartOptions" :series="yearlySeries"></apexchart>
       </div>
 
       <div class="chart-container">
-        <h2>{{ selectedActivityCode }} - Cinsiyet Dağılımı</h2>
+        <h2>Cinsiyet Dağılımı</h2>
         <div class="gender-charts">
           <div class="gender-chart">
             <h3>Erkek</h3>
@@ -104,9 +96,8 @@
       <table>
         <thead>
         <tr>
-          <th>Faaliyet Grubu</th>
+          <th>Materyal Grubu</th>
           <th>Alt Grup</th>
-          <th>Faaliyet Kodu</th>
           <th>Yıl</th>
           <th>Kaza Günü Çalışır</th>
           <th>Kaza Günü İş Göremez</th>
@@ -121,10 +112,9 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="item in tableData" :key="`${item.group_code}-${item.sub_group_code}-${item.general_activity_code}-${item.year}`">
+        <tr v-for="item in tableData" :key="`${item.group_code}-${item.sub_group_code}-${item.material_code}-${item.year}`">
           <td>{{ item.group_name }}</td>
           <td>{{ item.sub_group_name }}</td>
-          <td>{{ item.general_activity_code }}</td>
           <td>{{ item.year }}</td>
           <td>{{ item.works_on_accident_day || 0 }}</td>
           <td>{{ item.unfit_on_accident_day || 0 }}</td>
@@ -145,6 +135,7 @@
       <div class="spinner"></div>
       <p>Analiz ve veriler yükleniyor. Lütfen Bekleyiniz...</p>
     </div>
+    <FooterApp />
   </div>
 </template>
 
@@ -152,23 +143,27 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
+import HeaderApp from '@/components/user/HeaderApp.vue'
+import FooterApp from '@/components/user/FooterApp.vue'
 
 export default {
   components: {
-    apexchart: VueApexCharts
+    apexchart: VueApexCharts,
+    HeaderApp,
+    FooterApp
   },
   setup() {
     const loading = ref(true)
     const tableData = ref([])
     const analysisComment = ref([])
     const availableYears = ref(['2019', '2020', '2021', '2022', '2023'])
-    const activityTypes = ref([])
+    const materialTypes = ref([])
 
     // Seçimler
     const selectedYear = ref('all')
     const selectedGroup = ref('all')
     const selectedSubGroup = ref('all')
-    const selectedActivity = ref('all')
+    const selectedMaterial = ref('all')
     const selectedGender = ref('all')
     const selectedMetric = ref('total')
 
@@ -178,10 +173,10 @@ export default {
     const maleSeries = ref([0])
     const femaleSeries = ref([0])
 
-    // Faaliyet türleri hiyerarşisi için computed özellikler
+    // Malzeme türleri hiyerarşisi için computed özellikler
     const availableGroups = computed(() => {
       const groups = new Map()
-      activityTypes.value.forEach(item => {
+      materialTypes.value.forEach(item => {
         if (!groups.has(item.group_code)) {
           groups.set(item.group_code, {
             code: item.group_code,
@@ -195,7 +190,7 @@ export default {
     const filteredSubGroups = computed(() => {
       if (selectedGroup.value === 'all') return []
       const subGroups = new Map()
-      activityTypes.value
+      materialTypes.value
         .filter(item => item.group_code === selectedGroup.value)
         .forEach(item => {
           if (!subGroups.has(item.sub_group_code)) {
@@ -208,19 +203,19 @@ export default {
       return Array.from(subGroups.values())
     })
 
-    const filteredActivityTypes = computed(() => {
+    const filteredMaterials = computed(() => {
       if (selectedSubGroup.value === 'all') return []
-      return activityTypes.value
+      return materialTypes.value
         .filter(item => item.sub_group_code === selectedSubGroup.value)
         .map(item => ({
-          code: item.general_activity_code,
+          code: item.material_code,
           name: item.sub_group_name
         }))
     })
 
-    const selectedActivityCode = computed(() => {
-      if (selectedActivity.value === 'all') return ''
-      return selectedActivity.value
+    const selectedMaterialCode = computed(() => {
+      if (selectedMaterial.value === 'all') return ''
+      return selectedMaterial.value
     })
 
     // Grafik ayarları
@@ -240,7 +235,7 @@ export default {
       dataLabels: { enabled: true },
       xaxis: {
         type: 'category',
-        title: { text: 'Faaliyet Grupları' },
+        title: { text: 'Malzeme Grupları' },
         categories: []
       },
       yaxis: {
@@ -324,11 +319,11 @@ export default {
           year: selectedYear.value !== 'all' ? selectedYear.value : undefined,
           group_code: selectedGroup.value !== 'all' ? selectedGroup.value : undefined,
           sub_group_code: selectedSubGroup.value !== 'all' ? selectedSubGroup.value : undefined,
-          general_activity_code: selectedActivity.value !== 'all' ? selectedActivity.value : undefined,
+          material_code: selectedMaterial.value !== 'all' ? selectedMaterial.value : undefined,
           gender: selectedGender.value !== 'all' ? selectedGender.value : undefined
         }
 
-        const response = await axios.get('/api/accidents-and-fatalities-by-general-activities-user', { params })
+        const response = await axios.get('/api/accidents-and-fatalities-by-materials-user', { params })
         tableData.value = response.data.data
         analysisComment.value = response.data.analysis
         updateCharts()
@@ -339,19 +334,19 @@ export default {
       }
     }
 
-    // Faaliyet türlerini yükle
-    const loadActivityTypes = async () => {
+    // Malzeme türlerini yükle
+    const loadMaterialTypes = async () => {
       try {
-        const response = await axios.get('/api/general-activities-user')
-        activityTypes.value = response.data
+        const response = await axios.get('/api/materials-user')
+        materialTypes.value = response.data
       } catch (error) {
-        console.error('Faaliyet türleri yüklenirken hata:', error)
+        console.error('Malzeme türleri yüklenirken hata:', error)
       }
     }
 
     // Grafik güncelleme fonksiyonları
     const updateCharts = () => {
-      if (selectedActivity.value === 'all') {
+      if (selectedGroup.value === 'all') {
         updateMainChart()
       } else {
         updateDetailCharts()
@@ -361,7 +356,7 @@ export default {
     const updateMainChart = () => {
       const groupData = {}
 
-      // Faaliyet gruplarına göre verileri grupla
+      // Malzeme gruplarına göre verileri grupla
       tableData.value.forEach(item => {
         const groupKey = item.group_code + '|' + item.group_name
         if (!groupData[groupKey]) {
@@ -375,12 +370,11 @@ export default {
           }
         }
 
-        const total = calculateTotal(item)
-        groupData[groupKey].total += total
+        groupData[groupKey].total += calculateTotal(item)
         groupData[groupKey].unfit += calculateUnfit(item)
-        groupData[groupKey].fatalities += item.fatalities || 0
-        groupData[groupKey].male_count += item.male_count || 0
-        groupData[groupKey].female_count += item.female_count || 0
+        groupData[groupKey].fatalities += (item.fatalities || 0)
+        groupData[groupKey].male_count += (item.male_count || 0)
+        groupData[groupKey].female_count += (item.female_count || 0)
       })
 
       // Grafik verilerini hazırla
@@ -389,12 +383,21 @@ export default {
 
       Object.keys(groupData).forEach(key => {
         categories.push(groupData[key].name)
-        seriesData.push({
-          x: groupData[key].name,
-          y: selectedMetric.value === 'total' ? groupData[key].total :
-            selectedMetric.value === 'unfit' ? groupData[key].unfit :
-              groupData[key].fatalities
-        })
+
+        let value = 0
+        switch (selectedMetric.value) {
+          case 'total':
+            value = groupData[key].total
+            break
+          case 'unfit':
+            value = groupData[key].unfit
+            break
+          case 'fatalities':
+            value = groupData[key].fatalities
+            break
+        }
+
+        seriesData.push(value)
       })
 
       // Grafik verilerini güncelle
@@ -404,40 +407,77 @@ export default {
       }]
 
       // Eksen etiketlerini güncelle
-      mainChartOptions.value.xaxis.categories = categories
-      mainChartOptions.value.yaxis.title.text = getMetricTitle()
+      mainChartOptions.value = {
+        ...mainChartOptions.value,
+        xaxis: {
+          ...mainChartOptions.value.xaxis,
+          categories: categories
+        },
+        yaxis: {
+          ...mainChartOptions.value.yaxis,
+          title: {
+            text: getMetricTitle()
+          }
+        }
+      }
     }
 
     const updateDetailCharts = () => {
+      // Yıllara göre verileri grupla
       const yearlyData = {}
       availableYears.value.forEach(year => {
-        yearlyData[year] = 0
+        yearlyData[year] = {
+          total: 0,
+          unfit: 0,
+          fatalities: 0,
+          male_count: 0,
+          female_count: 0
+        }
       })
 
       let maleTotal = 0
       let femaleTotal = 0
 
       tableData.value.forEach(item => {
-        if (selectedMetric.value === 'total') {
-          yearlyData[item.year] += calculateTotal(item)
-        } else if (selectedMetric.value === 'unfit') {
-          yearlyData[item.year] += calculateUnfit(item)
-        } else {
-          yearlyData[item.year] += item.fatalities || 0
+        if (!yearlyData[item.year]) {
+          yearlyData[item.year] = {
+            total: 0,
+            unfit: 0,
+            fatalities: 0,
+            male_count: 0,
+            female_count: 0
+          }
         }
 
-        maleTotal += item.male_count || 0
-        femaleTotal += item.female_count || 0
+        yearlyData[item.year].total += calculateTotal(item)
+        yearlyData[item.year].unfit += calculateUnfit(item)
+        yearlyData[item.year].fatalities += (item.fatalities || 0)
+        yearlyData[item.year].male_count += (item.male_count || 0)
+        yearlyData[item.year].female_count += (item.female_count || 0)
+
+        maleTotal += (item.male_count || 0)
+        femaleTotal += (item.female_count || 0)
+      })
+
+      // Yıllık trend grafiği için verileri hazırla
+      const yearlyChartData = availableYears.value.map(year => {
+        switch (selectedMetric.value) {
+          case 'total': return yearlyData[year].total
+          case 'unfit': return yearlyData[year].unfit
+          case 'fatalities': return yearlyData[year].fatalities
+          default: return 0
+        }
       })
 
       yearlySeries.value = [{
         name: getMetricTitle(),
-        data: availableYears.value.map(year => yearlyData[year])
+        data: yearlyChartData
       }]
 
-      const total = maleTotal + femaleTotal
-      maleSeries.value = [total > 0 ? Math.round((maleTotal / total) * 100) : 0]
-      femaleSeries.value = [total > 0 ? Math.round((femaleTotal / total) * 100) : 0]
+      // Cinsiyet dağılımı grafikleri için verileri hazırla
+      const totalGender = maleTotal + femaleTotal
+      maleSeries.value = [totalGender > 0 ? Math.round((maleTotal / totalGender) * 100) : 0]
+      femaleSeries.value = [totalGender > 0 ? Math.round((femaleTotal / totalGender) * 100) : 0]
     }
 
     // Yardımcı fonksiyonlar
@@ -470,7 +510,7 @@ export default {
 
     // Sayfa yüklendiğinde verileri çek
     onMounted(async () => {
-      await loadActivityTypes()
+      await loadMaterialTypes()
       await fetchData()
     })
 
@@ -480,12 +520,12 @@ export default {
       availableYears,
       availableGroups,
       filteredSubGroups,
-      filteredActivityTypes,
+      filteredMaterials,
       selectedYear,
       selectedGroup,
       selectedSubGroup,
-      selectedActivity,
-      selectedActivityCode,
+      selectedMaterial,
+      selectedMaterialCode,
       selectedGender,
       selectedMetric,
       mainChartOptions,
@@ -507,7 +547,7 @@ export default {
 </script>
 
 <style scoped>
-.activity-analysis-container {
+.material-analysis-container {
     max-width: 90%;
     margin: 0 auto;
     padding: 20px;
@@ -690,7 +730,7 @@ td {
     }
 }
 
-.activity-analysis-container {
+.material-analysis-container {
     max-width: 90%;
     margin: 0 auto;
     padding: 20px;

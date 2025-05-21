@@ -1,26 +1,20 @@
 <template>
-  <div class="environment-analysis-container">
+  <div class="workstation-analysis-container">
+    <HeaderApp />
     <div class="page-header">
-      <h1>Çalışılan Çevreye Göre İş Kazaları ve Ölümler Analizi</h1>
-      <p class="subtitle">2019-2023 yılları arası çalışılan çevreye göre iş kazası ve ölüm verileri</p>
+      <h1>Çalışma Ortamlarına Göre İş Kazaları Analizi</h1>
+      <p class="subtitle">2019-2023 yılları arası çalışma ortamına göre iş kazası verileri</p>
     </div>
 
     <div class="filters">
-      <!-- Grup Seçimi -->
+      <!-- İstasyon Seçimi -->
       <div class="filter-group">
-        <label for="group">Çalışılan Çevre Grubu:</label>
-        <select id="group" v-model="selectedGroup" @change="fetchData">
-          <option value="all">Tüm Gruplar</option>
-          <option v-for="group in availableGroups" :key="group.code" :value="group.code">{{ group.name }}</option>
-        </select>
-      </div>
-
-      <!-- Alt Grup Seçimi -->
-      <div class="filter-group" v-if="selectedGroup !== 'all'">
-        <label for="subGroup">Alt Grup:</label>
-        <select id="subGroup" v-model="selectedSubGroup" @change="fetchData">
-          <option value="all">Tüm Alt Gruplar</option>
-          <option v-for="subGroup in filteredSubGroups" :key="subGroup.code" :value="subGroup.code">{{ subGroup.name }}</option>
+        <label for="workstation">Çalışma Ortamı:</label>
+        <select id="workstation" v-model="selectedWorkstation" @change="fetchData">
+          <option value="all">Tüm İstasyonlar</option>
+          <option v-for="workstation in availableWorkstations" :key="workstation.code" :value="workstation.code">
+            {{ workstation.name }}
+          </option>
         </select>
       </div>
 
@@ -46,43 +40,35 @@
         <select id="metric" v-model="selectedMetric" @change="updateCharts">
           <option value="total">Toplam Vaka</option>
           <option value="unfit">İş Göremezlik</option>
-          <option value="fatalities">Ölüm</option>
         </select>
       </div>
     </div>
 
     <!-- Ana Grafik -->
-    <div class="chart-container" v-if="selectedEnvironment === 'all' && !loading && selectedGroup === 'all'">
-      <h2>Çalışılan Çevreye Göre Dağılım</h2>
+    <div class="chart-container" v-if="selectedWorkstation === 'all' && !loading">
+      <h2>Çalışma İstasyonuna Göre Dağılım</h2>
       <apexchart type="bar" height="500" :options="mainChartOptions" :series="mainSeries"></apexchart>
     </div>
 
-    <!-- Yıllara Göre Grafik (Grup seçildiğinde ve tüm yıllar seçiliyse) -->
-    <div class="chart-container" v-if="selectedGroup !== 'all' && selectedYear === 'all' && !loading">
-      <h2>{{ selectedGroupName }} - Yıllara Göre Dağılım</h2>
+    <!-- Yıllara Göre Grafik (İstasyon seçildiğinde ve tüm yıllar seçiliyse) -->
+    <div class="chart-container" v-if="selectedWorkstation !== 'all' && selectedYear === 'all' && !loading">
+      <h2>{{ selectedWorkstationName }} - Yıllara Göre Dağılım</h2>
       <apexchart type="line" height="350" :options="yearlyTrendChartOptions" :series="yearlyTrendSeries"></apexchart>
     </div>
 
-    <!-- Detay Grafik (Tek ortam seçildiğinde) -->
-    <div class="detail-charts" v-if="selectedEnvironment !== 'all' && !loading">
-      <div class="chart-container">
-        <h2>{{ selectedEnvironmentCode }} - Yıllara Göre Dağılım</h2>
-        <apexchart type="line" height="350" :options="yearlyChartOptions" :series="yearlySeries"></apexchart>
-      </div>
-
-      <div class="chart-container">
-        <h2>{{ selectedEnvironmentCode }} - Cinsiyet Dağılımı</h2>
-        <div class="gender-charts">
-          <div class="gender-chart">
-            <h3>Erkek</h3>
-            <apexchart type="radialBar" height="300" :options="genderChartOptions('Erkek')"
-                       :series="maleSeries"></apexchart>
-          </div>
-          <div class="gender-chart">
-            <h3>Kadın</h3>
-            <apexchart type="radialBar" height="300" :options="genderChartOptions('Kadın')"
-                       :series="femaleSeries"></apexchart>
-          </div>
+    <!-- Cinsiyet Dağılımı -->
+    <div class="chart-container" v-if="!loading">
+      <h2>Cinsiyet Dağılımı</h2>
+      <div class="gender-charts">
+        <div class="gender-chart">
+          <h3>Erkek</h3>
+          <apexchart type="radialBar" height="300" :options="genderChartOptions('Erkek')" :series="maleSeries">
+          </apexchart>
+        </div>
+        <div class="gender-chart">
+          <h3>Kadın</h3>
+          <apexchart type="radialBar" height="300" :options="genderChartOptions('Kadın')" :series="femaleSeries">
+          </apexchart>
         </div>
       </div>
     </div>
@@ -100,38 +86,34 @@
       <h2>Detaylı Veri Tablosu</h2>
       <table>
         <thead>
-        <tr>
-          <th>Çalışılan Çevre Grubu</th>
-          <th>Alt Grup</th>
-          <th>Yıl</th>
-          <th>Kaza Günü Çalışır</th>
-          <th>Kaza Günü İş Göremez</th>
-          <th>2 Gün İş Göremez</th>
-          <th>3 Gün İş Göremez</th>
-          <th>4 Gün İş Göremez</th>
-          <th>5+ Gün İş Göremez</th>
-          <th>Toplam İş Göremezlik</th>
-          <th>Ölüm</th>
-          <th>Erkek</th>
-          <th>Kadın</th>
-        </tr>
+          <tr>
+            <th>Çalışma Ortamı</th>
+            <th>Yıl</th>
+            <th>Kaza Günü Çalışır</th>
+            <th>Kaza Günü İş Göremez</th>
+            <th>2 Gün İş Göremez</th>
+            <th>3 Gün İş Göremez</th>
+            <th>4 Gün İş Göremez</th>
+            <th>5+ Gün İş Göremez</th>
+            <th>Toplam İş Göremezlik</th>
+            <th>Erkek</th>
+            <th>Kadın</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="item in tableData" :key="`${item.group_code}-${item.sub_group_code}-${item.environment_code}-${item.year}`">
-          <td>{{ item.group_name }}</td>
-          <td>{{ item.sub_group_name }}</td>
-          <td>{{ item.year }}</td>
-          <td>{{ item.works_on_accident_day || 0 }}</td>
-          <td>{{ item.unfit_on_accident_day || 0 }}</td>
-          <td>{{ item.two_days_unfit || 0 }}</td>
-          <td>{{ item.three_days_unfit || 0 }}</td>
-          <td>{{ item.four_days_unfit || 0 }}</td>
-          <td>{{ item.five_or_more_days_unfit || 0 }}</td>
-          <td>{{ calculateUnfit(item) }}</td>
-          <td>{{ item.fatalities || 0 }}</td>
-          <td>{{ item.male_count || 0 }}</td>
-          <td>{{ item.female_count || 0 }}</td>
-        </tr>
+          <tr v-for="item in tableData" :key="`${item.workstation_code}-${item.year}`">
+            <td>{{ item.workstation_name }}</td>
+            <td>{{ item.year }}</td>
+            <td>{{ item.works_on_accident_day || 0 }}</td>
+            <td>{{ item.unfit_on_accident_day || 0 }}</td>
+            <td>{{ item.two_days_unfit || 0 }}</td>
+            <td>{{ item.three_days_unfit || 0 }}</td>
+            <td>{{ item.four_days_unfit || 0 }}</td>
+            <td>{{ item.five_or_more_days_unfit || 0 }}</td>
+            <td>{{ calculateUnfit(item) }}</td>
+            <td>{{ item.male_count || 0 }}</td>
+            <td>{{ item.female_count || 0 }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -140,6 +122,7 @@
       <div class="spinner"></div>
       <p>Analiz ve veriler yükleniyor. Lütfen Bekleyiniz...</p>
     </div>
+    <FooterApp />
   </div>
 </template>
 
@@ -147,82 +130,38 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
+import HeaderApp from '@/components/user/HeaderApp.vue'
+import FooterApp from '@/components/user/FooterApp.vue'
 
 export default {
   components: {
-    apexchart: VueApexCharts
+    apexchart: VueApexCharts,
+    HeaderApp,
+    FooterApp
   },
   setup() {
     const loading = ref(true)
     const tableData = ref([])
     const analysisComment = ref([])
     const availableYears = ref(['2019', '2020', '2021', '2022', '2023'])
-    const environmentTypes = ref([])
+    const availableWorkstations = ref([])
 
     // Seçimler
     const selectedYear = ref('all')
-    const selectedGroup = ref('all')
-    const selectedSubGroup = ref('all')
-    const selectedEnvironment = ref('all')
+    const selectedWorkstation = ref('all')
     const selectedGender = ref('all')
     const selectedMetric = ref('total')
 
     // Grafik verileri
     const mainSeries = ref([{ name: 'Vaka Sayısı', data: [] }])
     const yearlyTrendSeries = ref([{ name: 'Vaka Sayısı', data: [] }])
-    const yearlySeries = ref([{ name: 'Vaka Sayısı', data: [] }])
     const maleSeries = ref([0])
     const femaleSeries = ref([0])
 
-    // Çalışma ortamı türleri hiyerarşisi için computed özellikler
-    const availableGroups = computed(() => {
-      const groups = new Map()
-      environmentTypes.value.forEach(item => {
-        if (!groups.has(item.group_code)) {
-          groups.set(item.group_code, {
-            code: item.group_code,
-            name: item.group_name
-          })
-        }
-      })
-      return Array.from(groups.values())
-    })
-
-    const filteredSubGroups = computed(() => {
-      if (selectedGroup.value === 'all') return []
-      const subGroups = new Map()
-      environmentTypes.value
-        .filter(item => item.group_code === selectedGroup.value)
-        .forEach(item => {
-          if (!subGroups.has(item.sub_group_code)) {
-            subGroups.set(item.sub_group_code, {
-              code: item.sub_group_code,
-              name: item.sub_group_name
-            })
-          }
-        })
-      return Array.from(subGroups.values())
-    })
-
-    const filteredEnvironments = computed(() => {
-      if (selectedSubGroup.value === 'all') return []
-      return environmentTypes.value
-        .filter(item => item.sub_group_code === selectedSubGroup.value)
-        .map(item => ({
-          code: item.environment_code,
-          name: item.sub_group_name
-        }))
-    })
-
-    const selectedEnvironmentCode = computed(() => {
-      if (selectedEnvironment.value === 'all') return ''
-      return selectedEnvironment.value
-    })
-
-    const selectedGroupName = computed(() => {
-      if (selectedGroup.value === 'all') return ''
-      const group = availableGroups.value.find(g => g.code === selectedGroup.value)
-      return group ? group.name : ''
+    const selectedWorkstationName = computed(() => {
+      if (selectedWorkstation.value === 'all') return ''
+      const workstation = availableWorkstations.value.find(w => w.code === selectedWorkstation.value)
+      return workstation ? workstation.name : ''
     })
 
     // Grafik ayarları
@@ -242,7 +181,7 @@ export default {
       dataLabels: { enabled: true },
       xaxis: {
         type: 'category',
-        title: { text: 'Çalışma Ortamı Grupları' },
+        title: { text: 'Çalışma İstasyonları' },
         categories: []
       },
       yaxis: {
@@ -264,22 +203,6 @@ export default {
     })
 
     const yearlyTrendChartOptions = ref({
-      chart: { type: 'line', height: 350 },
-      stroke: { curve: 'smooth', width: 3 },
-      markers: { size: 5 },
-      xaxis: { categories: availableYears.value },
-      yaxis: { title: { text: 'Vaka Sayısı' } },
-      colors: ['#ef4444'],
-      tooltip: {
-        y: {
-          formatter: function (val) {
-            return val + ' vaka'
-          }
-        }
-      }
-    })
-
-    const yearlyChartOptions = ref({
       chart: { type: 'line', height: 350 },
       stroke: { curve: 'smooth', width: 3 },
       markers: { size: 5 },
@@ -340,13 +263,11 @@ export default {
       try {
         const params = {
           year: selectedYear.value !== 'all' ? selectedYear.value : undefined,
-          group_code: selectedGroup.value !== 'all' ? selectedGroup.value : undefined,
-          sub_group_code: selectedSubGroup.value !== 'all' ? selectedSubGroup.value : undefined,
-          environment_code: selectedEnvironment.value !== 'all' ? selectedEnvironment.value : undefined,
+          workstation_code: selectedWorkstation.value !== 'all' ? selectedWorkstation.value : undefined,
           gender: selectedGender.value !== 'all' ? selectedGender.value : undefined
         }
 
-        const response = await axios.get('/api/accidents-and-fatalities-by-environments-user', { params })
+        const response = await axios.get('/api/work-accidents-by-work-stations-user', { params })
         tableData.value = response.data.data
         analysisComment.value = response.data.analysis
         updateCharts()
@@ -357,64 +278,60 @@ export default {
       }
     }
 
-    // Çalışma ortamı türlerini yükle
-    const loadEnvironmentTypes = async () => {
+    // Çalışma istasyonlarını yükle
+    const loadWorkstations = async () => {
       try {
-        const response = await axios.get('/api/work-environments-user')
-        environmentTypes.value = response.data
+        const response = await axios.get('/api/workstation-types-user')
+        availableWorkstations.value = response.data.map(item => ({
+          code: item.workstation_code,
+          name: item.workstation_name
+        }))
       } catch (error) {
-        console.error('Çalışma ortamı türleri yüklenirken hata:', error)
+        console.error('Çalışma istasyonları yüklenirken hata:', error)
       }
     }
 
     // Grafik güncelleme fonksiyonları
     const updateCharts = () => {
-      if (selectedEnvironment.value === 'all') {
+      if (selectedWorkstation.value === 'all') {
         updateMainChart()
-        if (selectedGroup.value !== 'all' && selectedYear.value === 'all') {
-          updateYearlyTrendChart()
-        }
-      } else {
-        updateDetailCharts()
+      } else if (selectedYear.value === 'all') {
+        updateYearlyTrendChart()
       }
+      updateGenderChart()
     }
 
     const updateMainChart = () => {
-      const groupData = {}
+      const workstationData = {}
 
-      // Çalışma ortamı gruplarına göre verileri grupla
+      // Çalışma istasyonlarına göre verileri grupla
       tableData.value.forEach(item => {
-        const groupKey = item.group_code + '|' + item.group_name
-        if (!groupData[groupKey]) {
-          groupData[groupKey] = {
-            name: item.group_name,
+        if (!workstationData[item.workstation_code]) {
+          workstationData[item.workstation_code] = {
+            name: item.workstation_name,
             total: 0,
             unfit: 0,
-            fatalities: 0,
             male_count: 0,
             female_count: 0
           }
         }
 
         const total = calculateTotal(item)
-        groupData[groupKey].total += total
-        groupData[groupKey].unfit += calculateUnfit(item)
-        groupData[groupKey].fatalities += item.fatalities || 0
-        groupData[groupKey].male_count += item.male_count || 0
-        groupData[groupKey].female_count += item.female_count || 0
+        workstationData[item.workstation_code].total += total
+        workstationData[item.workstation_code].unfit += calculateUnfit(item)
+        workstationData[item.workstation_code].male_count += item.male_count || 0
+        workstationData[item.workstation_code].female_count += item.female_count || 0
       })
 
       // Grafik verilerini hazırla
       const categories = []
       const seriesData = []
 
-      Object.keys(groupData).forEach(key => {
-        categories.push(groupData[key].name)
+      Object.keys(workstationData).forEach(code => {
+        categories.push(workstationData[code].name)
         seriesData.push({
-          x: groupData[key].name,
-          y: selectedMetric.value === 'total' ? groupData[key].total :
-            selectedMetric.value === 'unfit' ? groupData[key].unfit :
-              groupData[key].fatalities
+          x: workstationData[code].name,
+          y: selectedMetric.value === 'total' ? workstationData[code].total : workstationData[code].unfit
         })
       })
 
@@ -438,10 +355,8 @@ export default {
       tableData.value.forEach(item => {
         if (selectedMetric.value === 'total') {
           yearlyData[item.year] += calculateTotal(item)
-        } else if (selectedMetric.value === 'unfit') {
-          yearlyData[item.year] += calculateUnfit(item)
         } else {
-          yearlyData[item.year] += item.fatalities || 0
+          yearlyData[item.year] += calculateUnfit(item)
         }
       })
 
@@ -451,32 +366,14 @@ export default {
       }]
     }
 
-    const updateDetailCharts = () => {
-      const yearlyData = {}
-      availableYears.value.forEach(year => {
-        yearlyData[year] = 0
-      })
-
+    const updateGenderChart = () => {
       let maleTotal = 0
       let femaleTotal = 0
 
       tableData.value.forEach(item => {
-        if (selectedMetric.value === 'total') {
-          yearlyData[item.year] += calculateTotal(item)
-        } else if (selectedMetric.value === 'unfit') {
-          yearlyData[item.year] += calculateUnfit(item)
-        } else {
-          yearlyData[item.year] += item.fatalities || 0
-        }
-
         maleTotal += item.male_count || 0
         femaleTotal += item.female_count || 0
       })
-
-      yearlySeries.value = [{
-        name: getMetricTitle(),
-        data: availableYears.value.map(year => yearlyData[year])
-      }]
 
       const total = maleTotal + femaleTotal
       maleSeries.value = [total > 0 ? Math.round((maleTotal / total) * 100) : 0]
@@ -490,8 +387,7 @@ export default {
         (item.two_days_unfit || 0) +
         (item.three_days_unfit || 0) +
         (item.four_days_unfit || 0) +
-        (item.five_or_more_days_unfit || 0) +
-        (item.fatalities || 0)
+        (item.five_or_more_days_unfit || 0)
     }
 
     const calculateUnfit = (item) => {
@@ -506,14 +402,13 @@ export default {
       switch (selectedMetric.value) {
         case 'total': return 'Toplam Vaka Sayısı'
         case 'unfit': return 'İş Göremezlik Vakaları'
-        case 'fatalities': return 'Ölüm Vakaları'
         default: return 'Vaka Sayısı'
       }
     }
 
     // Sayfa yüklendiğinde verileri çek
     onMounted(async () => {
-      await loadEnvironmentTypes()
+      await loadWorkstations()
       await fetchData()
     })
 
@@ -521,23 +416,16 @@ export default {
       loading,
       tableData,
       availableYears,
-      availableGroups,
-      filteredSubGroups,
-      filteredEnvironments,
+      availableWorkstations,
       selectedYear,
-      selectedGroup,
-      selectedSubGroup,
-      selectedEnvironment,
-      selectedEnvironmentCode,
-      selectedGroupName,
+      selectedWorkstation,
+      selectedWorkstationName,
       selectedGender,
       selectedMetric,
       mainChartOptions,
       mainSeries,
       yearlyTrendChartOptions,
       yearlyTrendSeries,
-      yearlyChartOptions,
-      yearlySeries,
       genderChartOptions,
       maleSeries,
       femaleSeries,
@@ -553,7 +441,7 @@ export default {
 </script>
 
 <style scoped>
-.environment-analysis-container {
+.workstation-analysis-container {
     max-width: 90%;
     margin: 0 auto;
     padding: 20px;
@@ -736,7 +624,7 @@ td {
     }
 }
 
-.environment-analysis-container {
+.workstation-analysis-container {
     max-width: 90%;
     margin: 0 auto;
     padding: 20px;

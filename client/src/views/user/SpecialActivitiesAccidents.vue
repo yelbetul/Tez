@@ -1,5 +1,6 @@
 <template>
   <div class="injury-analysis-container">
+    <HeaderApp />
     <div class="page-header">
       <h1>Kazadan Önceki Özel Faaliyetlere Göre İş Kazaları ve Ölümler Analizi</h1>
       <p class="subtitle">2019-2023 yılları arası kazadan önceki faaliyetlere göre iş kazası ve ölüm verileri</p>
@@ -24,14 +25,6 @@
         </select>
       </div>
 
-      <!-- Özel Faaliyet Seçimi -->
-      <div class="filter-group" v-if="selectedSubGroup !== 'all'">
-        <label for="activity">Özel Faaliyet:</label>
-        <select id="activity" v-model="selectedActivity" @change="fetchData">
-          <option value="all">Tüm Özel Faaliyetler</option>
-          <option v-for="activity in filteredActivities" :key="activity.code" :value="activity.code">{{ activity.code }} - {{ activity.name }}</option>
-        </select>
-      </div>
 
       <div class="filter-group">
         <label for="year">Yıl:</label>
@@ -61,20 +54,20 @@
     </div>
 
     <!-- Ana Grafik -->
-    <div class="chart-container" v-if="selectedActivity === 'all' && !loading">
+    <div class="chart-container" v-if="selectedGroup === 'all' && !loading">
       <h2>Faaliyet Gruplarına Göre Dağılım</h2>
       <apexchart type="bar" height="500" :options="mainChartOptions" :series="mainSeries"></apexchart>
     </div>
 
     <!-- Detay Grafik (Tek faaliyet türü seçildiğinde) -->
-    <div class="detail-charts" v-if="selectedActivity !== 'all' && !loading">
+    <div class="detail-charts" v-if="selectedGroup !== 'all' && !loading">
       <div class="chart-container">
-        <h2>{{ selectedActivityCode }} - Yıllara Göre Dağılım</h2>
+        <h2>Yıllara Göre Dağılım</h2>
         <apexchart type="line" height="350" :options="yearlyChartOptions" :series="yearlySeries"></apexchart>
       </div>
 
       <div class="chart-container">
-        <h2>{{ selectedActivityCode }} - Cinsiyet Dağılımı</h2>
+        <h2>Cinsiyet Dağılımı</h2>
         <div class="gender-charts">
           <div class="gender-chart">
             <h3>Erkek</h3>
@@ -145,6 +138,7 @@
       <div class="spinner"></div>
       <p>Analiz ve veriler yükleniyor. Lütfen Bekleyiniz...</p>
     </div>
+    <FooterApp />
   </div>
 </template>
 
@@ -152,10 +146,14 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
+import HeaderApp from '@/components/user/HeaderApp.vue'
+import FooterApp from '@/components/user/FooterApp.vue'
 
 export default {
   components: {
-    apexchart: VueApexCharts
+    apexchart: VueApexCharts,
+    HeaderApp,
+    FooterApp
   },
   setup() {
     const loading = ref(true)
@@ -228,20 +226,51 @@ export default {
       chart: {
         type: 'bar',
         height: 500,
-        toolbar: { show: true }
+        toolbar: {
+          show: true,
+          tools: {
+            download: true,
+            selection: true,
+            zoom: true,
+            zoomin: true,
+            zoomout: true,
+            pan: true,
+            reset: true
+          }
+        }
       },
       plotOptions: {
         bar: {
           horizontal: false,
           borderRadius: 4,
-          dataLabels: { position: 'top' }
+          columnWidth: '70%',
+          dataLabels: {
+            position: 'top',
+            orientation: 'vertical'
+          }
         }
       },
-      dataLabels: { enabled: true },
+      dataLabels: {
+        enabled: true,
+        formatter: function(val) {
+          return val.toLocaleString()
+        },
+        offsetY: -20,
+        style: {
+          fontSize: '12px',
+          colors: ["#304758"]
+        }
+      },
       xaxis: {
         type: 'category',
         title: { text: 'Faaliyet Grupları' },
-        categories: []
+        categories: [],
+        labels: {
+          rotate: -45,
+          style: {
+            fontSize: '12px'
+          }
+        }
       },
       yaxis: {
         title: { text: 'Vaka Sayısı' },
@@ -255,8 +284,17 @@ export default {
       tooltip: {
         y: {
           formatter: function (val) {
-            return val + ' vaka'
+            return val.toLocaleString() + ' vaka'
           }
+        }
+      },
+      noData: {
+        text: 'Veri yükleniyor...',
+        align: 'center',
+        verticalAlign: 'middle',
+        style: {
+          color: '#444',
+          fontSize: '14px'
         }
       }
     })
@@ -328,12 +366,17 @@ export default {
           gender: selectedGender.value !== 'all' ? selectedGender.value : undefined
         }
 
+        // Boş parametreleri temizle
+        Object.keys(params).forEach(key => params[key] === undefined && delete params[key])
+
         const response = await axios.get('/api/accidents-and-fatalities-by-special-activities-user', { params })
-        tableData.value = response.data.data
-        analysisComment.value = response.data.analysis
+        tableData.value = response.data.data || []
+        analysisComment.value = response.data.analysis || ''
         updateCharts()
       } catch (error) {
         console.error('Veri alınırken hata:', error)
+        tableData.value = []
+        analysisComment.value = 'Veri yüklenirken bir hata oluştu.'
       } finally {
         loading.value = false
       }
@@ -351,7 +394,7 @@ export default {
 
     // Grafik güncelleme fonksiyonları
     const updateCharts = () => {
-      if (selectedActivity.value === 'all') {
+      if (selectedGroup.value === 'all') {
         updateMainChart()
       } else {
         updateDetailCharts()
@@ -375,26 +418,28 @@ export default {
           }
         }
 
-        const total = calculateTotal(item)
-        groupData[groupKey].total += total
+        groupData[groupKey].total += calculateTotal(item)
         groupData[groupKey].unfit += calculateUnfit(item)
         groupData[groupKey].fatalities += item.fatalities || 0
         groupData[groupKey].male_count += item.male_count || 0
         groupData[groupKey].female_count += item.female_count || 0
       })
 
-      // Grafik verilerini hazırla
-      const categories = []
-      const seriesData = []
+      // Sıralı kategori ve veri dizileri oluştur
+      const sortedGroups = Object.values(groupData).sort((a, b) => {
+        if (selectedMetric.value === 'total') return b.total - a.total
+        if (selectedMetric.value === 'unfit') return b.unfit - a.unfit
+        return b.fatalities - a.fatalities
+      })
 
-      Object.keys(groupData).forEach(key => {
-        categories.push(groupData[key].name)
-        seriesData.push({
-          x: groupData[key].name,
-          y: selectedMetric.value === 'total' ? groupData[key].total :
-            selectedMetric.value === 'unfit' ? groupData[key].unfit :
-              groupData[key].fatalities
-        })
+      const categories = sortedGroups.map(group => group.name)
+      const seriesData = sortedGroups.map(group => {
+        return {
+          x: group.name,
+          y: selectedMetric.value === 'total' ? group.total :
+            selectedMetric.value === 'unfit' ? group.unfit :
+              group.fatalities
+        }
       })
 
       // Grafik verilerini güncelle
@@ -404,11 +449,23 @@ export default {
       }]
 
       // Eksen etiketlerini güncelle
-      mainChartOptions.value.xaxis.categories = categories
-      mainChartOptions.value.yaxis.title.text = getMetricTitle()
+      mainChartOptions.value = {
+        ...mainChartOptions.value,
+        xaxis: {
+          ...mainChartOptions.value.xaxis,
+          categories: categories
+        },
+        yaxis: {
+          ...mainChartOptions.value.yaxis,
+          title: {
+            text: getMetricTitle()
+          }
+        }
+      }
     }
 
     const updateDetailCharts = () => {
+      // Yıllık verileri hazırla
       const yearlyData = {}
       availableYears.value.forEach(year => {
         yearlyData[year] = 0
@@ -418,26 +475,36 @@ export default {
       let femaleTotal = 0
 
       tableData.value.forEach(item => {
-        if (selectedMetric.value === 'total') {
-          yearlyData[item.year] += calculateTotal(item)
-        } else if (selectedMetric.value === 'unfit') {
-          yearlyData[item.year] += calculateUnfit(item)
-        } else {
-          yearlyData[item.year] += item.fatalities || 0
-        }
+        const value = selectedMetric.value === 'total' ? calculateTotal(item) :
+          selectedMetric.value === 'unfit' ? calculateUnfit(item) :
+            item.fatalities || 0
 
+        yearlyData[item.year] += value
         maleTotal += item.male_count || 0
         femaleTotal += item.female_count || 0
       })
 
+      // Yıllık grafik verilerini güncelle
       yearlySeries.value = [{
         name: getMetricTitle(),
         data: availableYears.value.map(year => yearlyData[year])
       }]
 
+      // Cinsiyet dağılımını güncelle
       const total = maleTotal + femaleTotal
       maleSeries.value = [total > 0 ? Math.round((maleTotal / total) * 100) : 0]
       femaleSeries.value = [total > 0 ? Math.round((femaleTotal / total) * 100) : 0]
+
+      // Grafik seçeneklerini güncelle
+      yearlyChartOptions.value = {
+        ...yearlyChartOptions.value,
+        yaxis: {
+          ...yearlyChartOptions.value.yaxis,
+          title: {
+            text: getMetricTitle()
+          }
+        }
+      }
     }
 
     // Yardımcı fonksiyonlar

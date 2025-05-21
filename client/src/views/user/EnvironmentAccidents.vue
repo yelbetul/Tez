@@ -1,14 +1,15 @@
 <template>
-  <div class="material-analysis-container">
+  <div class="environment-analysis-container">
+    <HeaderApp />
     <div class="page-header">
-      <h1>Materyallere Göre İş Kazaları ve Ölümler Analizi</h1>
-      <p class="subtitle">2019-2023 yılları arası malzeme türüne göre iş kazası ve ölüm verileri</p>
+      <h1>Çalışılan Çevreye Göre İş Kazaları ve Ölümler Analizi</h1>
+      <p class="subtitle">2019-2023 yılları arası çalışılan çevreye göre iş kazası ve ölüm verileri</p>
     </div>
 
     <div class="filters">
-      <!-- Malzeme Grubu Seçimi -->
+      <!-- Grup Seçimi -->
       <div class="filter-group">
-        <label for="group">Materyal Grubu:</label>
+        <label for="group">Çalışılan Çevre Grubu:</label>
         <select id="group" v-model="selectedGroup" @change="fetchData">
           <option value="all">Tüm Gruplar</option>
           <option v-for="group in availableGroups" :key="group.code" :value="group.code">{{ group.name }}</option>
@@ -21,15 +22,6 @@
         <select id="subGroup" v-model="selectedSubGroup" @change="fetchData">
           <option value="all">Tüm Alt Gruplar</option>
           <option v-for="subGroup in filteredSubGroups" :key="subGroup.code" :value="subGroup.code">{{ subGroup.name }}</option>
-        </select>
-      </div>
-
-      <!-- Malzeme Kodu Seçimi -->
-      <div class="filter-group" v-if="selectedSubGroup !== 'all'">
-        <label for="material">Malzeme Kodu:</label>
-        <select id="material" v-model="selectedMaterial" @change="fetchData">
-          <option value="all">Tüm Malzemeler</option>
-          <option v-for="material in filteredMaterials" :key="material.code" :value="material.code">{{ material.code }}</option>
         </select>
       </div>
 
@@ -61,20 +53,26 @@
     </div>
 
     <!-- Ana Grafik -->
-    <div class="chart-container" v-if="selectedMaterial === 'all' && !loading">
-      <h2>Materyal Gruplarına Göre Dağılım</h2>
+    <div class="chart-container" v-if="selectedEnvironment === 'all' && !loading && selectedGroup === 'all'">
+      <h2>Çalışılan Çevreye Göre Dağılım</h2>
       <apexchart type="bar" height="500" :options="mainChartOptions" :series="mainSeries"></apexchart>
     </div>
 
-    <!-- Detay Grafik (Tek malzeme seçildiğinde) -->
-    <div class="detail-charts" v-if="selectedMaterial !== 'all' && !loading">
+    <!-- Yıllara Göre Grafik (Grup seçildiğinde ve tüm yıllar seçiliyse) -->
+    <div class="chart-container" v-if="selectedGroup !== 'all' && selectedYear === 'all' && !loading">
+      <h2>{{ selectedGroupName }} - Yıllara Göre Dağılım</h2>
+      <apexchart type="line" height="350" :options="yearlyTrendChartOptions" :series="yearlyTrendSeries"></apexchart>
+    </div>
+
+    <!-- Detay Grafik (Tek ortam seçildiğinde) -->
+    <div class="detail-charts" v-if="selectedEnvironment !== 'all' && !loading">
       <div class="chart-container">
-        <h2>{{ selectedMaterialCode }} - Yıllara Göre Dağılım</h2>
+        <h2>{{ selectedEnvironmentCode }} - Yıllara Göre Dağılım</h2>
         <apexchart type="line" height="350" :options="yearlyChartOptions" :series="yearlySeries"></apexchart>
       </div>
 
       <div class="chart-container">
-        <h2>{{ selectedMaterialCode }} - Cinsiyet Dağılımı</h2>
+        <h2>{{ selectedEnvironmentCode }} - Cinsiyet Dağılımı</h2>
         <div class="gender-charts">
           <div class="gender-chart">
             <h3>Erkek</h3>
@@ -104,9 +102,8 @@
       <table>
         <thead>
         <tr>
-          <th>Materyal Grubu</th>
+          <th>Çalışılan Çevre Grubu</th>
           <th>Alt Grup</th>
-          <th>Malzeme Kodu</th>
           <th>Yıl</th>
           <th>Kaza Günü Çalışır</th>
           <th>Kaza Günü İş Göremez</th>
@@ -121,10 +118,9 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="item in tableData" :key="`${item.group_code}-${item.sub_group_code}-${item.material_code}-${item.year}`">
+        <tr v-for="item in tableData" :key="`${item.group_code}-${item.sub_group_code}-${item.environment_code}-${item.year}`">
           <td>{{ item.group_name }}</td>
           <td>{{ item.sub_group_name }}</td>
-          <td>{{ item.material_code }}</td>
           <td>{{ item.year }}</td>
           <td>{{ item.works_on_accident_day || 0 }}</td>
           <td>{{ item.unfit_on_accident_day || 0 }}</td>
@@ -145,6 +141,7 @@
       <div class="spinner"></div>
       <p>Analiz ve veriler yükleniyor. Lütfen Bekleyiniz...</p>
     </div>
+    <FooterApp />
   </div>
 </template>
 
@@ -152,36 +149,41 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
+import HeaderApp from '@/components/user/HeaderApp.vue'
+import FooterApp from '@/components/user/FooterApp.vue'
 
 export default {
   components: {
-    apexchart: VueApexCharts
+    apexchart: VueApexCharts,
+    HeaderApp,
+    FooterApp
   },
   setup() {
     const loading = ref(true)
     const tableData = ref([])
     const analysisComment = ref([])
     const availableYears = ref(['2019', '2020', '2021', '2022', '2023'])
-    const materialTypes = ref([])
+    const environmentTypes = ref([])
 
     // Seçimler
     const selectedYear = ref('all')
     const selectedGroup = ref('all')
     const selectedSubGroup = ref('all')
-    const selectedMaterial = ref('all')
+    const selectedEnvironment = ref('all')
     const selectedGender = ref('all')
     const selectedMetric = ref('total')
 
     // Grafik verileri
     const mainSeries = ref([{ name: 'Vaka Sayısı', data: [] }])
+    const yearlyTrendSeries = ref([{ name: 'Vaka Sayısı', data: [] }])
     const yearlySeries = ref([{ name: 'Vaka Sayısı', data: [] }])
     const maleSeries = ref([0])
     const femaleSeries = ref([0])
 
-    // Malzeme türleri hiyerarşisi için computed özellikler
+    // Çalışma ortamı türleri hiyerarşisi için computed özellikler
     const availableGroups = computed(() => {
       const groups = new Map()
-      materialTypes.value.forEach(item => {
+      environmentTypes.value.forEach(item => {
         if (!groups.has(item.group_code)) {
           groups.set(item.group_code, {
             code: item.group_code,
@@ -195,7 +197,7 @@ export default {
     const filteredSubGroups = computed(() => {
       if (selectedGroup.value === 'all') return []
       const subGroups = new Map()
-      materialTypes.value
+      environmentTypes.value
         .filter(item => item.group_code === selectedGroup.value)
         .forEach(item => {
           if (!subGroups.has(item.sub_group_code)) {
@@ -208,19 +210,25 @@ export default {
       return Array.from(subGroups.values())
     })
 
-    const filteredMaterials = computed(() => {
+    const filteredEnvironments = computed(() => {
       if (selectedSubGroup.value === 'all') return []
-      return materialTypes.value
+      return environmentTypes.value
         .filter(item => item.sub_group_code === selectedSubGroup.value)
         .map(item => ({
-          code: item.material_code,
+          code: item.environment_code,
           name: item.sub_group_name
         }))
     })
 
-    const selectedMaterialCode = computed(() => {
-      if (selectedMaterial.value === 'all') return ''
-      return selectedMaterial.value
+    const selectedEnvironmentCode = computed(() => {
+      if (selectedEnvironment.value === 'all') return ''
+      return selectedEnvironment.value
+    })
+
+    const selectedGroupName = computed(() => {
+      if (selectedGroup.value === 'all') return ''
+      const group = availableGroups.value.find(g => g.code === selectedGroup.value)
+      return group ? group.name : ''
     })
 
     // Grafik ayarları
@@ -240,7 +248,7 @@ export default {
       dataLabels: { enabled: true },
       xaxis: {
         type: 'category',
-        title: { text: 'Malzeme Grupları' },
+        title: { text: 'Çalışma Ortamı Grupları' },
         categories: []
       },
       yaxis: {
@@ -251,6 +259,22 @@ export default {
           }
         }
       },
+      colors: ['#ef4444'],
+      tooltip: {
+        y: {
+          formatter: function (val) {
+            return val + ' vaka'
+          }
+        }
+      }
+    })
+
+    const yearlyTrendChartOptions = ref({
+      chart: { type: 'line', height: 350 },
+      stroke: { curve: 'smooth', width: 3 },
+      markers: { size: 5 },
+      xaxis: { categories: availableYears.value },
+      yaxis: { title: { text: 'Vaka Sayısı' } },
       colors: ['#ef4444'],
       tooltip: {
         y: {
@@ -324,11 +348,11 @@ export default {
           year: selectedYear.value !== 'all' ? selectedYear.value : undefined,
           group_code: selectedGroup.value !== 'all' ? selectedGroup.value : undefined,
           sub_group_code: selectedSubGroup.value !== 'all' ? selectedSubGroup.value : undefined,
-          material_code: selectedMaterial.value !== 'all' ? selectedMaterial.value : undefined,
+          environment_code: selectedEnvironment.value !== 'all' ? selectedEnvironment.value : undefined,
           gender: selectedGender.value !== 'all' ? selectedGender.value : undefined
         }
 
-        const response = await axios.get('/api/accidents-and-fatalities-by-materials-user', { params })
+        const response = await axios.get('/api/accidents-and-fatalities-by-environments-user', { params })
         tableData.value = response.data.data
         analysisComment.value = response.data.analysis
         updateCharts()
@@ -339,20 +363,23 @@ export default {
       }
     }
 
-    // Malzeme türlerini yükle
-    const loadMaterialTypes = async () => {
+    // Çalışma ortamı türlerini yükle
+    const loadEnvironmentTypes = async () => {
       try {
-        const response = await axios.get('/api/materials-user')
-        materialTypes.value = response.data
+        const response = await axios.get('/api/work-environments-user')
+        environmentTypes.value = response.data
       } catch (error) {
-        console.error('Malzeme türleri yüklenirken hata:', error)
+        console.error('Çalışma ortamı türleri yüklenirken hata:', error)
       }
     }
 
     // Grafik güncelleme fonksiyonları
     const updateCharts = () => {
-      if (selectedMaterial.value === 'all') {
+      if (selectedEnvironment.value === 'all') {
         updateMainChart()
+        if (selectedGroup.value !== 'all' && selectedYear.value === 'all') {
+          updateYearlyTrendChart()
+        }
       } else {
         updateDetailCharts()
       }
@@ -361,7 +388,7 @@ export default {
     const updateMainChart = () => {
       const groupData = {}
 
-      // Malzeme gruplarına göre verileri grupla
+      // Çalışma ortamı gruplarına göre verileri grupla
       tableData.value.forEach(item => {
         const groupKey = item.group_code + '|' + item.group_name
         if (!groupData[groupKey]) {
@@ -406,6 +433,28 @@ export default {
       // Eksen etiketlerini güncelle
       mainChartOptions.value.xaxis.categories = categories
       mainChartOptions.value.yaxis.title.text = getMetricTitle()
+    }
+
+    const updateYearlyTrendChart = () => {
+      const yearlyData = {}
+      availableYears.value.forEach(year => {
+        yearlyData[year] = 0
+      })
+
+      tableData.value.forEach(item => {
+        if (selectedMetric.value === 'total') {
+          yearlyData[item.year] += calculateTotal(item)
+        } else if (selectedMetric.value === 'unfit') {
+          yearlyData[item.year] += calculateUnfit(item)
+        } else {
+          yearlyData[item.year] += item.fatalities || 0
+        }
+      })
+
+      yearlyTrendSeries.value = [{
+        name: getMetricTitle(),
+        data: availableYears.value.map(year => yearlyData[year])
+      }]
     }
 
     const updateDetailCharts = () => {
@@ -470,7 +519,7 @@ export default {
 
     // Sayfa yüklendiğinde verileri çek
     onMounted(async () => {
-      await loadMaterialTypes()
+      await loadEnvironmentTypes()
       await fetchData()
     })
 
@@ -480,16 +529,19 @@ export default {
       availableYears,
       availableGroups,
       filteredSubGroups,
-      filteredMaterials,
+      filteredEnvironments,
       selectedYear,
       selectedGroup,
       selectedSubGroup,
-      selectedMaterial,
-      selectedMaterialCode,
+      selectedEnvironment,
+      selectedEnvironmentCode,
+      selectedGroupName,
       selectedGender,
       selectedMetric,
       mainChartOptions,
       mainSeries,
+      yearlyTrendChartOptions,
+      yearlyTrendSeries,
       yearlyChartOptions,
       yearlySeries,
       genderChartOptions,
@@ -507,7 +559,7 @@ export default {
 </script>
 
 <style scoped>
-.material-analysis-container {
+.environment-analysis-container {
     max-width: 90%;
     margin: 0 auto;
     padding: 20px;
@@ -690,7 +742,7 @@ td {
     }
 }
 
-.material-analysis-container {
+.environment-analysis-container {
     max-width: 90%;
     margin: 0 auto;
     padding: 20px;

@@ -1,23 +1,9 @@
 <template>
   <div class="dashboard-container">
     <!-- Üst Bilgi -->
-    <header class="dashboard-header">
-      <div class="header-gradient">
-        <div class="header-content">
-          <div class="logo-container">
-            <img src="../assets/logo.svg" alt="Kurum Logosu" class="header-logo">
-          </div>
-          <div class="header-text">
-            <h1>İş Kazaları ve Meslek Hastalıkları Analizi</h1>
-            <p class="subtitle">2019-2023 Yılları Arası Kapsamlı Veri Analizleri</p>
-            <p class="warn">Veriler SGK'nın yayınladığı 2019-2023 yılları arasındaki verilerdir.</p>
-          </div>
-          <div class="header-badge">
-            <span class="badge-update">Son Güncelleme: {{ lastUpdate }}</span>
-          </div>
-        </div>
-      </div>
-    </header>
+    <HeaderApp :lastUpdate="lastUpdate" />
+
+
     <!-- Genel İstatistikler -->
     <section class="stats-overview">
       <div class="stat-card total">
@@ -45,36 +31,24 @@
         <router-link v-for="category in categories" :key="category.id" :to="category.route" class="category-card"
           :class="`cat-${category.id % 5}`">
           <div class="category-icon">
-            <i :class="category.icon" ></i>
+            <i :class="category.icon"></i>
           </div>
           <h3>{{ category.title }}</h3>
           <p>{{ category.description }}</p>
         </router-link>
       </div>
     </section>
-
+    <AppProject />
     <!-- Son Güncelleme -->
-    <footer class="dashboard-footer">
-      <div class="footer-content">
-        <div class="footer-logo">
-          <img src="../assets/logo.svg" alt="Logo" class="logo-img">
-          <!-- <span class="logo-text">İş Kazaları ve Analizi</span> -->
-        </div>
-        <div class="footer-links">
-          <a href="#" class="footer-link">Gizlilik Politikası</a>
-          <a href="#" class="footer-link">Kullanım Koşulları</a>
-          <a href="#" class="footer-link">Yardım</a>
-          <a href="#" class="footer-link">İletişim</a>
-        </div>
-        <div class="footer-copyright">
-          <p>© 2025 Tüm hakları saklıdır.</p>
-        </div>
-      </div>
-    </footer>
+    <FooterApp />
   </div>
 </template>
 
 <script setup>
+import AppProject from '@/components/user/AppProject.vue'
+import FooterApp from '@/components/user/FooterApp.vue'
+import HeaderApp from '@/components/user/HeaderApp.vue'
+import axios from 'axios'
 import { ref, onMounted } from 'vue'
 
 // Veri değişkenleri
@@ -215,24 +189,80 @@ const categories = ref([
   {
     id: 19,
     title: '3.1.19 | Genel Faaliyete Göre İş Kazaları',
-    description: 'Genel faaliyete göre iş kazalarının yoğunluk analizi',
-    icon: 'fas fa-search-plus', // Büyüteç (neden analizi)
+    description: 'Genel faaliyet türlerine göre iş kazası analizi',
+    icon: 'fas fa-industry',
     route: '/analysis/3.1.19'
   },
   {
     id: 20,
     title: '3.1.20 | Özel Faaliyete Göre İş Kazaları',
-    description: 'Kaza öncesi özel faaliyete göre iş kazalarının yoğunluk analizi',
-    icon: 'fas fa-search-plus', // Büyüteç (neden analizi)
+    description: 'Spesifik faaliyetlere göre iş kazası analizi',
+    icon: 'fas fa-tasks',
     route: '/analysis/3.1.20'
   },
   {
     id: 21,
     title: '3.1.21 | Sapmalara Göre İş Kazaları',
-    description: 'Sapmalara göre iş kazalarının yoğunluk analizi',
-    icon: 'fas fa-search-plus', // Büyüteç (neden analizi)
+    description: 'Sapma türlerine göre iş kazalarının incelenmesi',
+    icon: 'fas fa-random',
     route: '/analysis/3.1.21'
   },
+  {
+    id: 22,
+    title: '3.1.22 | Materyallere Göre İş Kazaları',
+    description: 'Kullanılan materyallere göre kazaların dağılımı',
+    icon: 'fas fa-box-open',
+    route: '/analysis/3.1.22'
+  },
+  {
+    id: 23,
+    title: '3.1.23 | Çalışılan Çevreye Göre İş Kazaları',
+    description: 'Çalışma çevresine göre kaza analizi',
+    icon: 'fas fa-globe',
+    route: '/analysis/3.1.23'
+  },
+  {
+    id: 24,
+    title: '3.1.24 | Çalışma Ortamına Göre İş Kazaları',
+    description: 'Çalışma ortamı koşullarına göre kaza verileri',
+    icon: 'fas fa-warehouse',
+    route: '/analysis/3.1.24'
+  },
+  {
+    id: 25,
+    title: '3.1.25 | Çalışma Saatlerine Göre İş Kazaları',
+    description: 'Çalışma saatleriyle ilişkilendirilen kazalar',
+    icon: 'fas fa-clock',
+    route: '/analysis/3.1.25'
+  },
+  {
+    id: 26,
+    title: '3.1.26 | Çalışan Gruplarına Göre İş Kazaları',
+    description: 'Çalışan gruplarına göre iş kazası istatistikleri',
+    icon: 'fas fa-users-cog',
+    route: '/analysis/3.1.26'
+  },
+  {
+    id: 27,
+    title: '3.1.27 | Çalışan Gruplarına Göre Meslek Hastalıkları',
+    description: 'Çalışan gruplarına göre meslek hastalıkları analizi',
+    icon: 'fas fa-user-injured',
+    route: '/analysis/3.1.27'
+  },
+  {
+    id: 28,
+    title: '3.1.28 | Çalışma Süresine Göre İş Kazaları ve Meslek Hastalıkları',
+    description: 'Çalışma süresine göre kaza ve hastalık analizi',
+    icon: 'fas fa-business-time',
+    route: '/analysis/3.1.28'
+  },
+  {
+    id: 29,
+    title: '3.1.29 | Çalışma Süresine Göre İş Kazaları',
+    description: 'Çalışma süresine göre iş kazası verileri',
+    icon: 'fas fa-stopwatch',
+    route: '/analysis/3.1.29'
+  }
 ]);
 
 // Formatlama fonksiyonu
@@ -240,25 +270,16 @@ const formatNumber = (num) => {
   return new Intl.NumberFormat('tr-TR').format(num)
 }
 
-// API'den veri çekme simülasyonu
 const fetchData = async () => {
-  // Burada gerçek API çağrıları yapılacak
-  // Şimdilik mock veri kullanıyoruz
   try {
-    // Simüle edilmiş API yanıtı
-    const mockResponse = {
-      totalAccidents: 125432,
-      fatalAccidents: 3258,
-      occupationalDiseases: 8765,
-      averageIncapacityDays: 27.4
-    }
+    const res = await axios.get(`/api/summary`);
+    const mockResponse = res.data
 
-    totalAccidents.value = mockResponse.totalAccidents
-    fatalAccidents.value = mockResponse.fatalAccidents
-    occupationalDiseases.value = mockResponse.occupationalDiseases
-    averageIncapacityDays.value = mockResponse.averageIncapacityDays
+    totalAccidents.value = mockResponse.total_accidents
+    fatalAccidents.value = mockResponse.total_fatal_accidents
+    occupationalDiseases.value = mockResponse.total_diseases
+    averageIncapacityDays.value = mockResponse.avg_unfit_days
 
-    console.log('Veriler başarıyla yüklendi')
   } catch (error) {
     console.error('Veri yükleme hatası:', error)
   }
@@ -399,75 +420,7 @@ onMounted(() => {
   border-left: 4px solid #9b59b6;
 }
 
-.dashboard-header {
-  border-radius: 8px;
-  margin-bottom: 2rem;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
 
-.header-gradient {
-  background: linear-gradient(135deg, var(--main-color) 0%, #1a5f9c 100%);
-  padding: 1.5rem 2rem;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.header-text h1 {
-  margin: 0;
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: white;
-  line-height: 1.3;
-}
-
-.subtitle {
-  margin: 0.5rem 0 0;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1rem;
-  font-weight: 300;
-}
-
-.logo-container {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-}
-
-.header-logo {
-  height: 100px;
-  width: auto;
-  filter: brightness(0) invert(1);
-  /* Logoyu beyaz yapar */
-}
-
-.header-badge {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.badge-version {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-.badge-update {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.85rem;
-  font-style: italic;
-}
 
 /* Yenilenmiş Footer Stilleri */
 .dashboard-footer {

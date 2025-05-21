@@ -10,6 +10,16 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: '/terms-of-use',
+      name: 'terms_of_use',
+      component: () => import('../views/user/TermsOfUse.vue'),
+    },
+    {
+      path: '/privacy-policy',
+      name: 'privacy_policy',
+      component: () => import('../views/user/PrivacyPolicy.vue'),
+    },
+    {
       path: '/admin/login',
       name: 'admin_login',
       component: () => import('../views/panel/LoginView.vue'),
@@ -378,6 +388,46 @@ const router = createRouter({
       path: '/analysis/3.1.21',
       name: 'deviations_accidents',
       component: () => import('../views/user/DeviationAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.22',
+      name: 'materials_accidents',
+      component: () => import('../views/user/MaterialAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.23',
+      name: 'environments_accidents',
+      component: () => import('../views/user/EnvironmentAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.24',
+      name: 'work_stations_accidents',
+      component: () => import('../views/user/WorkStationAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.25',
+      name: 'work_hours_accidents',
+      component: () => import('../views/user/WorkHourAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.26',
+      name: 'employee_group_accidents',
+      component: () => import('../views/user/EmployeeGroupAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.27',
+      name: 'employee_group_occ_disease',
+      component: () => import('../views/user/EmployeeGroupOccDisease.vue'),
+    },
+    {
+      path: '/analysis/3.1.28',
+      name: 'work_duration_accidents',
+      component: () => import('../views/user/WorkDurationAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.29',
+      name: 'employee_duration_accidents',
+      component: () => import('../views/user/EmployeeDurationAccidents.vue'),
     },
   ],
 })

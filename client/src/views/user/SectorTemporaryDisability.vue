@@ -1,5 +1,6 @@
 <template>
     <div class="sector-analysis-container">
+        <HeaderApp />
         <div class="page-header">
             <h1>Sektörlere Göre Geçici İş Göremezlik Günleri Analizi</h1>
             <p class="subtitle">2019-2023 yılları arası sektörlere geçici iş göremezlik verileri</p>
@@ -101,6 +102,7 @@
             <div class="spinner"></div>
             <p>Veriler ve analiz yükleniyor..</p>
         </div>
+        <FooterApp />
     </div>
 </template>
 
@@ -108,10 +110,14 @@
 import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
+import HeaderApp from '@/components/user/HeaderApp.vue'
+import FooterApp from '@/components/user/FooterApp.vue'
 
 export default {
     components: {
-        apexchart: VueApexCharts
+        apexchart: VueApexCharts,
+        HeaderApp,
+        FooterApp
     },
     setup() {
         const loading = ref(true)

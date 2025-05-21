@@ -1,36 +1,20 @@
 <template>
-  <div class="occupation-analysis-container">
+  <div class="workstation-analysis-container">
     <HeaderApp />
     <div class="page-header">
-      <h1>Mesleklere Göre İş Kazaları ve Ölümler Analizi</h1>
-      <p class="subtitle">2019-2023 yılları arası mesleki iş kazası ve ölüm verileri</p>
+      <h1>Çalışan Gruplarına Göre Meslek Hastalıkları Analizi</h1>
+      <p class="subtitle">Çalışan gruplarına göre meslek hastalıkları ve ölüm verileri</p>
     </div>
 
     <div class="filters">
-      <!-- Meslek Grubu Seçimi -->
+      <!-- Çalışan Grubu Seçimi -->
       <div class="filter-group">
-        <label for="group">Meslek Grubu:</label>
-        <select id="group" v-model="selectedGroup" @change="fetchData">
+        <label for="employeeGroup">Çalışan Grubu:</label>
+        <select id="employeeGroup" v-model="selectedEmployeeGroup" @change="fetchData">
           <option value="all">Tüm Gruplar</option>
-          <option v-for="group in availableGroups" :key="group.code" :value="group.code">{{ group.name }}</option>
-        </select>
-      </div>
-
-      <!-- Alt Grup Seçimi -->
-      <div class="filter-group" v-if="selectedGroup !== 'all'">
-        <label for="subGroup">Alt Grup:</label>
-        <select id="subGroup" v-model="selectedSubGroup" @change="fetchData">
-          <option value="all">Tüm Alt Gruplar</option>
-          <option v-for="subGroup in filteredSubGroups" :key="subGroup.code" :value="subGroup.code">{{ subGroup.name }}</option>
-        </select>
-      </div>
-
-      <!-- Meslek Seçimi -->
-      <div class="filter-group" v-if="selectedSubGroup !== 'all'">
-        <label for="pure">Meslek:</label>
-        <select id="pure" v-model="selectedPure" @change="fetchData">
-          <option value="all">Tüm Meslekler</option>
-          <option v-for="pure in filteredPureOccupations" :key="pure.code" :value="pure.code">{{ pure.name }}</option>
+          <option v-for="group in availableEmployeeGroups" :key="group.code" :value="group.code">
+            {{ group.employee_count }}
+          </option>
         </select>
       </div>
 
@@ -54,48 +38,48 @@
       <div class="filter-group">
         <label for="metric">Gösterge:</label>
         <select id="metric" v-model="selectedMetric" @change="updateCharts">
-          <option value="total">Toplam Vaka</option>
-          <option value="unfit">İş Göremezlik</option>
-          <option value="fatalities">Ölüm</option>
+          <option value="cases">Meslek Hastalığı Vakaları</option>
+          <option value="fatalities">Ölümlü Vakalar</option>
         </select>
       </div>
     </div>
 
     <!-- Ana Grafik -->
-    <div class="chart-container" v-if="selectedPure === 'all' && !loading">
-      <h2>Meslek Gruplarına Göre Dağılım</h2>
+    <div class="chart-container" v-if="selectedEmployeeGroup === 'all' && !loading">
+      <h2>Çalışan Gruplarına Göre Dağılım</h2>
       <apexchart type="bar" height="500" :options="mainChartOptions" :series="mainSeries"></apexchart>
     </div>
 
-    <!-- Detay Grafik (Tek meslek seçildiğinde) -->
-    <div class="detail-charts" v-if="selectedPure !== 'all' && !loading">
-      <div class="chart-container">
-        <h2>{{ selectedPureName }} - Yıllara Göre Dağılım</h2>
-        <apexchart type="line" height="350" :options="yearlyChartOptions" :series="yearlySeries"></apexchart>
-      </div>
+    <!-- Yıllara Göre Grafik (Grup seçildiğinde ve tüm yıllar seçiliyse) -->
+    <div class="chart-container" v-if="selectedEmployeeGroup !== 'all' && selectedYear === 'all' && !loading">
+      <h2>{{ selectedEmployeeGroupName }} - Yıllara Göre Dağılım</h2>
+      <apexchart type="line" height="350" :options="yearlyTrendChartOptions" :series="yearlyTrendSeries"></apexchart>
+    </div>
 
-      <div class="chart-container">
-        <h2>{{ selectedPureName }} - Cinsiyet Dağılımı</h2>
-        <div class="gender-charts">
-          <div class="gender-chart">
-            <h3>Erkek</h3>
-            <apexchart type="radialBar" height="300" :options="genderChartOptions('Erkek')"
-                       :series="maleSeries"></apexchart>
-          </div>
-          <div class="gender-chart">
-            <h3>Kadın</h3>
-            <apexchart type="radialBar" height="300" :options="genderChartOptions('Kadın')"
-                       :series="femaleSeries"></apexchart>
-          </div>
+    <!-- Cinsiyet Dağılımı -->
+    <div class="chart-container" v-if="!loading">
+      <h2>Cinsiyet Dağılımı</h2>
+      <div class="gender-charts">
+        <div class="gender-chart">
+          <h3>Erkek ({{ summaryData.male_percentage }}%)</h3>
+          <apexchart type="radialBar" height="300" :options="genderChartOptions('Erkek')"
+            :series="[summaryData.male_percentage]">
+          </apexchart>
+        </div>
+        <div class="gender-chart">
+          <h3>Kadın ({{ summaryData.female_percentage }}%)</h3>
+          <apexchart type="radialBar" height="300" :options="genderChartOptions('Kadın')"
+            :series="[summaryData.female_percentage]">
+          </apexchart>
         </div>
       </div>
     </div>
 
-    <div class="analysis-container" v-if="analysisComment && !loading">
+    <div class="analysis-container" v-if="analysis && !loading">
       <h2>Analiz ve Yorum</h2>
       <p><em>Bu analiz ISO 45001 standartlarına uygun olarak yapay zeka tarafından oluşturulmuştur.</em></p>
       <div class="analysis-comment">
-        <div v-html="formatAnalysis(analysisComment)"></div>
+        <div v-html="formatAnalysis(analysis)"></div>
       </div>
     </div>
 
@@ -104,40 +88,24 @@
       <h2>Detaylı Veri Tablosu</h2>
       <table>
         <thead>
-        <tr>
-          <th>Meslek Grubu</th>
-          <th>Alt Grup</th>
-          <th>Meslek</th>
-          <th>Yıl</th>
-          <th>Kaza Günü Çalışır</th>
-          <th>Kaza Günü İş Göremez</th>
-          <th>2 Gün İş Göremez</th>
-          <th>3 Gün İş Göremez</th>
-          <th>4 Gün İş Göremez</th>
-          <th>5+ Gün İş Göremez</th>
-          <th>Toplam İş Göremezlik</th>
-          <th>Ölüm</th>
-          <th>Erkek</th>
-          <th>Kadın</th>
-        </tr>
+          <tr>
+            <th>Çalışan Grubu</th>
+            <th>Yıl</th>
+            <th>Meslek Hastalığı Vakaları</th>
+            <th>Ölümlü Vakalar</th>
+            <th>Erkek</th>
+            <th>Kadın</th>
+          </tr>
         </thead>
         <tbody>
-        <tr v-for="item in tableData" :key="`${item.group_code}-${item.sub_group_code}-${item.pure_code}-${item.year}`">
-          <td>{{ item.group_name }}</td>
-          <td>{{ item.sub_group_name }}</td>
-          <td>{{ item.pure_name }}</td>
-          <td>{{ item.year }}</td>
-          <td>{{ item.works_on_accident_day || 0 }}</td>
-          <td>{{ item.unfit_on_accident_day || 0 }}</td>
-          <td>{{ item.two_days_unfit || 0 }}</td>
-          <td>{{ item.three_days_unfit || 0 }}</td>
-          <td>{{ item.four_days_unfit || 0 }}</td>
-          <td>{{ item.five_or_more_days_unfit || 0 }}</td>
-          <td>{{ calculateUnfit(item) }}</td>
-          <td>{{ item.fatalities || 0 }}</td>
-          <td>{{ item.male_count || 0 }}</td>
-          <td>{{ item.female_count || 0 }}</td>
-        </tr>
+          <tr v-for="item in tableData" :key="`${item.code}-${item.year}`">
+            <td>{{ item.employee_count }}</td>
+            <td>{{ item.year }}</td>
+            <td>{{ item.occ_disease_cases || 0 }}</td>
+            <td>{{ item.occ_disease_fatalities || 0 }}</td>
+            <td>{{ item.male_count || 0 }}</td>
+            <td>{{ item.female_count || 0 }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -166,74 +134,32 @@ export default {
   setup() {
     const loading = ref(true)
     const tableData = ref([])
-    const analysisComment = ref([])
+    const summaryData = ref({
+      total_cases: 0,
+      total_fatalities: 0,
+      male_count: 0,
+      female_count: 0,
+      male_percentage: 0,
+      female_percentage: 0
+    })
+    const analysis = ref('')
     const availableYears = ref(['2019', '2020', '2021', '2022', '2023'])
-    const occupationGroups = ref([])
+    const availableEmployeeGroups = ref([])
 
     // Seçimler
     const selectedYear = ref('all')
-    const selectedGroup = ref('all')
-    const selectedSubGroup = ref('all')
-    const selectedPure = ref('all')
+    const selectedEmployeeGroup = ref('all')
     const selectedGender = ref('all')
-    const selectedMetric = ref('total')
+    const selectedMetric = ref('cases')
 
     // Grafik verileri
     const mainSeries = ref([{ name: 'Vaka Sayısı', data: [] }])
-    const yearlySeries = ref([{ name: 'Vaka Sayısı', data: [] }])
-    const maleSeries = ref([0])
-    const femaleSeries = ref([0])
+    const yearlyTrendSeries = ref([{ name: 'Vaka Sayısı', data: [] }])
 
-    // Meslek hiyerarşisi için computed özellikler
-    const availableGroups = computed(() => {
-      const groups = new Map()
-      occupationGroups.value.forEach(item => {
-        if (!groups.has(item.group_code)) {
-          groups.set(item.group_code, {
-            code: item.group_code,
-            name: item.group_name
-          })
-        }
-      })
-      return Array.from(groups.values())
-    })
-
-    const filteredSubGroups = computed(() => {
-      if (selectedGroup.value === 'all') return []
-      const subGroups = new Map()
-      occupationGroups.value
-        .filter(item => item.group_code === selectedGroup.value)
-        .forEach(item => {
-          if (!subGroups.has(item.sub_group_code)) {
-            subGroups.set(item.sub_group_code, {
-              code: item.sub_group_code,
-              name: item.sub_group_name
-            })
-          }
-        })
-      return Array.from(subGroups.values())
-    })
-
-    const filteredPureOccupations = computed(() => {
-      if (selectedSubGroup.value === 'all') return []
-      const pureOccupations = new Map()
-      occupationGroups.value
-        .filter(item => item.sub_group_code === selectedSubGroup.value)
-        .forEach(item => {
-          if (!pureOccupations.has(item.pure_code)) {
-            pureOccupations.set(item.pure_code, {
-              code: item.pure_code,
-              name: item.pure_name
-            })
-          }
-        })
-      return Array.from(pureOccupations.values())
-    })
-
-    const selectedPureName = computed(() => {
-      if (selectedPure.value === 'all') return ''
-      const found = occupationGroups.value.find(item => item.pure_code === selectedPure.value)
-      return found ? found.pure_name : ''
+    const selectedEmployeeGroupName = computed(() => {
+      if (selectedEmployeeGroup.value === 'all') return 'Tüm Gruplar'
+      const group = availableEmployeeGroups.value.find(g => g.code === selectedEmployeeGroup.value)
+      return group ? group.employee_count : ''
     })
 
     // Grafik ayarları
@@ -253,7 +179,7 @@ export default {
       dataLabels: { enabled: true },
       xaxis: {
         type: 'category',
-        title: { text: 'Meslek Grupları' },
+        title: { text: 'Çalışan Grupları' },
         categories: []
       },
       yaxis: {
@@ -264,7 +190,7 @@ export default {
           }
         }
       },
-      colors: ['#ef4444'], // Kırmızı renk ölüm verileri için
+      colors: ['#3b82f6'],
       tooltip: {
         y: {
           formatter: function (val) {
@@ -274,13 +200,13 @@ export default {
       }
     })
 
-    const yearlyChartOptions = ref({
+    const yearlyTrendChartOptions = ref({
       chart: { type: 'line', height: 350 },
       stroke: { curve: 'smooth', width: 3 },
       markers: { size: 5 },
       xaxis: { categories: availableYears.value },
       yaxis: { title: { text: 'Vaka Sayısı' } },
-      colors: ['#ef4444'],
+      colors: ['#3b82f6'],
       tooltip: {
         y: {
           formatter: function (val) {
@@ -329,21 +255,25 @@ export default {
       return text;
     };
 
+    const getEmployeeGroupName = (code) => {
+      const group = availableEmployeeGroups.value.find(g => g.code === code)
+      return group ? group.employee_count : code
+    }
+
     // Veri çekme fonksiyonları
     const fetchData = async () => {
       loading.value = true
       try {
         const params = {
           year: selectedYear.value !== 'all' ? selectedYear.value : undefined,
-          group_code: selectedGroup.value !== 'all' ? selectedGroup.value : undefined,
-          sub_group_code: selectedSubGroup.value !== 'all' ? selectedSubGroup.value : undefined,
-          pure_code: selectedPure.value !== 'all' ? selectedPure.value : undefined,
+          employee_count: selectedEmployeeGroup.value !== 'all' ? selectedEmployeeGroup.value : undefined,
           gender: selectedGender.value !== 'all' ? selectedGender.value : undefined
         }
 
-        const response = await axios.get('/api/accidents-and-fatalities-by-occupation-user', { params })
+        const response = await axios.get('/api/occ-disease-fatalities-by-employee-user', { params })
         tableData.value = response.data.data
-        analysisComment.value = response.data.analysis
+        summaryData.value = response.data.summary
+        analysis.value = response.data.analysis
         updateCharts()
       } catch (error) {
         console.error('Veri alınırken hata:', error)
@@ -352,62 +282,55 @@ export default {
       }
     }
 
-    // Meslek gruplarını yükle
-    const loadOccupationGroups = async () => {
-      try {
-        const response = await axios.get('/api/occupations-user')
-        occupationGroups.value = response.data
-      } catch (error) {
-        console.error('Meslek grupları yüklenirken hata:', error)
-      }
-    }
-
     // Grafik güncelleme fonksiyonları
     const updateCharts = () => {
-      if (selectedPure.value === 'all') {
+      if (selectedEmployeeGroup.value === 'all') {
         updateMainChart()
-      } else {
-        updateDetailCharts()
+      } else if (selectedYear.value === 'all') {
+        updateYearlyTrendChart()
       }
     }
 
     const updateMainChart = () => {
       const groupData = {}
 
-      // Meslek gruplarına göre verileri grupla
+      // Çalışan gruplarına göre verileri grupla
       tableData.value.forEach(item => {
-        const groupKey = item.group_code + '|' + item.group_name
-        if (!groupData[groupKey]) {
-          groupData[groupKey] = {
-            name: item.group_name,
-            total: 0,
-            unfit: 0,
+        if (!groupData[item.code]) {
+          groupData[item.code] = {
+            name: item.employee_count,
+            cases: 0,
             fatalities: 0,
             male_count: 0,
             female_count: 0
           }
         }
 
-        const total = calculateTotal(item)
-        groupData[groupKey].total += total
-        groupData[groupKey].unfit += calculateUnfit(item)
-        groupData[groupKey].fatalities += item.fatalities || 0
-        groupData[groupKey].male_count += item.male_count || 0
-        groupData[groupKey].female_count += item.female_count || 0
+        groupData[item.code].cases += item.occ_disease_cases || 0
+        groupData[item.code].fatalities += item.occ_disease_fatalities || 0
+        groupData[item.code].male_count += item.male_count || 0
+        groupData[item.code].female_count += item.female_count || 0
       })
 
       // Grafik verilerini hazırla
       const categories = []
       const seriesData = []
 
-      Object.keys(groupData).forEach(key => {
-        categories.push(groupData[key].name)
-        seriesData.push({
-          x: groupData[key].name,
-          y: selectedMetric.value === 'total' ? groupData[key].total :
-            selectedMetric.value === 'unfit' ? groupData[key].unfit :
-              groupData[key].fatalities
-        })
+      availableEmployeeGroups.value.forEach(group => {
+        if (groupData[group.code]) {
+          categories.push(group.employee_count)
+          let value = 0
+
+          switch (selectedMetric.value) {
+            case 'cases': value = groupData[group.code].cases; break
+            case 'fatalities': value = groupData[group.code].fatalities; break
+          }
+
+          seriesData.push({
+            x: group.employee_count,
+            y: value
+          })
+        }
       })
 
       // Grafik verilerini güncelle
@@ -421,106 +344,76 @@ export default {
       mainChartOptions.value.yaxis.title.text = getMetricTitle()
     }
 
-    const updateDetailCharts = () => {
+    const updateYearlyTrendChart = () => {
       const yearlyData = {}
       availableYears.value.forEach(year => {
         yearlyData[year] = 0
       })
 
-      let maleTotal = 0
-      let femaleTotal = 0
-
       tableData.value.forEach(item => {
-        if (selectedMetric.value === 'total') {
-          yearlyData[item.year] += calculateTotal(item)
-        } else if (selectedMetric.value === 'unfit') {
-          yearlyData[item.year] += calculateUnfit(item)
-        } else {
-          yearlyData[item.year] += item.fatalities || 0
+        let value = 0
+        switch (selectedMetric.value) {
+          case 'cases': value = item.occ_disease_cases || 0; break
+          case 'fatalities': value = item.occ_disease_fatalities || 0; break
         }
-
-        maleTotal += item.male_count || 0
-        femaleTotal += item.female_count || 0
+        yearlyData[item.year] += value
       })
 
-      yearlySeries.value = [{
+      yearlyTrendSeries.value = [{
         name: getMetricTitle(),
         data: availableYears.value.map(year => yearlyData[year])
       }]
-
-      const total = maleTotal + femaleTotal
-      maleSeries.value = [total > 0 ? Math.round((maleTotal / total) * 100) : 0]
-      femaleSeries.value = [total > 0 ? Math.round((femaleTotal / total) * 100) : 0]
     }
 
     // Yardımcı fonksiyonlar
-    const calculateTotal = (item) => {
-      return (item.works_on_accident_day || 0) +
-        (item.unfit_on_accident_day || 0) +
-        (item.two_days_unfit || 0) +
-        (item.three_days_unfit || 0) +
-        (item.four_days_unfit || 0) +
-        (item.five_or_more_days_unfit || 0) +
-        (item.fatalities || 0)
-    }
-
-    const calculateUnfit = (item) => {
-      return (item.unfit_on_accident_day || 0) +
-        (item.two_days_unfit || 0) +
-        (item.three_days_unfit || 0) +
-        (item.four_days_unfit || 0) +
-        (item.five_or_more_days_unfit || 0)
-    }
-
     const getMetricTitle = () => {
       switch (selectedMetric.value) {
-        case 'total': return 'Toplam Vaka Sayısı'
-        case 'unfit': return 'İş Göremezlik Vakaları'
-        case 'fatalities': return 'Ölüm Vakaları'
+        case 'cases': return 'Meslek Hastalığı Vakaları'
+        case 'fatalities': return 'Ölümlü Vakalar'
         default: return 'Vaka Sayısı'
       }
     }
 
     // Sayfa yüklendiğinde verileri çek
     onMounted(async () => {
-      await loadOccupationGroups()
+      try {
+        const groupRes = await axios.get('/api/employee-groups-user')
+        availableEmployeeGroups.value = groupRes.data
+      } catch (err) {
+        console.error('Çalışan grupları alınırken hata:', err)
+      }
       await fetchData()
     })
 
     return {
       loading,
       tableData,
+      summaryData,
       availableYears,
-      availableGroups,
-      filteredSubGroups,
-      filteredPureOccupations,
+      availableEmployeeGroups,
       selectedYear,
-      selectedGroup,
-      selectedSubGroup,
-      selectedPure,
-      selectedPureName,
+      selectedEmployeeGroup,
+      selectedEmployeeGroupName,
       selectedGender,
       selectedMetric,
       mainChartOptions,
       mainSeries,
-      yearlyChartOptions,
-      yearlySeries,
+      yearlyTrendChartOptions,
+      yearlyTrendSeries,
       genderChartOptions,
-      maleSeries,
-      femaleSeries,
-      analysisComment,
+      analysis,
       fetchData,
-      calculateTotal,
-      calculateUnfit,
       updateCharts,
-      formatAnalysis
+      formatAnalysis,
+      getEmployeeGroupName
     }
   }
 }
 </script>
 
+
 <style scoped>
-.occupation-analysis-container {
+.workstation-analysis-container {
     max-width: 90%;
     margin: 0 auto;
     padding: 20px;
@@ -655,25 +548,6 @@ tr:hover {
     text-align: center;
 }
 
-.table-actions {
-    margin-bottom: 15px;
-    text-align: right;
-}
-
-.export-btn {
-    background-color: #1d6f42;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
-
-.export-btn:hover {
-    background-color: #165834;
-}
 
 .export-btn i {
     margin-right: 5px;
@@ -722,7 +596,7 @@ td {
     }
 }
 
-.occupation-analysis-container {
+.workstation-analysis-container {
     max-width: 90%;
     margin: 0 auto;
     padding: 20px;
@@ -878,5 +752,4 @@ tr:hover {
     .subtitle {
         font-size: 1rem;
     }
-}
-</style>
+}</style>
