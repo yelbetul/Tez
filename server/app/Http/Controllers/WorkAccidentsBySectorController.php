@@ -113,13 +113,13 @@ class WorkAccidentsBySectorController extends Controller
         // 2. Veri özetini oluşturun
         $summary = [
             'total_accidents' => $data->sum(function($item) {
-                return $item->works_on_accident_day + $item->unfit_on_accident_day 
-                    + $item->two_days_unfit + $item->three_days_unfit 
+                return $item->works_on_accident_day + $item->unfit_on_accident_day
+                    + $item->two_days_unfit + $item->three_days_unfit
                     + $item->four_days_unfit + $item->five_or_more_days_unfit;
             }),
             'total_unfit' => $data->sum(function($item) {
-                return $item->unfit_on_accident_day + $item->two_days_unfit 
-                    + $item->three_days_unfit + $item->four_days_unfit 
+                return $item->unfit_on_accident_day + $item->two_days_unfit
+                    + $item->three_days_unfit + $item->four_days_unfit
                     + $item->five_or_more_days_unfit;
             }),
             'total_diseases' => $data->sum('occupational_disease_cases'),
@@ -289,7 +289,7 @@ class WorkAccidentsBySectorController extends Controller
             return response()->json(['success' => false, 'message' => 'Kayıt silinirken hata oluştu.']);
         }
     }
-  
+
     public function import(Request $request)
     {
         $request->validate([
