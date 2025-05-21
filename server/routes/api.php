@@ -160,6 +160,7 @@ Route::delete('/injury-types/delete/{id}', [InjuryTypeController::class, 'destro
 // Materials
 
 Route::get('/materials', [MaterialController::class, 'index']);
+Route::get('/materials-user', [MaterialController::class, 'indexUser']);
 Route::post('/materials/store', [MaterialController::class, 'store']);
 Route::put('/materials/update/{id}', [MaterialController::class, 'update']);
 Route::delete('/materials/delete/{id}', [MaterialController::class, 'destroy']);
@@ -394,6 +395,7 @@ Route::delete('/accidents-and-fatalities-by-deviations/delete/{id}', [AccidentsA
 // Accidents And Fatalities By Materials
 
 Route::get('/accidents-and-fatalities-by-materials', [AccidentsAndFatalitiesByMaterialController::class, 'index']);
+Route::get('/accidents-and-fatalities-by-materials-user', [AccidentsAndFatalitiesByMaterialController::class, 'indexUser']);
 Route::post('/accidents-and-fatalities-by-materials/store', [AccidentsAndFatalitiesByMaterialController::class, 'store']);
 Route::post('/accidents-and-fatalities-by-materials/import', [AccidentsAndFatalitiesByMaterialController::class, 'import']);
 Route::put('/accidents-and-fatalities-by-materials/update/{id}', [AccidentsAndFatalitiesByMaterialController::class, 'update']);

@@ -47,7 +47,8 @@
             "app/Helpers/AnalysisHelperAccidentsByInjuryCauses.php",
             "app/Helpers/AnalysisHelperAccidentsByGeneralActivities.php",
             "app/Helpers/AnalysisHelperAccidentsBySpecialActivities.php",
-            "app/Helpers/AnalysisHelperAccidentsByDeviations.php"
+            "app/Helpers/AnalysisHelperAccidentsByDeviations.php",
+            "app/Helpers/AnalysisHelperAccidentsByMaterials.php"
     	]
     },
     "autoload-dev": {

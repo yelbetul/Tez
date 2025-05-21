@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Imports\AccidentsAndFatalitiesByMaterialImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
-
+use App\Helpers\AnalysisHelperAccidentsByMaterials;
+use OpenAI\Laravel\Facades\OpenAI;
+use Illuminate\Support\Facades\DB;
 
 class AccidentsAndFatalitiesByMaterialController extends Controller
 {
@@ -63,6 +65,91 @@ class AccidentsAndFatalitiesByMaterialController extends Controller
     {
         $data = AccidentsAndFatalitiesByMaterial::with('material')->get();
         return response()->json($data);
+    }
+
+    public function indexUser(Request $request)
+    {
+        $query = DB::table('accidents_and_fatalities_by_materials')
+            ->join('materials', 'accidents_and_fatalities_by_materials.group_id', '=', 'materials.id')
+            ->select(
+                'accidents_and_fatalities_by_materials.year',
+                'materials.group_code',
+                'materials.group_name',
+                'materials.sub_group_code',
+                'materials.sub_group_name',
+                'materials.material_code',
+                DB::raw('CAST(SUM(works_on_accident_day) AS UNSIGNED) as works_on_accident_day'),
+                DB::raw('CAST(SUM(unfit_on_accident_day) AS UNSIGNED) as unfit_on_accident_day'),
+                DB::raw('CAST(SUM(two_days_unfit) AS UNSIGNED) as two_days_unfit'),
+                DB::raw('CAST(SUM(three_days_unfit) AS UNSIGNED) as three_days_unfit'),
+                DB::raw('CAST(SUM(four_days_unfit) AS UNSIGNED) as four_days_unfit'),
+                DB::raw('CAST(SUM(five_or_more_days_unfit) AS UNSIGNED) as five_or_more_days_unfit'),
+                DB::raw('CAST(SUM(fatalities) AS UNSIGNED) as fatalities'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 0 THEN (works_on_accident_day + unfit_on_accident_day + two_days_unfit + three_days_unfit + four_days_unfit + five_or_more_days_unfit + fatalities) ELSE 0 END) AS UNSIGNED) as male_count'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 1 THEN (works_on_accident_day + unfit_on_accident_day + two_days_unfit + three_days_unfit + four_days_unfit + five_or_more_days_unfit + fatalities) ELSE 0 END) AS UNSIGNED) as female_count')
+            )
+            ->groupBy(
+                'accidents_and_fatalities_by_materials.year',
+                'materials.group_code',
+                'materials.group_name',
+                'materials.sub_group_code',
+                'materials.sub_group_name',
+                'materials.material_code'
+            );
+
+        // Filtreleme
+        if ($request->has('year') && $request->year !== 'all') {
+            $query->where('accidents_and_fatalities_by_materials.year', $request->year);
+        }
+
+        if ($request->has('group_code') && $request->group_code !== 'all') {
+            $query->where('materials.group_code', $request->group_code);
+        }
+
+        if ($request->has('sub_group_code') && $request->sub_group_code !== 'all') {
+            $query->where('materials.sub_group_code', $request->sub_group_code);
+        }
+
+        if ($request->has('material_code') && $request->material_code !== 'all') {
+            $query->where('materials.material_code', $request->material_code);
+        }
+
+        if ($request->has('gender') && $request->gender !== 'all') {
+            $query->where('accidents_and_fatalities_by_materials.gender', $request->gender);
+        }
+
+        $data = $query->get();
+
+        // Özet veriler
+        $summary = [
+            'total_cases' => $data->sum(function($item) {
+                return $item->works_on_accident_day + $item->unfit_on_accident_day
+                    + $item->two_days_unfit + $item->three_days_unfit
+                    + $item->four_days_unfit + $item->five_or_more_days_unfit;
+            }),
+            'total_unfit' => $data->sum(function($item) {
+                return $item->unfit_on_accident_day + $item->two_days_unfit
+                    + $item->three_days_unfit + $item->four_days_unfit
+                    + $item->five_or_more_days_unfit;
+            }),
+            'total_fatalities' => $data->sum('fatalities'),
+            'male_count' => $data->sum('male_count'),
+            'female_count' => $data->sum('female_count')
+        ];
+
+        $totalGender = $summary['male_count'] + $summary['female_count'];
+        $summary['male_percentage'] = $totalGender > 0 ? round(($summary['male_count'] / $totalGender) * 100, 2) : 0;
+        $summary['female_percentage'] = $totalGender > 0 ? round(($summary['female_count'] / $totalGender) * 100, 2) : 0;
+
+        // AI analiz promptu oluştur
+        $prompt = AnalysisHelperAccidentsByMaterials::buildAIPrompt($request, $summary);
+        $analysis = AnalysisHelperAccidentsByMaterials::getAICommentary($prompt);
+
+        return response()->json([
+            'data' => $data,
+            'summary' => $summary,
+            'analysis' => $analysis
+        ]);
     }
 
     /**
