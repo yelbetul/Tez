@@ -119,7 +119,7 @@ Route::delete('/deviations/delete/{id}', [DeviationController::class, 'destroy']
 // General Activities
 
 Route::get('/general-activities', [GeneralActivityController::class, 'index']);
-Route::get('/general-activities-user', [GeneralActivityController::class, 'index']);
+Route::get('/general-activities-user', [GeneralActivityController::class, 'indexUser']);
 Route::post('/general-activities/store', [GeneralActivityController::class, 'store']);
 Route::put('/general-activities/update/{id}', [GeneralActivityController::class, 'update']);
 Route::delete('/general-activities/delete/{id}', [GeneralActivityController::class, 'destroy']);
