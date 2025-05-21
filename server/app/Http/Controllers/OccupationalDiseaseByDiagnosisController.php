@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Imports\OccupationalDiseaseByDiagnosisImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
-
+use App\Helpers\AnalysisHelperOccupationalDisease;
+use OpenAI\Laravel\Facades\OpenAI;
+use Illuminate\Support\Facades\DB;
 
 class OccupationalDiseaseByDiagnosisController extends Controller
 {
@@ -60,6 +62,70 @@ class OccupationalDiseaseByDiagnosisController extends Controller
         ]);
     }
 
+
+    public function indexUser(Request $request)
+    {
+        // 1. Data query with proper type casting
+        $query = DB::table('occupational_disease_by_diagnoses')
+            ->join('diagnosis_groups', 'occupational_disease_by_diagnoses.diagnosis_code', '=', 'diagnosis_groups.id')
+            ->select(
+                'occupational_disease_by_diagnoses.year',
+                'diagnosis_groups.group_code',
+                'diagnosis_groups.group_name',
+                'diagnosis_groups.sub_group_code',
+                'diagnosis_groups.sub_group_name',
+                DB::raw('CAST(SUM(occupational_disease_cases) AS UNSIGNED) as occupational_disease_cases'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 0 THEN occupational_disease_cases ELSE 0 END) AS UNSIGNED) as male_count'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 1 THEN occupational_disease_cases ELSE 0 END) AS UNSIGNED) as female_count')
+            )
+            ->groupBy(
+                'occupational_disease_by_diagnoses.year',
+                'diagnosis_groups.group_code',
+                'diagnosis_groups.group_name',
+                'diagnosis_groups.sub_group_code',
+                'diagnosis_groups.sub_group_name'
+            );
+
+        // Filter parameters
+        if ($request->has('year') && $request->year !== 'all') {
+            $query->where('occupational_disease_by_diagnoses.year', $request->year);
+        }
+
+        if ($request->has('group_code') && $request->group_code !== 'all') {
+            $query->where('diagnosis_groups.group_code', $request->group_code);
+        }
+
+        if ($request->has('sub_group_code') && $request->sub_group_code !== 'all') {
+            $query->where('diagnosis_groups.sub_group_code', $request->sub_group_code);
+        }
+
+        if ($request->has('gender') && $request->gender !== 'all') {
+            $query->where('occupational_disease_by_diagnoses.gender', $request->gender);
+        }
+
+        $data = $query->get();
+
+        // 2. Create data summary
+        $summary = [
+            'total_disease_cases' => $data->sum('occupational_disease_cases'),
+            'male_count' => $data->sum('male_count'),
+            'female_count' => $data->sum('female_count')
+        ];
+
+        $totalGender = $summary['male_count'] + $summary['female_count'];
+        $summary['male_percentage'] = $totalGender > 0 ? round(($summary['male_count'] / $totalGender) * 100, 2) : 0;
+        $summary['female_percentage'] = $totalGender > 0 ? round(($summary['female_count'] / $totalGender) * 100, 2) : 0;
+
+        // 3. Generate AI analysis (you'll need to update your AnalysisHelper for this data)
+        $prompt = AnalysisHelperOccupationalDisease::buildAIPrompt($request, $summary);
+        $analysis = AnalysisHelperOccupationalDisease::getAICommentary($prompt);
+
+        return response()->json([
+            'data' => $data,
+            'summary' => $summary,
+            'analysis' => $analysis
+        ]);
+    }
     /**
      * indexByYear: Belirtilen yıla göre kayıtları filtrele.
      */

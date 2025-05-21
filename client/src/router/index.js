@@ -115,8 +115,6 @@ const router = createRouter({
       component: () => import('../views/panel/groups/EmployeeTimesView.vue'),
     },
 
-
-
     {
       path: '/admin/tables',
       name: 'admin_tables',
@@ -155,7 +153,8 @@ const router = createRouter({
     {
       path: '/admin/tables/provinces/disability-days',
       name: 'admin_tables_provinces_disability_days',
-      component: () => import('../views/panel/tables/DisabilityDaysOccupationalDiseasesByProvinceView.vue'),
+      component: () =>
+        import('../views/panel/tables/DisabilityDaysOccupationalDiseasesByProvinceView.vue'),
     },
     {
       path: '/admin/tables/ages/work-accidents',
@@ -260,7 +259,8 @@ const router = createRouter({
     {
       path: '/admin/tables/employer-durations/disease-fatalities',
       name: 'admin_tables_employer_durations_disease_fatalities',
-      component: () => import('../views/panel/tables/OccDiseaseFatalitiesByEmployerDurationsView.vue'),
+      component: () =>
+        import('../views/panel/tables/OccDiseaseFatalitiesByEmployerDurationsView.vue'),
     },
     {
       path: '/admin/tables/employer-durations/work-accidents',
@@ -273,8 +273,6 @@ const router = createRouter({
       name: 'admin_developers',
       component: () => import('../views/panel/DevelopersView.vue'),
     },
-
-
 
     {
       path: '/analysis/3.1.1',
@@ -315,6 +313,71 @@ const router = createRouter({
       path: '/analysis/3.1.8',
       name: 'age_accidents',
       component: () => import('../views/user/AgeAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.9',
+      name: 'age_fatal_accidents',
+      component: () => import('../views/user/AgeFatalAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.10',
+      name: 'occupational_disease',
+      component: () => import('../views/user/OccupationalDisease.vue'),
+    },
+    {
+      path: '/analysis/3.1.11',
+      name: 'month_accidents',
+      component: () => import('../views/user/MonthAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.12',
+      name: 'month_temporary_disability',
+      component: () => import('../views/user/MonthTemporaryDisability.vue'),
+    },
+    {
+      path: '/analysis/3.1.13',
+      name: 'month_fatal_accidents',
+      component: () => import('../views/user/MonthFatalAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.14',
+      name: 'occupation_accidents',
+      component: () => import('../views/user/OccupationAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.15',
+      name: 'occupation_disease_fatalities',
+      component: () => import('../views/user/OccupationDiseaseFatalities.vue'),
+    },
+    {
+      path: '/analysis/3.1.16',
+      name: 'injury_accidents',
+      component: () => import('../views/user/InjuryAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.17',
+      name: 'injury_locations_accidents',
+      component: () => import('../views/user/InjuryLocationAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.18',
+      name: 'injury_causes_accidents',
+      component: () => import('../views/user/InjuryCausesAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.19',
+      name: 'general_activities_accidents',
+      component: () => import('../views/user/GeneralActivitiesAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.20',
+      name: 'special_activities_accidents',
+      component: () => import('../views/user/SpecialActivitiesAccidents.vue'),
+    },
+    {
+      path: '/analysis/3.1.21',
+      name: 'deviations_accidents',
+      component: () => import('../views/user/DeviationAccidents.vue'),
     },
   ],
 })

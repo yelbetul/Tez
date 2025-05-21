@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Imports\FatalWorkAccidentsByAgeImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Validators\ValidationException;
-
+use App\Helpers\AnalysisHelperFatalWorkAccidentsByAge;
+use OpenAI\Laravel\Facades\OpenAI;
+use Illuminate\Support\Facades\DB;
 class FatalWorkAccidentsByAgeController extends Controller
 {
     /**
@@ -57,6 +59,65 @@ class FatalWorkAccidentsByAgeController extends Controller
         return response()->json([
             'success' => true,
             'data'    => $records
+        ]);
+    }
+
+    public function indexUser(Request $request)
+    {
+        // 1. Data query with proper type casting
+        $query = DB::table('fatal_work_accidents_by_ages')
+            ->join('age_codes', 'fatal_work_accidents_by_ages.age_id', '=', 'age_codes.id')
+            ->select(
+                'fatal_work_accidents_by_ages.year',
+                'age_codes.age',
+                DB::raw('CAST(SUM(work_accident_fatalities) AS UNSIGNED) as work_accident_fatalities'),
+                DB::raw('CAST(SUM(occupational_disease_fatalities) AS UNSIGNED) as occupational_disease_fatalities'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 0 THEN (work_accident_fatalities + occupational_disease_fatalities) ELSE 0 END) AS UNSIGNED) as male_count'),
+                DB::raw('CAST(SUM(CASE WHEN gender = 1 THEN (work_accident_fatalities + occupational_disease_fatalities) ELSE 0 END) AS UNSIGNED) as female_count')
+            )
+            ->groupBy(
+                'fatal_work_accidents_by_ages.year',
+                'age_codes.age'
+            );
+
+        // Filter parameters
+        if ($request->has('year') && $request->year !== 'all') {
+            $query->where('fatal_work_accidents_by_ages.year', $request->year);
+        }
+
+        if ($request->has('age') && $request->age !== 'all') {
+            $query->where('age_codes.age', $request->age);
+        }
+
+        if ($request->has('gender') && $request->gender !== 'all') {
+            $query->where('fatal_work_accidents_by_ages.gender', $request->gender);
+        }
+
+        $data = $query->get();
+
+        // 2. Create data summary
+        $summary = [
+            'total_fatalities' => $data->sum(function($item) {
+                return $item->work_accident_fatalities + $item->occupational_disease_fatalities;
+            }),
+            'total_work_accident_fatalities' => $data->sum('work_accident_fatalities'),
+            'total_occupational_disease_fatalities' => $data->sum('occupational_disease_fatalities'),
+            'male_count' => $data->sum('male_count'),
+            'female_count' => $data->sum('female_count')
+        ];
+
+        $totalGender = $summary['male_count'] + $summary['female_count'];
+        $summary['male_percentage'] = $totalGender > 0 ? round(($summary['male_count'] / $totalGender) * 100, 2) : 0;
+        $summary['female_percentage'] = $totalGender > 0 ? round(($summary['female_count'] / $totalGender) * 100, 2) : 0;
+
+        // 3. Generate AI analysis
+        $prompt = AnalysisHelperFatalWorkAccidentsByAge::buildAIPrompt($request, $summary);
+        $analysis = AnalysisHelperFatalWorkAccidentsByAge::getAICommentary($prompt);
+
+        return response()->json([
+            'data' => $data,
+            'summary' => $summary,
+            'analysis' => $analysis
         ]);
     }
 

@@ -34,7 +34,21 @@
         	"app/Helpers/AnalysisHelperFatalWorkAccidentsByProvince.php",
         	"app/Helpers/AnalysisHelperTemporaryDisabilityByProvince.php",
         	"app/Helpers/AnalysisHelperDisabilityOccupationalDiseaseByProvince.php",
-        	"app/Helpers/AnalysisHelperWorkAccidentsByAge.php"
+        	"app/Helpers/AnalysisHelperWorkAccidentsByAge.php",
+        	"app/Helpers/AnalysisHelperFatalWorkAccidentsByAge.php",
+        	"app/Helpers/AnalysisHelperOccupationalDisease.php",
+        	"app/Helpers/AnalysisHelperWorkAccidentsByMonth.php",
+        	"app/Helpers/AnalysisHelperTemporaryDisabilityDaysByMonth.php",
+            "app/Helpers/AnalysisHelperFatalWorkAccidentsByMonth.php",
+            "app/Helpers/AnalysisHelperAccidentsByOccupation.php",
+            "app/Helpers/AnalysisHelperOccDiseaseFatalities.php",
+            "app/Helpers/AnalysisHelperAccidentsByInjuries.php",
+            "app/Helpers/AnalysisHelperAccidentsByInjuryLocations.php",
+            "app/Helpers/AnalysisHelperAccidentsByInjuryCauses.php",
+            "app/Helpers/AnalysisHelperAccidentsByGeneralActivities.php",
+            "app/Helpers/AnalysisHelperAccidentsBySpecialActivities.php",
+            "app/Helpers/AnalysisHelperAccidentsByDeviations.php",
+            "app/Helpers/AnalysisHelperAccidentsByMaterials.php"
     	]
     },
     "autoload-dev": {

@@ -45,7 +45,7 @@
         <router-link v-for="category in categories" :key="category.id" :to="category.route" class="category-card"
           :class="`cat-${category.id % 5}`">
           <div class="category-icon">
-            <i :class="category.icon"></i>
+            <i :class="category.icon" ></i>
           </div>
           <h3>{{ category.title }}</h3>
           <p>{{ category.description }}</p>
@@ -86,15 +86,154 @@ const lastUpdate = ref(new Date().toLocaleDateString('tr-TR'))
 
 // Kategoriler
 const categories = ref([
-  { id: 1, title: '3.1.1 | Sektörlere Göre İş Kazaları', description: 'Sektörel dağılım analizi', icon: 'fas fa-industry', route: '/analysis/3.1.1' },
-  { id: 2, title: '3.1.2 | Sektörlere Göre Ölümlü İş Kazaları', description: 'Ölümlü kaza sektörel analiz', icon: 'fas fa-cross', route: '/analysis/3.1.2' },
-  { id: 3, title: '3.1.3 | Sektörlere Göre Geçici İş Göremezlik', description: 'Sektörel iş göremezlik süreleri', icon: 'fas fa-calendar-alt', route: '/analysis/3.1.3' },
-  { id: 4, title: '3.1.4 | İllere Göre İş Kazaları', description: 'Bölgesel dağılım analizi', icon: 'fas fa-map-marked-alt', route: '/analysis/3.1.4' },
-  { id: 5, title: '3.1.5 | İllere Göre Ölümlü İş Kazaları', description: 'Bölgesel ölümlü kaza analizi', icon: 'fas fa-map-marked', route: '/analysis/3.1.5' },
-  { id: 5, title: '3.1.6 | İllere Göre Geçici İş Göremezlik', description: 'Bölgesel iş göremezlik süreleri', icon: 'fas fa-map-marked', route: '/analysis/3.1.6' },
-  { id: 5, title: '3.1.7 | İllere Göre Meslek Hastalığı İş Göremezlik', description: 'Bölgesel iş göremezlik süreleri', icon: 'fas fa-map-marked', route: '/analysis/3.1.7' },
-  { id: 5, title: '3.1.8 | Yaşlara Göre İş Kazaları', description: 'Yaşlara göre iş kazası analizleri', icon: 'fas fa-map-marked', route: '/analysis/3.1.8' },
-])
+  {
+    id: 1,
+    title: '3.1.1 | Sektörlere Göre İş Kazaları',
+    description: 'İş kazalarının sektör bazında dağılımı ve karşılaştırması',
+    icon: 'fas fa-industry',
+    route: '/analysis/3.1.1'
+  },
+  {
+    id: 2,
+    title: '3.1.2 | Sektörlere Göre Ölümlü İş Kazaları',
+    description: 'Sektörlerdeki ölümlü iş kazalarının analizi',
+    icon: 'fas fa-skull-crossbones',
+    route: '/analysis/3.1.2'
+  },
+  {
+    id: 3,
+    title: '3.1.3 | Sektörlere Göre Geçici İş Göremezlik',
+    description: 'Sektörel bazda iş göremezlik sürelerinin değerlendirilmesi',
+    icon: 'fas fa-procedures',
+    route: '/analysis/3.1.3'
+  },
+  {
+    id: 4,
+    title: '3.1.4 | İllere Göre İş Kazaları',
+    description: 'İş kazalarının coğrafi dağılım analizi',
+    icon: 'fas fa-map-marked-alt',
+    route: '/analysis/3.1.4'
+  },
+  {
+    id: 5,
+    title: '3.1.5 | İllere Göre Ölümlü İş Kazaları',
+    description: 'Bölgesel ölümlü iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-map-marked',
+    route: '/analysis/3.1.5'
+  },
+  {
+    id: 6,
+    title: '3.1.6 | İllere Göre Geçici İş Göremezlik',
+    description: 'Bölgelere göre iş göremezlik sürelerinin kıyaslaması',
+    icon: 'fas fa-map',
+    route: '/analysis/3.1.6'
+  },
+  {
+    id: 7,
+    title: '3.1.7 | İllere Göre Meslek Hastalığı İş Göremezlik',
+    description: 'Coğrafi bölgelere göre meslek hastalıkları kaynaklı iş göremezlik',
+    icon: 'fas fa-disease',
+    route: '/analysis/3.1.7'
+  },
+  {
+    id: 8,
+    title: '3.1.8 | Yaşlara Göre İş Kazaları',
+    description: 'Yaş gruplarına göre iş kazası istatistikleri',
+    icon: 'fas fa-user-friends',
+    route: '/analysis/3.1.8'
+  },
+  {
+    id: 9,
+    title: '3.1.9 | Yaşlara Göre Ölümlü İş Kazaları',
+    description: 'Yaş bazında ölümlü iş kazalarının dağılımı',
+    icon: 'fas fa-user-times',
+    route: '/analysis/3.1.9'
+  },
+  {
+    id: 10,
+    title: '3.1.10 | Tanı Gruplarına Göre Meslek Hastalıkları',
+    description: 'Hastalık tanılarına göre meslek hastalıkları sınıflandırması',
+    icon: 'fas fa-diagnoses',
+    route: '/analysis/3.1.10'
+  },
+  {
+    id: 11,
+    title: '3.1.11 | Aylara Göre İş Kazaları',
+    description: 'Mevsimsel iş kazası trendlerinin analizi',
+    icon: 'fas fa-calendar-alt',
+    route: '/analysis/3.1.11'
+  },
+  {
+    id: 12,
+    title: '3.1.12 | Aylara Göre Geçici İş Göremezlik',
+    description: 'Aylık bazda iş göremezlik sürelerinin değişimi',
+    icon: 'fas fa-calendar-week',
+    route: '/analysis/3.1.12'
+  },
+  {
+    id: 13,
+    title: '3.1.13 | Aylara Göre Ölümlü İş Kazaları',
+    description: 'Aylara göre ölümlü iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-calendar-times', // Takvim ve çarpı işareti (ölüm vurgusu)
+    route: '/analysis/3.1.13'
+  },
+  {
+    id: 14,
+    title: '3.1.14 | Mesleklere Göre İş Kazaları',
+    description: 'Mesleklere göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-hard-hat', // İşçi bareti
+    route: '/analysis/3.1.14'
+  },
+  {
+    id: 15,
+    title: '3.1.15 | Mesleklere Göre Meslek Hastalığı Sonucu Ölümler',
+    description: 'Mesleklere göre meslek hastalığı sonucu ölümlerin analizi',
+    icon: 'fas fa-virus', // Virüs (hastalık temsili)
+    route: '/analysis/3.1.15'
+  },
+  {
+    id: 16,
+    title: '3.1.16 | Yaralanma Türlerine Göre İş Kazaları',
+    description: 'Yaralanma türlerine göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-lungs-virus', // Kırık kemik
+    route: '/analysis/3.1.16'
+  },
+  {
+    id: 17,
+    title: '3.1.17 | Yaranın Vücuttaki Yerine Göre İş Kazaları',
+    description: 'Yaranın vücuttaki yerine göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-user-injured', // Yaralı insan silüeti
+    route: '/analysis/3.1.17'
+  },
+  {
+    id: 18,
+    title: '3.1.18 | Yaralanma Nedenlerine Göre İş Kazaları',
+    description: 'Yaralanma nedenlerine göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-search-plus', // Büyüteç (neden analizi)
+    route: '/analysis/3.1.18'
+  },
+  {
+    id: 19,
+    title: '3.1.19 | Genel Faaliyete Göre İş Kazaları',
+    description: 'Genel faaliyete göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-search-plus', // Büyüteç (neden analizi)
+    route: '/analysis/3.1.19'
+  },
+  {
+    id: 20,
+    title: '3.1.20 | Özel Faaliyete Göre İş Kazaları',
+    description: 'Kaza öncesi özel faaliyete göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-search-plus', // Büyüteç (neden analizi)
+    route: '/analysis/3.1.20'
+  },
+  {
+    id: 21,
+    title: '3.1.21 | Sapmalara Göre İş Kazaları',
+    description: 'Sapmalara göre iş kazalarının yoğunluk analizi',
+    icon: 'fas fa-search-plus', // Büyüteç (neden analizi)
+    route: '/analysis/3.1.21'
+  },
+]);
 
 // Formatlama fonksiyonu
 const formatNumber = (num) => {

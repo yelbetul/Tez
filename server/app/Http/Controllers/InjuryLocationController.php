@@ -6,6 +6,7 @@ use App\Models\InjuryLocation;
 use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class InjuryLocationController extends Controller
@@ -77,6 +78,31 @@ class InjuryLocationController extends Controller
         }
 
         return response()->json(['success' => true, 'data' => $injuryLocations]);
+    }
+
+    public function indexUser()
+    {
+        return DB::table('injury_locations')
+            ->select(
+                'injury_location_code',
+                'group_code',
+                'group_name',
+                'sub_group_code',
+                'sub_group_name'
+            )
+            ->orderBy('group_code')
+            ->orderBy('sub_group_code')
+            ->orderBy('injury_location_code')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'injury_location_code' => $item->injury_location_code,
+                    'group_code' => $item->group_code,
+                    'group_name' => $item->group_name,
+                    'sub_group_code' => $item->sub_group_code,
+                    'sub_group_name' => $item->sub_group_name
+                ];
+            });
     }
 
     /**

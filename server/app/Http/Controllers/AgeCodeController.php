@@ -90,7 +90,7 @@ class AgeCodeController extends Controller
 
     public function indexUser()
     {
-       return DB::table('province_codes')
+       return DB::table('age_codes')
         ->select(
             'age'
         )
